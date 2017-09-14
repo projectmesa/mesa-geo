@@ -28,7 +28,9 @@ class SchellingAgent(GeoAgent):
         neighbors = self.model.grid.get_intersecting_agents(self)
         if neighbors:
             for neighbor in neighbors:
-                if neighbor.atype == self.atype or neighbor.atype is None:
+                if not neighbor.atype:
+                    continue
+                elif neighbor.atype == self.atype:
                     similar += 1
                 else:
                     different += 1
@@ -38,11 +40,12 @@ class SchellingAgent(GeoAgent):
             # Select an empty regions
             empties = [a for a in self.model.grid.agents if a.atype is None]
             new_region = random.choice(empties)
-            # Switch shapes
+            # Switch position/shapes
             own_shape = self.shape
             self.shape = new_region.shape
             new_region.shape = own_shape
-            # Get the old patch and make it empty again
+            # Since agents have changed position, we need to update the rtree
+            self.grid.update_rtree()
         else:
             self.model.happy += 1
 
@@ -96,5 +99,3 @@ class SchellingModel(Model):
 
         if self.happy == self.schedule.get_agent_count():
             self.running = False
-
-        self.grid.update_rtree()

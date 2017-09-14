@@ -2,7 +2,7 @@
 """
 GeoMesa Agent-Based Modeling Framework
 
-Core Objects: GeoSpace, GeoAgent and Patch.
+Core Objects: GeoSpace, GeoAgent
 
 """
 import datetime
@@ -14,6 +14,6 @@ from .geoagent import GeoAgent
 __all__ = ["GeoSpace", "GeoAgent"]
 
 __title__ = 'mesa-geo'
-__version__ = '0.0.1'
+__version__ = 'pre-release'
 __license__ = 'Apache 2.0'
-__copyright__ = 'Copyright %s Project Mesa Team' % datetime.date.today().year
+__copyright__ = 'Copyright %s Project GeoMesa Team' % datetime.date.today().year

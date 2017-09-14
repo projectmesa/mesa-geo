@@ -28,14 +28,6 @@ var MapModule = function (view, zoom, map_width, map_height){
       layer.bindPopup(popupContent)
     }
 
-    console.log(view)
-    var dat = data[1]
-    console.log(dat)
-    var corner1 = L.latLng(dat[1], dat[0])
-    var corner2 = L.latLng(dat[3], dat[2])
-    var bounds = L.latLngBounds(corner1, corner2);
-    mymap.fitBounds(bounds);
-
     AgentLayer.remove()
     AgentLayer = L.geoJSON(data[0], {
       onEachFeature: onEachFeature,

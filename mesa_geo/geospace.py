@@ -1,11 +1,9 @@
 from mesa_geo.geoagent import GeoAgent
-from mesa_geo.shapes import as_shape, Point, LinearRing
+from mesa_geo.shapes import as_shape, Point
 import pyproj
 from rtree import index
-import warnings
 from shapely.ops import transform as s_transform
 from functools import partial
-import numpy as np
 
 
 class GeoSpace:
@@ -20,12 +18,12 @@ class GeoSpace:
         a coordinate reference system via the `crs` keyword. All agents added
         from GeoJSON objects are then automatically transformed into that
         system and all calculations take place in that system.
-        If you do not set the `crs` attribute, the ??? is used as default.
+        If `crs` is not set, epsg:3857 (Web Mercator) is used as default.
         However, this system is only accurate at the equator and errors
         increase with latitude.
 
         Properties:
-            crs: Project crs that is used for all calculationis
+            crs: Project crs that is used for all calculations
             idx: R-tree index for fast spatial queries
             bbox: Bounding box of all agents within the GeoSpace
             agents: List of all agents in the Geospace
@@ -48,7 +46,7 @@ class GeoSpace:
         self.bbox = bbox
         if not crs:
             crs = 'epsg:3857'
-            warnings.warn('Warning: GeoSpace crs not set. Using default')
+            # TODO raise a warning
         self.crs = pyproj.Proj(init=crs)
         self.WGS84 = pyproj.Proj(init='epsg:4326')
         self.idx = index.Index()
@@ -71,8 +69,18 @@ class GeoSpace:
         self.agents.remove(agent)
         self.idx.delete(agent.idx_id, agent.shape.bounds)
 
-    def create_agents_from_GeoJSON(self, GeoJSON, agent, **kwargs):
+    def create_agents_from_GeoJSON(self, GeoJSON, agent, set_attributes=True,
+                                   **kwargs):
         """ Create agents from a GeoJSON object
+        GeoJSON: A GeoJSON object
+        agent: GeoAgent class of the agent. kwargs are passed to this Class.
+               !! unique_id must be a string indicating the name of a GeoJSON
+               attribute that is used for the unique_id.
+               TODO: Allow iterators as unique_id and create unique_id
+               automatically (e.g. for GeoJSON geometries)
+        set_attributes: If True set GeoAgent properties from GeoJSON attriubtes
+        kwargs: Additional parameters passed to GeoAgent.
+                Can be strings that indicate GeoJSON attributes to be used.
         """
         gj = GeoJSON
         geometries = ["Point", "MultiPoint", "LineString",
@@ -87,13 +95,14 @@ class GeoSpace:
             agents.append(new_agent)
             return new_agent
 
-        def set_attributes(new_agent, attributes):
+        def _set_attributes(new_agent, attributes):
             for key, value in attributes.items():
                 setattr(new_agent, key, value)
 
         def create_agent_with_attributes(agent, shape, attributes, kwargs):
             new_agent = create_agent(shape, kwargs)
-            set_attributes(new_agent, attributes)
+            if set_attributes:
+                _set_attributes(new_agent, attributes)
 
         def update_kwargs(kwargs, attributes):
             for key, value in kwargs.items():
@@ -192,15 +201,13 @@ class GeoSpace:
 
     def agents_at(self, pos):
         """ Return a list of agents at given pos """
-        agents = []
-        p = Point(pos)
-        for agent in self.agents:
-            if p.within(agent.shape):
-                agents.append(agent)
-        return agents
+        if not isinstance(pos, Point):
+            pos = Point(pos)
+        return self.get_relation('within', pos)
 
     def distance(self, agent_a, agent_b):
-        """ Return distance of two agents. """
+        """ Return distance of two agents.
+        Note: You can also use agent.shape.distance directly """
         return agent_a.shape.distance(agent_b.shape)
 
     def update_rtree(self):
@@ -225,33 +232,4 @@ class GeoSpace:
         elif not self.agents:
             self.bbox = None
         else:
-            lon_min = np.inf
-            lat_min = np.inf
-            lon_max = -np.inf
-            lat_max = -np.inf
-
-            for agent in self.agents:
-                if agent.shape.geom_type == "MultiPolygon":
-                    shapes = [s for s in agent.shape]
-                else:
-                    shapes = [agent.shape]
-                for shape in shapes:
-                    x, y = shape.exterior.coords.xy
-                    if min(x) < lon_min:
-                        lon_min = min(x)
-                    if max(x) > lon_max:
-                        lon_max = max(x)
-                    if min(y) < lat_min:
-                        lat_min = min(y)
-                    if max(y) > lat_max:
-                        lat_max = max(y)
-            self.bbox = (lon_min, lat_min, lon_max, lat_max)
-        self.center = ((self.bbox[0] + self.bbox[2]) / 2,
-                       (self.bbox[1] + self.bbox[3]) / 2)
-        if self.bbox:
-            bbox = self.bbox
-            self.bbox_shape = LinearRing(((bbox[0], bbox[1]),
-                                          (bbox[0], bbox[3]),
-                                          (bbox[2], bbox[3]),
-                                          (bbox[2], bbox[1]),
-                                          (bbox[0], bbox[1])))
+            self.bbox = self.idx.bounds

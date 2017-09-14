@@ -8,7 +8,8 @@ from codecs import open
 requires = [
     'mesa',
     'shapely',
-    'pyproj'
+    'pyproj',
+    'rtree'
 ]
 
 version = ''
