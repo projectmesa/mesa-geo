@@ -1,28 +1,27 @@
-import random
 import geojson
-from mesa import Model
-from mesa_geo import GeoAgent
-from mesa.time import RandomActivation
-from mesa_geo import GeoSpace
 from mesa.datacollection import DataCollector
+from mesa import Model
+from mesa.time import RandomActivation
+from mesa_geo import GeoAgent
+from mesa_geo import GeoSpace
+import random
 
 
 class SchellingAgent(GeoAgent):
-    '''
-    Schelling segregation agent
-    '''
-    def __init__(self, unique_id, model, shape, agent_type=None):
-        '''
-         Create a new Schelling agent.
+    """Schelling segregation agent."""
 
-         Args:
+    def __init__(self, unique_id, model, shape, agent_type=None):
+        """Create a new Schelling agent.
+
+        Args:
             unique_id: Unique identifier for the agent.
             agent_type: Indicator for the agent's type (minority=1, majority=0)
-        '''
+        """
         super().__init__(unique_id, model, shape)
         self.atype = agent_type
 
     def step(self):
+        """Advance agent one step."""
         similar = 0
         different = 0
         neighbors = self.model.grid.get_intersecting_agents(self)
@@ -51,13 +50,9 @@ class SchellingAgent(GeoAgent):
 
 
 class SchellingModel(Model):
-    '''
-    Model class for the Schelling segregation model.
-    '''
+    """Model class for the Schelling segregation model."""
 
     def __init__(self, density, minority_pc):
-        '''
-        '''
         self.density = density
         self.minority_pc = minority_pc
 
@@ -84,15 +79,15 @@ class SchellingModel(Model):
                     agent.atype = 0
                 self.schedule.add(agent)
 
-        # Update the bounding box of the grid and the spatial rtree
+        # Update the bounding box of the grid and create a new rtree
         self.grid.update_bbox()
-        self.grid.update_rtree()
+        self.grid.create_rtree()
 
     def step(self):
-        '''
-        Run one step of the model. If All agents are happy, halt the model.
-        '''
+        """Run one step of the model.
 
+        If All agents are happy, halt the model.
+        """
         self.happy = 0  # Reset counter of happy agents
         self.schedule.step()
         self.datacollector.collect(self)

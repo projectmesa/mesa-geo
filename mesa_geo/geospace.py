@@ -40,7 +40,7 @@ class GeoSpace:
             get_agent_contains: Get agents who are contained by an agent
             get_agents_touches: Get agents that that an agent
             update_bbox: Update the bounding box of the GeoSpace
-            update_rtree: Recalculate the R-tree of the GeoSpace
+            create_rtree: Recalculate the R-tree of the GeoSpace
         """
         self.agents = []
         self.bbox = bbox
@@ -133,7 +133,7 @@ class GeoSpace:
                                              out_kwargs)
 
         self.agents.extend(agents)
-        self.update_rtree()
+        self.create_rtree()
 
     def transform(self, from_crs, to_crs, shape):
         """ Transform a shape from one crs to another. """
@@ -167,11 +167,13 @@ class GeoSpace:
         """ Return a list of agents within `distance` of `agent`.
         Distance is measured as a buffer around the agent's shape,
         set center=True to calculate distance from center. """
+        old_shape = agent.shape
         if center:
-            shape = agent.shape.center().buffer(distance)
+            agent.shape = agent.shape.center().buffer(distance)
         else:
-            shape = agent.shape.buffer(distance)
-        neighbors = self.get_relation(relation, shape)
+            agent.shape = agent.shape.buffer(distance)
+        neighbors = self.get_relation(relation, agent)
+        agent.shape = old_shape
         return neighbors
 
     def get_relation(self, relation, agent, other_agents=None):
@@ -210,9 +212,8 @@ class GeoSpace:
         Note: You can also use agent.shape.distance directly """
         return agent_a.shape.distance(agent_b.shape)
 
-    def update_rtree(self):
+    def create_rtree(self):
         """ Create a new rtree index from agents shapes. """
-        self.idx = index.Index()
 
         shapes = []
         i = 0
@@ -221,8 +222,13 @@ class GeoSpace:
             shapes.append(agent.shape)
 
         index_ids = range(i)
-        for index_id, shape in zip(index_ids, shapes):
-            self.idx.insert(index_id, shape.bounds)
+
+        # Bulk load the shapes
+        def data_gen():
+            for index_id, shape in zip(index_ids, shapes):
+                yield (index_id, shape.bounds, shape)
+
+        self.idx = index.Index(data_gen())
         self.idx.maxid = i
 
     def update_bbox(self, bbox=None):
