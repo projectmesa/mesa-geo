@@ -43,8 +43,6 @@ class SchellingAgent(GeoAgent):
             own_shape = self.shape
             self.shape = new_region.shape
             new_region.shape = own_shape
-            # Since agents have changed position, we need to update the rtree
-            self.grid.update_rtree()
         else:
             self.model.happy += 1
 
@@ -94,3 +92,5 @@ class SchellingModel(Model):
 
         if self.happy == self.schedule.get_agent_count():
             self.running = False
+
+        self.grid.create_rtree()
