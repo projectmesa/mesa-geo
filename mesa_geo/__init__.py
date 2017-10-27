@@ -1,15 +1,12 @@
-# -*- coding: utf-8 -*-
-"""
-GeoMesa Agent-Based Modeling Framework
+"""mesa_geo Agent-Based Modeling Framework.
 
 Core Objects: GeoSpace, GeoAgent
 
 """
 import datetime
 
-from .geospace import GeoSpace
-from .geoagent import GeoAgent
-
+from mesa_geo.geoagent import GeoAgent
+from mesa_geo.geospace import GeoSpace
 
 __all__ = ["GeoSpace", "GeoAgent"]
 

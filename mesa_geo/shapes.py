@@ -1,4 +1,4 @@
-from shapely.geometry import Point, LineString, Polygon, shape, LinearRing
+from shapely.geometry import Point, LineString, Polygon, shape
 
 
 class Point(Point):
@@ -13,10 +13,6 @@ class Line(LineString):
 
 
 class Polygon(Polygon):
-    def __init__(self, pos):
-        super().__init__(pos)
-
-class LinearRing(LinearRing):
     def __init__(self, pos):
         super().__init__(pos)
 
