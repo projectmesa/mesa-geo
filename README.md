@@ -6,6 +6,20 @@ Requires shapely, geojson, pyproj and rtree
 
 This is a pre-release. No functionality guaranteed, bugs included
 
+## Installation
+
+You should clone the repository and install it via
+```
+pip install -r requirements.txt
+pip install .
+```
+
+On windows you should use Anaconda to install the requirements with
+```
+conda install --yes --file requirements.txt
+pip install .
+```
+
 ## Getting started
 You should be familiar with how [mesa](https://github.com/projectmesa/mesa) works.
 
@@ -79,7 +93,7 @@ for oa in other_agents:
 We could also use a GeoSpace query:
 
 ```python
-neighbors = m.grid.get_agent_touches(agent)
+neighbors = m.grid.get_relation('touches', agent)
 [a.unique_id for a in neighbors]
 ```
 
@@ -114,4 +128,4 @@ To get a deeper understanding of mesa-geo you should checkout the GeoSchelling e
 * CRS transformations (GeoJSON is always WGS84, unsuitable for accurate calculations)
 * compute relation (intersection, within, etc. ) between shapes with speed-up from r-tree indexing
 
-To implement further functions I need feedback on which functionality is desired by users. Please post a message [here](https://groups.google.com/forum/#!topic/projectmesa-dev/qEf2XBFZYnI) or open an issue if you have any ideas or recommendations. 
+To implement further functions I need feedback on which functionality is desired by users. Please post a message [here](https://groups.google.com/forum/#!topic/projectmesa-dev/qEf2XBFZYnI) or open an issue if you have any ideas or recommendations.
