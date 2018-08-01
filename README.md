@@ -31,7 +31,7 @@ So let's get started with some shapes! We will work with [records of US states](
 ```python
 from mesa_geo import GeoSpace, GeoAgent
 import requests
-url = 'http://eric.clst.org/wupl/Stuff/gz_2010_us_040_00_20m.jso'
+url = 'http://eric.clst.org/assets/wiki/uploads/Stuff/gz_2010_us_040_00_20m.json'
 r = requests.get(url)
 ```
 
