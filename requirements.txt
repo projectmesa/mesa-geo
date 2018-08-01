@@ -1,5 +1,4 @@
 geojson==2.3.0
-Mesa==0.8.1
 numpy==1.13.3
 pandas==0.20.3
 pyproj==1.9.5.1

@@ -152,6 +152,11 @@ class GeoSpace:
                           to_crs)
         return s_transform(project, shape)
 
+    def get_intersecting_agents(self, agent, other_agents=None):
+        intersecting_agents = self.get_relation(
+            'intersects', agent, other_agents)
+        return intersecting_agents
+
     def get_neighbors_within_distance(self, agent, distance,
                                       center=False,
                                       relation='intersects'):

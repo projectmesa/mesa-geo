@@ -30,7 +30,8 @@ class GeoAgent(Agent):
     def __geo_interface__(self):
         """Return a GeoJSON Feature.
 
-        Removes model and shape from attributes."""
+        Removes model and shape from attributes.
+        """
         props = dict(vars(self))
         del props['shape']
         del props['model']
