@@ -4,6 +4,8 @@ import pyproj
 from rtree import index
 from shapely.ops import transform as s_transform
 from functools import partial
+from pysal.lib import weights
+import geojson
 
 
 class GeoSpace:
@@ -54,7 +56,7 @@ class GeoSpace:
 
     def add_agent(self, agent):
         """Add a single GeoAgent to the Geospace."""
-        if issubclass(agent, GeoAgent):
+        if isinstance(agent, GeoAgent):
             if hasattr(agent, "shape"):
                 self.agents.append(agent)
                 self.idx.insert(self.idx.maxid + 1, agent.shape.bounds)
@@ -71,10 +73,10 @@ class GeoSpace:
 
     def create_agents_from_GeoJSON(self, GeoJSON, agent, set_attributes=True,
                                    **kwargs):
-        """Create agents from a GeoJSON object.
+        """Create agents from a GeoJSON object and return list of agents.
 
         Args:
-            GeoJSON: A GeoJSON object
+            GeoJSON: A GeoJSON object or string
             agent: GeoAgent class of the agent.
                    kwargs will be passed to this Class.
                    !! unique_id must be a string indicating the name of a
@@ -86,7 +88,10 @@ class GeoSpace:
             kwargs: Additional parameters passed to GeoAgent.
                     Can be strings that indicate GeoJSON attributes to be used.
         """
-        gj = GeoJSON
+        if type(GeoJSON) is str:
+            gj = geojson.loads(GeoJSON)
+        else:
+            gj = GeoJSON
         geometries = ["Point", "MultiPoint", "LineString",
                       "MultiLineString", "Polygon", "MultiPolygon"]
         agents = []
@@ -144,6 +149,7 @@ class GeoSpace:
 
         self.agents.extend(agents)
         self.create_rtree()
+        return agents
 
     def transform(self, from_crs, to_crs, shape):
         """Transform a shape from one crs to another."""
@@ -174,7 +180,7 @@ class GeoSpace:
         agent.shape = old_shape
         return neighbors
 
-    def get_relation(self, relation, agent, other_agents=None):
+    def get_relation(self, agent, relation, other_agents=None):
         """Return a list of related agents.
 
         relation: must be one of 'intersects', 'within', 'contains', 'touches'
@@ -194,11 +200,9 @@ class GeoSpace:
         """Calculate rtree intersections for candidate agents."""
         intersections = []
         if not other_agents:
-            other_agents = [a for a in self.agents if a != agent]
+            other_agents = self.agents
         intersect_ids = list(self.idx.intersection(agent.shape.bounds))
-        for agent in other_agents:
-            if agent.idx_id in intersect_ids:
-                intersections.append(agent)
+        intersections = (a for a in other_agents if a.idx_id in intersect_ids)
         return intersections
 
     def agents_at(self, pos):
@@ -214,6 +218,14 @@ class GeoSpace:
         """
         return agent_a.shape.distance(agent_b.shape)
 
+    def get_neighbors(self, agent):
+        shapes = list([agent.shape for agent in self.agents])
+        w = weights.Contiguity.Queen.from_iterable(shapes)
+        idx = shapes.index(agent.shape)
+        neighbors_idx = w.neighbors[idx]
+        neighbors = [self.agents[i] for i in neighbors_idx]
+        return neighbors
+
     def create_rtree(self):
         """Create a new rtree index from agents shapes."""
         shapes = []
@@ -222,15 +234,13 @@ class GeoSpace:
             agent.idx_id = i
             shapes.append(agent.shape)
 
-        index_ids = range(i)
-
         # Bulk load the shapes
         def data_gen():
-            for index_id, shape in zip(index_ids, shapes):
+            for index_id, shape in enumerate(shapes):
                 yield (index_id, shape.bounds, shape)
 
         self.idx = index.Index(data_gen())
-        self.idx.maxid = i
+        self.idx.maxid = len(shapes)
 
     def update_bbox(self, bbox=None):
         """Update bounding box of the GeoSpace."""

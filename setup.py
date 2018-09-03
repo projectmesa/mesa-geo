@@ -9,7 +9,9 @@ requires = [
     'mesa',
     'shapely',
     'pyproj',
-    'rtree'
+    'rtree',
+    'pysal>=2',
+    'geojson',
 ]
 
 version = ''
