@@ -11,7 +11,7 @@ python:
   # - "nightly"
 install:
 #  - pip install coveralls
-  - pip install .[dev]
+  - pip install .
 script:
   # * E501 - line length limit
   # * E123 - indentation on data structures
