@@ -24,10 +24,10 @@ class SchellingAgent(GeoAgent):
         """Advance agent one step."""
         similar = 0
         different = 0
-        neighbors = self.model.grid.get_intersecting_agents(self)
+        neighbors = self.model.grid.get_neighbors(self)
         if neighbors:
             for neighbor in neighbors:
-                if not neighbor.atype:
+                if neighbor.atype is None:
                     continue
                 elif neighbor.atype == self.atype:
                     similar += 1
@@ -36,13 +36,14 @@ class SchellingAgent(GeoAgent):
 
         # If unhappy, move:
         if similar < different:
-            # Select an empty regions
+            # Select an empty region
             empties = [a for a in self.model.grid.agents if a.atype is None]
+            # Switch atypes and add/remove from scheduler
             new_region = random.choice(empties)
-            # Switch position/shapes
-            own_shape = self.shape
-            self.shape = new_region.shape
-            new_region.shape = own_shape
+            new_region.atype = self.atype
+            self.model.schedule.add(new_region)
+            self.atype = None
+            self.model.schedule.remove(self)
         else:
             self.model.happy += 1
 
@@ -77,10 +78,6 @@ class SchellingModel(Model):
                     agent.atype = 0
                 self.schedule.add(agent)
 
-        # Update the bounding box of the grid and create a new rtree
-        self.grid.update_bbox()
-        self.grid.create_rtree()
-
     def step(self):
         """Run one step of the model.
 
@@ -92,5 +89,3 @@ class SchellingModel(Model):
 
         if self.happy == self.schedule.get_agent_count():
             self.running = False
-
-        self.grid.create_rtree()
