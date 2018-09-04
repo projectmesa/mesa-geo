@@ -1,30 +1,24 @@
-# GeoMesa - a GIS extension to Mesa Agent-Based Modeling
+# mesa-geo - a GIS extension to Mesa Agent-Based Modeling
 
-Currently with limited functionality, but the GeoSchelling example implements a geo version of the Schelling example and demonstrates basic functionality and visualization with leaflet.
+mesa-geo implements a `GeoSpace` that can host GIS-based `GeoAgents`, which are exactly like normal Agents, except they have a `shape` attribute that is a [Shapely object](https://shapely.readthedocs.io/en/latest/manual.html). You can use `Shapely` directly to create arbitrary shapes, but in most cases you will want to import your shapes from a file. Mesa-geo allows you to load any GeoJSON object, but you can also import shapefiles, which are automatically converted.
 
-Requires shapely, geojson, pyproj and rtree
-
-This is a pre-release. No functionality guaranteed, bugs included
+This is the first release of mesa-geo. No functionality guaranteed, bugs included
 
 ## Installation
 
 You should clone the repository and install it via
 ```
-pip install -r requirements.txt
 pip install .
 ```
 
-On windows you should use Anaconda to install the requirements with
+On windows you should first use Anaconda to install some of the requirements with
 ```
-conda install --yes --file requirements.txt
+conda install shapely, rtree, pyproj
 pip install .
 ```
 
 ## Getting started
 You should be familiar with how [mesa](https://github.com/projectmesa/mesa) works.
-
-Mesa-geo implements `GeoAgents`, which are exactly like normal Agents, except they have a `shape` attribute that is a [Shapely object](https://shapely.readthedocs.io/en/latest/manual.html). You can use `Shapely` directly to create arbitrary shapes, but in most cases you will want to import your shapes from a file. Currently, mesa-geo only allows to load GeoJSON objects, so you should convert your shapefiles in your favorite editor.
-Mesa-geo also implements a `GeoSpace`, which is a continuous space for all your `GeoAgents`.
 
 So let's get started with some shapes! We will work with [records of US states](http://eric.clst.org/Stuff/USGeoJSON). We use the `requests` library to retrieve the data, but you can also use `geojson` to work with local data.
 
@@ -47,10 +41,12 @@ class SampleModel:
         self.grid = GeoSpace()
 
         agent_kwargs = dict(model=self, unique_id='name')
-        self.grid.create_agents_from_GeoJSON(states, agent=State, **agent_kwargs)
+        self.grid.create_agents_from_GeoJSON(GeoJSON=states, agent=State, **agent_kwargs)
 ```
 
-In the `SampleModel` we create agents from the GeoJSON file. Note that we need to define what kind of agent should be created and we need to provide this agents keyword arguments. Let's instantiate our model and look at one of the agents:
+In the `SampleModel` we create agents from the GeoJSON file. Note that we need to tell `create_agents_from_GeoJSON` the class of the agents to be created and provide the agents keyword arguments (kwargs). 
+
+Let's instantiate our model and look at one of the agents:
 
 ```python
 m = GeoModel(r.json())
@@ -74,14 +70,11 @@ agent.CENSUSAREA
 
     113594.084
 
-Let's start to do some spatial analysis. Since agents' shapes are Shapely objects, we can work with them directly. To query for neighboring states we can do the following
+Let's start to do some spatial analysis. We can use usual Mesa function names to get neighboring states
 
 ```python
-other_agents = m.grid.agents[1:]
-
-for oa in other_agents:
-    if agent.shape.touches(oa.shape):
-        print(oa.unique_id)
+neighbors = m.grid.get_neighbors(self)
+print([a.unique_id for a in neighbors])
 ```
 
     California
@@ -89,17 +82,6 @@ for oa in other_agents:
     New Mexico
     Utah
     Nevada
-
-We could also use a GeoSpace query:
-
-```python
-neighbors = m.grid.get_relation('touches', agent)
-[a.unique_id for a in neighbors]
-```
-
-    ['California', 'Colorado', 'New Mexico', 'Utah', 'Nevada']
-
-This uses the GeoSpaces internal Rtree index of all agents and can be considerably faster if you have a large number of agents and/or complex geometries.
 
 To get a list of all states within a certain distance you can use the following
 
@@ -120,12 +102,6 @@ The unit for the distance depends on the coordinate reference system (CRS) of th
 
 ## Going further
 
-To get a deeper understanding of mesa-geo you should checkout the GeoSchelling example. It also implements a Leaflet visualization which will be made more general and similar to use as the  CanvasGridVisualization in a future release.
-
-## Implemented and future functions
-* Add agents with shapes from GeoJSON
-* Shapes are Shapely objects (with distance, buffer, etc. functions accesible)
-* CRS transformations (GeoJSON is always WGS84, unsuitable for accurate calculations)
-* compute relation (intersection, within, etc. ) between shapes with speed-up from r-tree indexing
+To get a deeper understanding of mesa-geo you should checkout the GeoSchelling example. It implements a Leaflet visualization which is similar to use as the CanvasGridVisualization of Mesa.
 
 To implement further functions I need feedback on which functionality is desired by users. Please post a message [here](https://groups.google.com/forum/#!topic/projectmesa-dev/qEf2XBFZYnI) or open an issue if you have any ideas or recommendations.
