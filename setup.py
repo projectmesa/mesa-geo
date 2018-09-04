@@ -12,6 +12,7 @@ requires = [
     'rtree',
     'pysal>=2',
     'geojson',
+    'pyshp',
 ]
 
 version = ''
@@ -31,8 +32,10 @@ setup(
     author_email='',
     url='https://github.com/corvince/mesa-geo',
     packages=find_packages(),
-    package_data={'mesa': ['visualization/templates/*.html', 'visualization/templates/css/*',
-                           'visualization/templates/fonts/*', 'visualization/templates/js/*']},
+    package_data={'mesa_geo': ['visualization/templates/*.html',
+                               'visualization/templates/css/*',
+                               'visualization/templates/fonts/*',
+                               'visualization/templates/js/*']},
     include_package_data=True,
     install_requires=requires,
     keywords='agent based modeling model ABM simulation multi-agent',

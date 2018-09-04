@@ -6,6 +6,7 @@ from shapely.ops import transform as s_transform
 from functools import partial
 from pysal.lib import weights
 import geojson
+import shapefile
 
 
 class GeoSpace:
@@ -53,6 +54,7 @@ class GeoSpace:
         self.WGS84 = pyproj.Proj(init='epsg:4326')
         self.idx = index.Index()
         self.idx.maxid = 0
+        self.neighborhood = None
 
     def add_agent(self, agent):
         """Add a single GeoAgent to the Geospace."""
@@ -149,7 +151,39 @@ class GeoSpace:
 
         self.agents.extend(agents)
         self.create_rtree()
+        self.update_bbox()
         return agents
+
+    def create_agents_from_shapefile(
+            self, filename, agent, set_attributes=True, **kwargs):
+        """Create agents from a shapefile.
+
+        Args:
+            filename: filename of the shapfile
+            agent: GeoAgent class of the agent.
+                kwargs will be passed to this Class.
+                !! unique_id must be a string indicating the name of a
+                field name that is used for the unique_id.
+                TODO: Allow iterators as unique_id or create unique_id
+                automatically (e.g. for GeoJSON geometries)
+            set_attributes: If True set GeoAgent properties from shapefile
+                records
+            kwargs: Additional parameters passed to GeoAgent.
+                Can be strings that indicate GeoJSON attributes to be used.
+
+        This function converts the shapefile to a GeoJSON first."""
+
+        # From https://gist.github.com/frankrowe/6071443
+        reader = shapefile.Reader(filename)
+        fields = reader.fields[1:]
+        field_names = [field[0] for field in fields]
+        buffer = []
+        for sr in reader.shapeRecords():
+            atr = dict(zip(field_names, sr.record))
+            geom = sr.shape.__geo_interface__
+            buffer.append(dict(type="Feature", geometry=geom, properties=atr))
+        gj = geojson.dumps({"type": "FeatureCollection", "features": buffer})
+        self.create_agents_from_GeoJSON(gj, agent, set_attributes, **kwargs)
 
     def transform(self, from_crs, to_crs, shape):
         """Transform a shape from one crs to another."""
@@ -218,11 +252,23 @@ class GeoSpace:
         """
         return agent_a.shape.distance(agent_b.shape)
 
+    def _create_neighborhood(self):
+        """Create a neighborhood graph of all agents."""
+        agents = self.agents
+        shapes = [agent.shape for agent in agents]
+        self.neighborhood = weights.Contiguity.Queen.from_iterable(shapes)
+        self.neighborhood.agents = agents
+        self.neighborhood.idx = {}
+        for agent, key in zip(agents, self.neighborhood.neighbors.keys()):
+            self.neighborhood.idx[agent] = key
+
     def get_neighbors(self, agent):
-        shapes = list([agent.shape for agent in self.agents])
-        w = weights.Contiguity.Queen.from_iterable(shapes)
-        idx = shapes.index(agent.shape)
-        neighbors_idx = w.neighbors[idx]
+        """Get (touching) neighbors of an agent."""
+        if not self.neighborhood or self.neighborhood.agents != self.agents:
+            self._create_neighborhood()
+
+        idx = self.neighborhood.idx[agent]
+        neighbors_idx = self.neighborhood.neighbors[idx]
         neighbors = [self.agents[i] for i in neighbors_idx]
         return neighbors
 
