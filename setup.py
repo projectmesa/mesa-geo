@@ -10,7 +10,7 @@ requires = [
     'shapely',
     'pyproj',
     'rtree',
-    'pysal>=2.*',
+    'pysal>=2.0rc1',
     'geojson',
     'pyshp',
 ]

@@ -13,7 +13,7 @@ pip install .
 
 On windows you should first use Anaconda to install some of the requirements with
 ```
-conda install shapely, rtree, pyproj
+conda install shapely rtree pyproj
 pip install .
 ```
 
