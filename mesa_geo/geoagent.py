@@ -7,6 +7,8 @@ Core Objects: GeoAgent
 from mesa import Agent
 import pyproj
 from shapely.geometry import mapping
+import geopandas as gpd
+import geojson
 
 
 class GeoAgent(Agent):
@@ -32,14 +34,62 @@ class GeoAgent(Agent):
 
         Removes model and shape from attributes.
         """
-        props = dict(vars(self))
-        del props['shape']
-        del props['model']
+        properties = vars(self)
+        properties["model"] = str(self.model)
+        shape = properties.pop("shape")
 
-        shape = self.model.grid.transform(self.model.grid.crs,
-                                          pyproj.Proj(init='epsg:4326'),
-                                          self.shape)
+        shape = self.model.grid.transform(
+            self.model.grid.crs, pyproj.Proj(init="epsg:4326"), shape
+        )
 
-        return {'type': 'Feature',
-                'geometry': mapping(shape),
-                'properties': props}
+        return {"type": "Feature", "geometry": mapping(shape), "properties": properties}
+
+
+class AgentCreator:
+    def __init__(self, agent_class, agent_kwargs):
+        self.agent_class = agent_class
+        self.agent_kwargs = agent_kwargs
+
+    def create_agent(self, shape, unique_id):
+
+        new_agent = self.agent_class(
+            unique_id=unique_id, shape=shape, **self.agent_kwargs
+        )
+
+        return new_agent
+
+    def from_GeoDataFrame(self, gdf, unique_id="index", set_attributes=True):
+
+        if unique_id != "index":
+            gdf = gdf.set_index(unique_id)
+
+        agents = list()
+
+        for index, row in gdf.iterrows():
+            shape = row.geometry
+            new_agent = self.create_agent(shape=shape, unique_id=index)
+
+            if set_attributes:
+                for col in row.index:
+                    setattr(new_agent, col, row[col])
+            agents.append(new_agent)
+        return agents
+
+    def from_file(self, filename, unique_id="index", set_attributes=True):
+        gdf = gpd.read_file(filename)
+        agents = self.from_GeoDataFrame(
+            gdf, unique_id=unique_id, set_attributes=set_attributes
+        )
+        return agents
+
+    def from_GeoJSON(self, GeoJSON, unique_id="index", set_attributes=True):
+        if type(GeoJSON) is str:
+            gj = geojson.loads(GeoJSON)
+        else:
+            gj = GeoJSON
+
+        gdf = gpd.GeoDataFrame.from_features(gj)
+        agents = self.from_GeoDataFrame(
+            gdf, unique_id=unique_id, set_attributes=set_attributes
+        )
+        return agents
