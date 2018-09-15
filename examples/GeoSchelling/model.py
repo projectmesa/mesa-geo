@@ -2,7 +2,7 @@ import geojson
 from mesa.datacollection import DataCollector
 from mesa import Model
 from mesa.time import RandomActivation
-from mesa_geo import GeoAgent
+from mesa_geo.geoagent import GeoAgent, AgentCreator
 from mesa_geo import GeoSpace
 import random
 
@@ -47,6 +47,9 @@ class SchellingAgent(GeoAgent):
         else:
             self.model.happy += 1
 
+    def __repr__(self):
+        return "Agent " + str(self.unique_id)
+
 
 class SchellingModel(Model):
     """Model class for the Schelling segregation model."""
@@ -56,21 +59,21 @@ class SchellingModel(Model):
         self.minority_pc = minority_pc
 
         self.schedule = RandomActivation(self)
-        self.grid = GeoSpace(crs='epsg:4326')
+        self.grid = GeoSpace(crs="epsg:4326")
 
         self.happy = 0
-        self.datacollector = DataCollector(
-            {"happy": lambda m: m.happy})  # Model-level count of happy agents
+        # self.datacollector = DataCollector(
+        #    {"happy": "happy"})  # Model-level count of happy agents
 
         self.running = True
 
         # Set up the grid with patches for every NUTS region
-        regions = geojson.load(open('nuts_rg_60M_2013_lvl_2.geojson'))
-        self.grid.create_agents_from_GeoJSON(regions, SchellingAgent,
-                                             model=self, unique_id='NUTS_ID')
+        AC = AgentCreator(SchellingAgent, {"model": self})
+        agents = AC.from_file("nuts_rg_60M_2013_lvl_2.geojson")
+        self.grid.add_agents(agents)
 
         # Set up agents
-        for agent in self.grid.agents:
+        for agent in agents:
             if random.random() < self.density:
                 if random.random() < self.minority_pc:
                     agent.atype = 1
@@ -85,7 +88,7 @@ class SchellingModel(Model):
         """
         self.happy = 0  # Reset counter of happy agents
         self.schedule.step()
-        self.datacollector.collect(self)
+        # self.datacollector.collect(self)
 
         if self.happy == self.schedule.get_agent_count():
             self.running = False

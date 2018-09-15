@@ -4,11 +4,12 @@ The geoagent class for the mesa_geo framework.
 Core Objects: GeoAgent
 
 """
+import geojson
+import geopandas as gpd
 from mesa import Agent
+from mesa_geo.utilities import transform
 import pyproj
 from shapely.geometry import mapping
-import geopandas as gpd
-import geojson
 
 
 class GeoAgent(Agent):
@@ -34,21 +35,22 @@ class GeoAgent(Agent):
 
         Removes model and shape from attributes.
         """
-        properties = vars(self)
+        properties = dict(vars(self))
         properties["model"] = str(self.model)
         shape = properties.pop("shape")
 
-        shape = self.model.grid.transform(
-            self.model.grid.crs, pyproj.Proj(init="epsg:4326"), shape
+        shape = transform(
+            shape, self.model.grid.crs, pyproj.Proj({"init": "epsg:4326"})
         )
 
         return {"type": "Feature", "geometry": mapping(shape), "properties": properties}
 
 
 class AgentCreator:
-    def __init__(self, agent_class, agent_kwargs):
+    def __init__(self, agent_class, agent_kwargs, crs={"init": "epsg:4326"}):
         self.agent_class = agent_class
         self.agent_kwargs = agent_kwargs
+        self.crs = crs
 
     def create_agent(self, shape, unique_id):
 
@@ -63,6 +65,9 @@ class AgentCreator:
         if unique_id != "index":
             gdf = gdf.set_index(unique_id)
 
+        if self.crs:
+            gdf = gdf.to_crs(self.crs)
+
         agents = list()
 
         for index, row in gdf.iterrows():
@@ -71,6 +76,8 @@ class AgentCreator:
 
             if set_attributes:
                 for col in row.index:
+                    if col == "geometry":
+                        continue
                     setattr(new_agent, col, row[col])
             agents.append(new_agent)
         return agents

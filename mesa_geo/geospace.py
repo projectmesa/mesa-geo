@@ -1,15 +1,13 @@
 from mesa_geo.geoagent import GeoAgent
 import pyproj
 from rtree import index
-from shapely.ops import transform as s_transform
-from functools import partial
 from pysal.lib import weights
 from shapely.geometry import Point
 
 
 class GeoSpace:
-    def __init__(self, crs=None):
-        """Base class for GIS enabled mesa modeling.
+    def __init__(self, crs="epsg:3857"):
+        """Create a GeoSpace for GIS enabled mesa modeling.
 
         mesa-geo provides an easy way to add agents from a GeoJSON object or
         shapfiles. Please note that the GeoJSON specifications require all
@@ -22,7 +20,7 @@ class GeoSpace:
         increase with latitude.
 
         Properties:
-            crs: Project ´coordinate reference system
+            crs: Project coordinate reference system
             idx: R-tree index for fast spatial queries
             bbox: Bounding box of all agents within the GeoSpace
             agents: List of all agents in the Geospace
@@ -42,45 +40,41 @@ class GeoSpace:
             get_agents_touches: Returns a list of agents that touch
             update_bbox: Update the bounding box of the GeoSpace
         """
-        if not crs:
-            crs = "epsg:3857"
-            # TODO raise a warning
         self.crs = pyproj.Proj(init=crs)
         self.WGS84 = pyproj.Proj(init="epsg:4326")
 
-        self.agents = []
         self.bbox = None
         self._neighborhood = None
 
         # Set up rtree index
         self.idx = index.Index()
         self.idx.maxid = 0
+        self.idx.agents = []
 
-    def add_agent(self, agent):
-        """Add a single GeoAgent to the Geospace."""
-        if isinstance(agent, GeoAgent):
+    def add_agents(self, agents):
+        """Add a list of GeoAgents to the Geospace.
+
+        GeoAgents must have a shape attribute. This function may also be called
+        with a single GeoAgent."""
+        if isinstance(agents, GeoAgent):
+            agent = agents
             if hasattr(agent, "shape"):
-                self.agents.append(agent)
-                self.idx.insert(self.idx.maxid + 1, agent.shape.bounds)
+                self.idx.insert(self.idx.maxid + 1, agent.shape.bounds, agent)
                 self.idx.maxid += 1
-                self.update_bbox()
+                self.idx.agents.append(agent)
             else:
                 raise AttributeError("GeoAgents must have a shape attribute")
         else:
-            raise TypeError("Agent is not an instance of GeoAgent")
+            self._recreate_rtree(agents)
+
+        self.update_bbox()
 
     def remove_agent(self, agent):
         """Remove an agent from the GeoSpace."""
-        self.agents.remove(agent)
         self.idx.delete(agent.idx_id, agent.shape.bounds)
         self.update_bbox()
 
-    def transform(self, from_crs, to_crs, shape):
-        """Transform a shape from one crs to another."""
-        project = partial(pyproj.transform, from_crs, to_crs)
-        return s_transform(project, shape)
-
-    def get_relation(self, agent, relation, other_agents=None):
+    def get_relation(self, agent, relation):
         """Return a list of related agents.
 
         Args:
@@ -91,24 +85,22 @@ class GeoSpace:
                 Omit to compare against all other agents of the GeoSpace
         """
         related_agents = []
-        possible_agents = self._get_rtree_intersections(agent, other_agents)
+        possible_agents = self._get_rtree_intersections(agent)
         if possible_agents:
             for other_agent in possible_agents:
                 if getattr(agent.shape, relation)(other_agent.shape):
                     related_agents.append(other_agent)
         return related_agents
 
-    def _get_rtree_intersections(self, agent, other_agents=None):
+    def _get_rtree_intersections(self, agent):
         """Calculate rtree intersections for candidate agents."""
-        intersections = []
-        if not other_agents:
-            other_agents = self.agents
-        intersect_ids = list(self.idx.intersection(agent.shape.bounds))
-        intersections = (a for a in other_agents if a.idx_id in intersect_ids)
+        intersections = [
+            n.object for n in self.idx.intersection(agent.shape.bounds, objects=True)
+        ]
         return intersections
 
     def get_intersecting_agents(self, agent, other_agents=None):
-        intersecting_agents = self.get_relation("intersects", agent, other_agents)
+        intersecting_agents = self.get_relation("intersects", agent)
         return intersecting_agents
 
     def get_neighbors_within_distance(
@@ -158,20 +150,19 @@ class GeoSpace:
         neighbors = [self.agents[i] for i in neighbors_idx]
         return neighbors
 
-    def create_rtree(self):
+    def _recreate_rtree(self, new_agents):
         """Create a new rtree index from agents shapes."""
-        shapes = []
-        for i, agent in enumerate(self.agents):
-            agent.idx_id = i
-            shapes.append(agent.shape)
+        old_agents = self.agents
+        agents = old_agents + new_agents
 
-        # Bulk load the shapes
+        # Bulk insert agents
         def data_gen():
-            for index_id, shape in enumerate(shapes):
-                yield (index_id, shape.bounds, shape)
+            for index_id, agent in enumerate(agents):
+                yield (index_id, agent.shape.bounds, agent)
 
         self.idx = index.Index(data_gen())
-        self.idx.maxid = len(shapes)
+        self.idx.maxid = len(agents)
+        self.idx.agents = agents
 
     def update_bbox(self, bbox=None):
         """Update bounding box of the GeoSpace."""
@@ -181,6 +172,10 @@ class GeoSpace:
             self.bbox = None
         else:
             self.bbox = self.idx.bounds
+
+    @property
+    def agents(self):
+        return self.idx.agents
 
     @property
     def __geo_interface__(self):
