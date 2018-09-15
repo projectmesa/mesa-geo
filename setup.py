@@ -12,7 +12,7 @@ requires = [
     'rtree',
     'pysal>=2.0rc1',
     'geojson',
-    'pyshp',
+    'geopandas'
 ]
 
 version = ''

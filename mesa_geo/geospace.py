@@ -6,18 +6,14 @@ from shapely.geometry import Point
 
 
 class GeoSpace:
-    def __init__(self, crs="epsg:3857"):
+    def __init__(self, crs={"init": "epsg:3857"}):
         """Create a GeoSpace for GIS enabled mesa modeling.
 
-        mesa-geo provides an easy way to add agents from a GeoJSON object or
-        shapfiles. Please note that the GeoJSON specifications require all
-        shapes to be in the geographic system WGS84. Therefore you should
-        consider setting a coordinate reference system via the `crs` keyword.
-        All agents added from GeoJSON objects are then automatically
-        transformed into that system.
-        If `crs` is not set, epsg:3857 (Web Mercator) is used as default.
-        However, this system is only accurate at the equator and errors
-        increase with latitude.
+        Args:
+            crs: Coordinate reference system of the GeoSpace
+                If `crs` is not set, epsg:3857 (Web Mercator) is used as default.
+                However, this system is only accurate at the equator and errors
+                increase with latitude.
 
         Properties:
             crs: Project coordinate reference system
@@ -26,13 +22,10 @@ class GeoSpace:
             agents: List of all agents in the Geospace
 
         Methods:
-            add_agent: add single agent to the GeoSpace.
-            remove_agent: Remove agent from GeoSpace
-            create_agents_from_GeoJSON: Create agents from a GeoJSON object
-            create_agents_from_shapefile: Create agents from a shapefile
-            transform: Transforms a shape from one crs to another
+            add_agents: add a list or a single GeoAgent.
+            remove_agent: Remove a single agent from GeoSpace
             agents_at: List all agents at a specific position
-            distance: Calculate distance between to agents
+            distance: Calculate distance between two agents
             get_neighbors: Returns a list of (touching) neighbors
             get_intersecting_agents: Returns list of agents that intersect
             get_agents_within: Returns a list of agents within
@@ -40,8 +33,8 @@ class GeoSpace:
             get_agents_touches: Returns a list of agents that touch
             update_bbox: Update the bounding box of the GeoSpace
         """
-        self.crs = pyproj.Proj(init=crs)
-        self.WGS84 = pyproj.Proj(init="epsg:4326")
+        self.crs = pyproj.Proj(crs)
+        self.WGS84 = pyproj.Proj({"init": "epsg:4326"})
 
         self.bbox = None
         self._neighborhood = None
