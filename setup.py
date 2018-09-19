@@ -9,6 +9,7 @@ requires = [
     'mesa',
     'shapely',
     'pyproj',
+    'libspatialindex',
     'rtree',
     'pysal>=2.0rc1',
     'geojson',
