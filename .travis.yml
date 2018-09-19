@@ -13,9 +13,7 @@ install:
 #  - pip install coveralls
   - pip install .
 script:
-  # * E501 - line length limit
-  # * E123 - indentation on data structures
-  # - flake8 . --ignore=F403,E501,E123,E128 --exclude=docs,build
-  # - nosetests --with-coverage --cover-package=mesa
+  - flake8 . --ignore=E501 --select=B,C,E,F,W,T4,B9 --exclude=docs,build
+  - pytest 
 # after_success:
 #  - coveralls

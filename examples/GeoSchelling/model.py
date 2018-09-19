@@ -1,4 +1,3 @@
-import geojson
 from mesa.datacollection import DataCollector
 from mesa import Model
 from mesa.time import RandomActivation
@@ -59,11 +58,10 @@ class SchellingModel(Model):
         self.minority_pc = minority_pc
 
         self.schedule = RandomActivation(self)
-        self.grid = GeoSpace(crs="epsg:4326")
+        self.grid = GeoSpace(crs={"init": "epsg:4326"})
 
         self.happy = 0
-        # self.datacollector = DataCollector(
-        #    {"happy": "happy"})  # Model-level count of happy agents
+        self.datacollector = DataCollector({"happy": "happy"})
 
         self.running = True
 
