@@ -5,7 +5,7 @@ import re
 from setuptools import setup, find_packages
 from codecs import open
 
-requires = ["mesa", "geopandas", "libpysal"]
+requires = ["mesa", "geopandas", "libpysal", "rtree"]
 
 version = ""
 with open("mesa_geo/__init__.py", "r") as fd:
