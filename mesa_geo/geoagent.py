@@ -4,7 +4,7 @@ The geoagent class for the mesa_geo framework.
 Core Objects: GeoAgent
 
 """
-import geojson
+import json
 import geopandas as gpd
 from mesa import Agent
 from mesa_geo.utilities import transform
@@ -131,7 +131,7 @@ class AgentCreator:
             set_attributes: Set attributes from features
         """
         if type(GeoJSON) is str:
-            gj = geojson.loads(GeoJSON)
+            gj = json.loads(GeoJSON)
         else:
             gj = GeoJSON
 

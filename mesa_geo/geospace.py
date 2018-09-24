@@ -1,7 +1,7 @@
 from mesa_geo.geoagent import GeoAgent
 import pyproj
 from rtree import index
-from pysal.lib import weights
+from libpysal import weights
 from shapely.geometry import Point
 
 
@@ -127,7 +127,7 @@ class GeoSpace:
         """Create a neighborhood graph of all agents."""
         agents = self.agents
         shapes = [agent.shape for agent in agents]
-        self._neighborhood = weights.Contiguity.Queen.from_iterable(shapes)
+        self._neighborhood = weights.contiguity.Queen.from_iterable(shapes)
         self._neighborhood.agents = agents
         self._neighborhood.idx = {}
         for agent, key in zip(agents, self._neighborhood.neighbors.keys()):
