@@ -1,205 +1,104 @@
 from mesa_geo.geoagent import GeoAgent
-from mesa_geo.shapes import as_shape, Point
 import pyproj
 from rtree import index
-from shapely.ops import transform as s_transform
-from functools import partial
-from pysal.lib import weights
-import geojson
-import shapefile
+from libpysal import weights
+from shapely.geometry import Point
 
 
 class GeoSpace:
-    def __init__(self, bbox=None, crs=None):
-        """Base class for GIS enabled mesa modeling.
+    def __init__(self, crs={"init": "epsg:3857"}):
+        """Create a GeoSpace for GIS enabled mesa modeling.
 
-        mesa-geo provides an easy way to add agents from a GeoJSON objects.
-        Shapefiles are not yet supported by mesa-geo and should be converted
-        to GeoJSON format prior to usage.
-        Please note that the GeoJSON specifications require all shapes to be
-        in the geographic system WGS84. Therefore you should consider setting
-        a coordinate reference system via the `crs` keyword. All agents added
-        from GeoJSON objects are then automatically transformed into that
-        system and all calculations take place in that system.
-        If `crs` is not set, epsg:3857 (Web Mercator) is used as default.
-        However, this system is only accurate at the equator and errors
-        increase with latitude.
+        Args:
+            crs: Coordinate reference system of the GeoSpace
+                If `crs` is not set, epsg:3857 (Web Mercator) is used as default.
+                However, this system is only accurate at the equator and errors
+                increase with latitude.
 
         Properties:
-            crs: Project crs that is used for all calculations
+            crs: Project coordinate reference system
             idx: R-tree index for fast spatial queries
             bbox: Bounding box of all agents within the GeoSpace
             agents: List of all agents in the Geospace
 
         Methods:
-            add_agent: add single agent to the GeoSpace.
-            remove_agent: Remove agent from GeoSpace
-            create_agents_from_GeoJSON: Create agents from GeoJSON object
-            transform: Transforms a shape from one crs to another
+            add_agents: add a list or a single GeoAgent.
+            remove_agent: Remove a single agent from GeoSpace
             agents_at: List all agents at a specific position
-            distance: Calculate distance between to agents
-            get_intersecting_agents: Get agents that intersect with an agent
-            get_agents_within: Get agents of which the agent is within
-            get_agent_contains: Get agents who are contained by an agent
-            get_agents_touches: Get agents that that an agent
+            distance: Calculate distance between two agents
+            get_neighbors: Returns a list of (touching) neighbors
+            get_intersecting_agents: Returns list of agents that intersect
+            get_agents_within: Returns a list of agents within
+            get_agent_contains: Returns a list of agents contained
+            get_agents_touches: Returns a list of agents that touch
             update_bbox: Update the bounding box of the GeoSpace
-            create_rtree: Recalculate the R-tree of the GeoSpace
         """
-        self.agents = []
-        self.bbox = bbox
-        if not crs:
-            crs = 'epsg:3857'
-            # TODO raise a warning
-        self.crs = pyproj.Proj(init=crs)
-        self.WGS84 = pyproj.Proj(init='epsg:4326')
+        self.crs = pyproj.Proj(crs)
+        self.WGS84 = pyproj.Proj({"init": "epsg:4326"})
+
+        self.bbox = None
+        self._neighborhood = None
+
+        # Set up rtree index
         self.idx = index.Index()
         self.idx.maxid = 0
-        self.neighborhood = None
+        self.idx.agents = []
 
-    def add_agent(self, agent):
-        """Add a single GeoAgent to the Geospace."""
-        if isinstance(agent, GeoAgent):
+    def add_agents(self, agents):
+        """Add a list of GeoAgents to the Geospace.
+
+        GeoAgents must have a shape attribute. This function may also be called
+        with a single GeoAgent."""
+        if isinstance(agents, GeoAgent):
+            agent = agents
             if hasattr(agent, "shape"):
-                self.agents.append(agent)
-                self.idx.insert(self.idx.maxid + 1, agent.shape.bounds)
+                self.idx.insert(self.idx.maxid + 1, agent.shape.bounds, agent)
                 self.idx.maxid += 1
+                self.idx.agents.append(agent)
             else:
-                raise AttributeError("GeoSpace agents must have a shape")
+                raise AttributeError("GeoAgents must have a shape attribute")
         else:
-            raise TypeError("Agent is not a subclass of GeoAgent")
+            self._recreate_rtree(agents)
+
+        self.update_bbox()
 
     def remove_agent(self, agent):
         """Remove an agent from the GeoSpace."""
-        self.agents.remove(agent)
         self.idx.delete(agent.idx_id, agent.shape.bounds)
-
-    def create_agents_from_GeoJSON(self, GeoJSON, agent, set_attributes=True,
-                                   **kwargs):
-        """Create agents from a GeoJSON object and return list of agents.
-
-        Args:
-            GeoJSON: A GeoJSON object or string
-            agent: GeoAgent class of the agent.
-                   kwargs will be passed to this Class.
-                   !! unique_id must be a string indicating the name of a
-                   GeoJSON attribute that is used for the unique_id.
-                   TODO: Allow iterators as unique_id or create unique_id
-                   automatically (e.g. for GeoJSON geometries)
-            set_attributes: If True set GeoAgent properties from GeoJSON
-                            attributes
-            kwargs: Additional parameters passed to GeoAgent.
-                    Can be strings that indicate GeoJSON attributes to be used.
-        """
-        if type(GeoJSON) is str:
-            gj = geojson.loads(GeoJSON)
-        else:
-            gj = GeoJSON
-        geometries = ["Point", "MultiPoint", "LineString",
-                      "MultiLineString", "Polygon", "MultiPolygon"]
-        agents = []
-
-        def create_agent(shape, kwargs):
-            shape = self.transform(from_crs=pyproj.Proj(init='epsg:4326'),
-                                   to_crs=self.crs,
-                                   shape=shape)
-            new_agent = agent(shape=shape, **kwargs)
-            agents.append(new_agent)
-            return new_agent
-
-        def _set_attributes(new_agent, attributes):
-            for key, value in attributes.items():
-                setattr(new_agent, key, value)
-
-        def create_agent_with_attributes(agent, shape, attributes, kwargs):
-            new_agent = create_agent(shape, kwargs)
-            if set_attributes:
-                if isinstance(set_attributes, list):
-                    new_attributes = dict.fromkeys(set_attributes &
-                                                   attributes.keys())
-                    for key in set_attributes:
-                        new_attributes[key] = attributes[key]
-                    attributes = new_attributes
-                _set_attributes(new_agent, attributes)
-
-        def update_kwargs(kwargs, attributes):
-            for key, value in kwargs.items():
-                if isinstance(value, str) and value in attributes.keys():
-                    kwargs[key] = attributes.pop(value)
-            return kwargs
-
-        if gj['type'] in geometries:
-            shape = as_shape(gj)
-            create_agent(shape, kwargs)
-
-        if gj['type'] == 'GeometryCollection':
-            shapes = as_shape(gj)
-            for shape in shapes:
-                create_agent(shape, kwargs)
-
-        if gj['type'] == 'Feature':
-            shape, attributes = as_shape(gj)
-            kwargs = update_kwargs(kwargs, attributes)
-            create_agent_with_attributes(agent, shape, attributes, kwargs)
-
-        if gj['type'] == "FeatureCollection":
-            features = as_shape(gj)
-            for shape, attributes in zip(*features):
-                out_kwargs = kwargs.copy()
-                out_kwargs = update_kwargs(out_kwargs, attributes)
-                create_agent_with_attributes(agent, shape, attributes,
-                                             out_kwargs)
-
-        self.agents.extend(agents)
-        self.create_rtree()
         self.update_bbox()
-        return agents
 
-    def create_agents_from_shapefile(
-            self, filename, agent, set_attributes=True, **kwargs):
-        """Create agents from a shapefile.
+    def get_relation(self, agent, relation):
+        """Return a list of related agents.
 
         Args:
-            filename: filename of the shapfile
-            agent: GeoAgent class of the agent.
-                kwargs will be passed to this Class.
-                !! unique_id must be a string indicating the name of a
-                field name that is used for the unique_id.
-                TODO: Allow iterators as unique_id or create unique_id
-                automatically (e.g. for GeoJSON geometries)
-            set_attributes: If True set GeoAgent properties from shapefile
-                records
-            kwargs: Additional parameters passed to GeoAgent.
-                Can be strings that indicate GeoJSON attributes to be used.
+            relation: must be one of 'intersects', 'within', 'contains',
+                'touches'
+            agent: the agent for which to compute the relation
+            other_agents: A list of agents to compare against.
+                Omit to compare against all other agents of the GeoSpace
+        """
+        related_agents = []
+        possible_agents = self._get_rtree_intersections(agent)
+        if possible_agents:
+            for other_agent in possible_agents:
+                if getattr(agent.shape, relation)(other_agent.shape):
+                    related_agents.append(other_agent)
+        return related_agents
 
-        This function converts the shapefile to a GeoJSON first."""
-
-        # From https://gist.github.com/frankrowe/6071443
-        reader = shapefile.Reader(filename)
-        fields = reader.fields[1:]
-        field_names = [field[0] for field in fields]
-        buffer = []
-        for sr in reader.shapeRecords():
-            atr = dict(zip(field_names, sr.record))
-            geom = sr.shape.__geo_interface__
-            buffer.append(dict(type="Feature", geometry=geom, properties=atr))
-        gj = geojson.dumps({"type": "FeatureCollection", "features": buffer})
-        self.create_agents_from_GeoJSON(gj, agent, set_attributes, **kwargs)
-
-    def transform(self, from_crs, to_crs, shape):
-        """Transform a shape from one crs to another."""
-        project = partial(pyproj.transform,
-                          from_crs,
-                          to_crs)
-        return s_transform(project, shape)
+    def _get_rtree_intersections(self, agent):
+        """Calculate rtree intersections for candidate agents."""
+        intersections = [
+            n.object for n in self.idx.intersection(agent.shape.bounds, objects=True)
+        ]
+        return intersections
 
     def get_intersecting_agents(self, agent, other_agents=None):
-        intersecting_agents = self.get_relation(
-            'intersects', agent, other_agents)
+        intersecting_agents = self.get_relation("intersects", agent)
         return intersecting_agents
 
-    def get_neighbors_within_distance(self, agent, distance,
-                                      center=False,
-                                      relation='intersects'):
+    def get_neighbors_within_distance(
+        self, agent, distance, center=False, relation="intersects"
+    ):
         """Return a list of agents within `distance` of `agent`.
 
         Distance is measured as a buffer around the agent's shape,
@@ -214,79 +113,49 @@ class GeoSpace:
         agent.shape = old_shape
         return neighbors
 
-    def get_relation(self, agent, relation, other_agents=None):
-        """Return a list of related agents.
-
-        relation: must be one of 'intersects', 'within', 'contains', 'touches'
-        agent: the agent for which to compute the relation
-        other_agents: A list of agents to compare against. Can be ommited to
-                      compare against all other agents of the GeoSpace
-        """
-        related_agents = []
-        possible_agents = self.get_rtree_intersections(agent, other_agents)
-        if possible_agents:
-            for other_agent in possible_agents:
-                if getattr(agent.shape, relation)(other_agent.shape):
-                    related_agents.append(other_agent)
-        return related_agents
-
-    def get_rtree_intersections(self, agent, other_agents=None):
-        """Calculate rtree intersections for candidate agents."""
-        intersections = []
-        if not other_agents:
-            other_agents = self.agents
-        intersect_ids = list(self.idx.intersection(agent.shape.bounds))
-        intersections = (a for a in other_agents if a.idx_id in intersect_ids)
-        return intersections
-
     def agents_at(self, pos):
         """Return a list of agents at given pos."""
         if not isinstance(pos, Point):
             pos = Point(pos)
-        return self.get_relation('within', pos)
+        return self.get_relation("within", pos)
 
     def distance(self, agent_a, agent_b):
-        """Return distance of two agents.
-
-        Note: You can also use agent.shape.distance directly
-        """
+        """Return distance of two agents."""
         return agent_a.shape.distance(agent_b.shape)
 
     def _create_neighborhood(self):
         """Create a neighborhood graph of all agents."""
         agents = self.agents
         shapes = [agent.shape for agent in agents]
-        self.neighborhood = weights.Contiguity.Queen.from_iterable(shapes)
-        self.neighborhood.agents = agents
-        self.neighborhood.idx = {}
-        for agent, key in zip(agents, self.neighborhood.neighbors.keys()):
-            self.neighborhood.idx[agent] = key
+        self._neighborhood = weights.contiguity.Queen.from_iterable(shapes)
+        self._neighborhood.agents = agents
+        self._neighborhood.idx = {}
+        for agent, key in zip(agents, self._neighborhood.neighbors.keys()):
+            self._neighborhood.idx[agent] = key
 
     def get_neighbors(self, agent):
         """Get (touching) neighbors of an agent."""
-        if not self.neighborhood or self.neighborhood.agents != self.agents:
+        if not self._neighborhood or self._neighborhood.agents != self.agents:
             self._create_neighborhood()
 
-        idx = self.neighborhood.idx[agent]
-        neighbors_idx = self.neighborhood.neighbors[idx]
+        idx = self._neighborhood.idx[agent]
+        neighbors_idx = self._neighborhood.neighbors[idx]
         neighbors = [self.agents[i] for i in neighbors_idx]
         return neighbors
 
-    def create_rtree(self):
+    def _recreate_rtree(self, new_agents):
         """Create a new rtree index from agents shapes."""
-        shapes = []
-        i = 0
-        for i, agent in enumerate(self.agents):
-            agent.idx_id = i
-            shapes.append(agent.shape)
+        old_agents = self.agents
+        agents = old_agents + new_agents
 
-        # Bulk load the shapes
+        # Bulk insert agents
         def data_gen():
-            for index_id, shape in enumerate(shapes):
-                yield (index_id, shape.bounds, shape)
+            for index_id, agent in enumerate(agents):
+                yield (index_id, agent.shape.bounds, agent)
 
         self.idx = index.Index(data_gen())
-        self.idx.maxid = len(shapes)
+        self.idx.maxid = len(agents)
+        self.idx.agents = agents
 
     def update_bbox(self, bbox=None):
         """Update bounding box of the GeoSpace."""
@@ -297,8 +166,12 @@ class GeoSpace:
         else:
             self.bbox = self.idx.bounds
 
+    @property
+    def agents(self):
+        return self.idx.agents
+
+    @property
     def __geo_interface__(self):
         """Return a GeoJSON FeatureCollection."""
         features = [a.__geo_interface__() for a in self.agents]
-        return {'type': 'FeatureCollection',
-                'features': features}
+        return {"type": "FeatureCollection", "features": features}

@@ -311,9 +311,13 @@ pip-log.txt
 # Unit test / coverage reports
 .coverage
 .tox
+.pytest_cache
 
 #Translations
 *.mo
 
 #Mr Developer
 .mr.developer.cfg
+
+#Visual studio code
+.vscode

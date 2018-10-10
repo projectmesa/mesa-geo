@@ -4,9 +4,13 @@ The geoagent class for the mesa_geo framework.
 Core Objects: GeoAgent
 
 """
+import json
+import geopandas as gpd
 from mesa import Agent
-import pyproj
+from mesa_geo.utilities import transform
 from shapely.geometry import mapping
+from shapely.geometry.base import BaseGeometry
+import warnings
 
 
 class GeoAgent(Agent):
@@ -30,16 +34,109 @@ class GeoAgent(Agent):
     def __geo_interface__(self):
         """Return a GeoJSON Feature.
 
-        Removes model and shape from attributes.
+        Removes shape from attributes.
         """
-        props = dict(vars(self))
-        del props['shape']
-        del props['model']
+        properties = dict(vars(self))
+        properties["model"] = str(self.model)
+        shape = properties.pop("shape")
 
-        shape = self.model.grid.transform(self.model.grid.crs,
-                                          pyproj.Proj(init='epsg:4326'),
-                                          self.shape)
+        shape = transform(shape, self.model.grid.crs, self.model.grid.WGS84)
 
-        return {'type': 'Feature',
-                'geometry': mapping(shape),
-                'properties': props}
+        return {"type": "Feature", "geometry": mapping(shape), "properties": properties}
+
+
+class AgentCreator:
+    """Create GeoAgents from files, GeoDataFrames, GeoJSON or Shapely objects."""
+
+    def __init__(self, agent_class, agent_kwargs, crs={"init": "epsg:4326"}):
+        """Define the agent_class and required agent_kwargs.
+
+        Args:
+            agent_class: Reference to a GeoAgent class
+            agent_kwargs: Dictionary with required agent creation arguments.
+                Must at least include 'model' and must NOT include unique_id
+            crs: Coordinate reference system. If shapes are loaded from file
+                they will be converted into this crs automatically.
+        """
+        if "unique_id" in agent_kwargs:
+            agent_kwargs.remove("unique_id")
+            warnings.warn("Unique_id should not be in the agent_kwargs")
+
+        self.agent_class = agent_class
+        self.agent_kwargs = agent_kwargs
+        self.crs = crs
+
+    def create_agent(self, shape, unique_id):
+        """Create a single agent from a shape and a unique_id
+
+        Shape must be a valid Shapely object."""
+
+        if not isinstance(shape, BaseGeometry):
+            raise TypeError("Shape must be a Shapely Geometry")
+
+        new_agent = self.agent_class(
+            unique_id=unique_id, shape=shape, **self.agent_kwargs
+        )
+
+        return new_agent
+
+    def from_GeoDataFrame(self, gdf, unique_id="index", set_attributes=True):
+        """Create a list of agents from a GeoDataFrame.
+
+        Args:
+            unique_id: Column to use for the unique_id.
+                If "index" use the GeoDataFrame index
+            set_attributes: Set agent attributes from GeoDataFrame columns.
+        """
+
+        if unique_id != "index":
+            gdf = gdf.set_index(unique_id)
+
+        if self.crs:
+            gdf = gdf.to_crs(self.crs)
+
+        agents = list()
+
+        for index, row in gdf.iterrows():
+            shape = row.geometry
+            new_agent = self.create_agent(shape=shape, unique_id=index)
+
+            if set_attributes:
+                for col in row.index:
+                    if not col == "geometry":
+                        setattr(new_agent, col, row[col])
+            agents.append(new_agent)
+        return agents
+
+    def from_file(self, filename, unique_id="index", set_attributes=True):
+        """Create agents from vector data files (e.g. Shapefiles).
+
+        Args:
+            filename: The filename of the vector data
+            unique_id: The field name of the data to use as the agents unique_id
+            set_attributes: Set attributes from data records
+        """
+        gdf = gpd.read_file(filename)
+        agents = self.from_GeoDataFrame(
+            gdf, unique_id=unique_id, set_attributes=set_attributes
+        )
+        return agents
+
+    def from_GeoJSON(self, GeoJSON, unique_id="index", set_attributes=True):
+        """Create agents from a GeoJSON object or string.
+
+        Args:
+            GeoJSON: The GeoJSON object or string
+            unique_id: The fieldfeature name of the data to use as the agents unique_id
+            set_attributes: Set attributes from features
+        """
+        if type(GeoJSON) is str:
+            gj = json.loads(GeoJSON)
+        else:
+            gj = GeoJSON
+
+        gdf = gpd.GeoDataFrame.from_features(gj)
+        agents = self.from_GeoDataFrame(
+            gdf, unique_id=unique_id, set_attributes=set_attributes
+        )
+        return agents
