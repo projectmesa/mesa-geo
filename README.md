@@ -6,10 +6,10 @@ This is the first release of mesa-geo. No functionality guaranteed, bugs include
 
 ## Installation
 
-mesa-geo is on PyPi, so you can install it with
+You can install the latest version of mesa-geo directly from git via
 
 ```python
-pip install mesa-geo
+pip install -e git+https://github.com/corvince/mesa-geo.git#egg=mesa-geo
 ```
 
 On windows you should first use Anaconda to install some of the requirements with
@@ -28,6 +28,7 @@ So let's get started with some shapes! We will work with [records of US states](
 ```python
 from mesa_geo.geospace import GeoSpace
 from mesa_geo.agent import GeoAgent, AgentCreator
+from mesa import Model
 import requests
 url = 'http://eric.clst.org/assets/wiki/uploads/Stuff/gz_2010_us_040_00_20m.json'
 r = requests.get(url)
@@ -41,7 +42,7 @@ class State(GeoAgent):
     def __init__(self, unique_id, model, shape):
         super().__init__(unique_id, model, shape)
 
-class SampleModel:
+class GeoModel(Model):
     def __init__(self, geojson_states):
         self.grid = GeoSpace()
 
@@ -51,7 +52,7 @@ class SampleModel:
         self.grid.add_agents(agents)
 ```
 
-In the `SampleModel` we first create an instance of AgentCreator, where we provide the Agent class (State) and its required arguments, except shape and unique_id. We then use the `.from_GeoJSON` function to create our agents from the shapes in the GeoJSON file. We provide the feature "name" as the key from which the agents get their unique_ids.
+In the `GeoModel` we first create an instance of AgentCreator, where we provide the Agent class (State) and its required arguments, except shape and unique_id. We then use the `.from_GeoJSON` function to create our agents from the shapes in the GeoJSON file. We provide the feature "name" as the key from which the agents get their unique_ids.
 Finally, we add the agents to the GeoSpace
 
 Let's instantiate our model and look at one of the agents:
