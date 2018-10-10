@@ -34,7 +34,7 @@ r = requests.get(url)
 geojson_states = r.json()
 ```
 
-First we create a `State` Agent and a `SampleModel`. Both should look familiar if you have worked with mesa before.
+First we create a `State` Agent and a `GeoModel`. Both should look familiar if you have worked with mesa before.
 
 ```python
 class State(GeoAgent):
