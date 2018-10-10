@@ -26,8 +26,7 @@ You should be familiar with how [mesa](https://github.com/projectmesa/mesa) work
 So let's get started with some shapes! We will work with [records of US states](http://eric.clst.org/Stuff/USGeoJSON). We use the `requests` library to retrieve the data, but of course you can work with local data.
 
 ```python
-from mesa_geo.geospace import GeoSpace
-from mesa_geo.agent import GeoAgent, AgentCreator
+from mesa_geo import GeoSpace, GeoAgent, AgentCreator
 from mesa import Model
 import requests
 url = 'http://eric.clst.org/assets/wiki/uploads/Stuff/gz_2010_us_040_00_20m.json'
@@ -43,12 +42,12 @@ class State(GeoAgent):
         super().__init__(unique_id, model, shape)
 
 class GeoModel(Model):
-    def __init__(self, geojson_states):
+    def __init__(self):
         self.grid = GeoSpace()
-
+        
         state_agent_kwargs = dict(model=self)
         AC = AgentCreator(agent_class=State, agent_kwargs=state_agent_kwargs)
-        agents = AC.from_GeoJSON(GeoJSON=geojson_states, unique_id="name")
+        agents = AC.from_GeoJSON(GeoJSON=geojson_states, unique_id="NAME")
         self.grid.add_agents(agents)
 ```
 

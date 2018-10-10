@@ -71,9 +71,9 @@ class GeoSpace:
         """Return a list of related agents.
 
         Args:
+            agent: the agent for which to compute the relation
             relation: must be one of 'intersects', 'within', 'contains',
                 'touches'
-            agent: the agent for which to compute the relation
             other_agents: A list of agents to compare against.
                 Omit to compare against all other agents of the GeoSpace
         """
@@ -93,7 +93,7 @@ class GeoSpace:
         return intersections
 
     def get_intersecting_agents(self, agent, other_agents=None):
-        intersecting_agents = self.get_relation("intersects", agent)
+        intersecting_agents = self.get_relation(agent, "intersects")
         return intersecting_agents
 
     def get_neighbors_within_distance(
@@ -109,7 +109,7 @@ class GeoSpace:
             agent.shape = agent.shape.center().buffer(distance)
         else:
             agent.shape = agent.shape.buffer(distance)
-        neighbors = self.get_relation(relation, agent)
+        neighbors = self.get_relation(agent, relation)
         agent.shape = old_shape
         return neighbors
 
@@ -117,7 +117,7 @@ class GeoSpace:
         """Return a list of agents at given pos."""
         if not isinstance(pos, Point):
             pos = Point(pos)
-        return self.get_relation("within", pos)
+        return self.get_relation(pos, "within")
 
     def distance(self, agent_a, agent_b):
         """Return distance of two agents."""
