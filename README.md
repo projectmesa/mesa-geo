@@ -6,17 +6,23 @@ This is the first release of mesa-geo. No functionality guaranteed, bugs include
 
 ## Installation
 
-You can install the latest version of mesa-geo directly from git via
+To install mesa-geo on linux or macOS run
 
-```python
-pip install -e git+https://github.com/corvince/mesa-geo.git#egg=mesa-geo
+```shell
+pip install mesa-geo
 ```
 
 On windows you should first use Anaconda to install some of the requirements with
 
-```python
+```shell
 conda install fiona pyproj rtree shapely
 pip install mesa-geo
+```
+
+Since mesa-geo is in early development you could also install the latest version directly from Github via
+
+```shell
+pip install -e git+https://github.com/corvince/mesa-geo.git#egg=mesa-geo
 ```
 
 ## Getting started
