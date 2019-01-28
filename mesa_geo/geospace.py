@@ -41,7 +41,6 @@ class GeoSpace:
 
         # Set up rtree index
         self.idx = index.Index()
-        self.idx.maxid = 0
         self.idx.agents = []
 
     def add_agents(self, agents):
@@ -52,8 +51,7 @@ class GeoSpace:
         if isinstance(agents, GeoAgent):
             agent = agents
             if hasattr(agent, "shape"):
-                self.idx.insert(self.idx.maxid + 1, agent.shape.bounds, agent)
-                self.idx.maxid += 1
+                self.idx.insert(agent.unique_id, agent.shape.bounds, agent)
                 self.idx.agents.append(agent)
             else:
                 raise AttributeError("GeoAgents must have a shape attribute")
@@ -64,7 +62,7 @@ class GeoSpace:
 
     def remove_agent(self, agent):
         """Remove an agent from the GeoSpace."""
-        self.idx.delete(agent.idx_id, agent.shape.bounds)
+        self.idx.delete(agent.unique_id, agent.shape.bounds)
         self.update_bbox()
 
     def get_relation(self, agent, relation):
@@ -150,8 +148,8 @@ class GeoSpace:
 
         # Bulk insert agents
         def data_gen():
-            for index_id, agent in enumerate(agents):
-                yield (index_id, agent.shape.bounds, agent)
+            for agent in agents:
+                yield (agent.unique_id, agent.shape.bounds, agent)
 
         self.idx = index.Index(data_gen())
         self.idx.maxid = len(agents)
