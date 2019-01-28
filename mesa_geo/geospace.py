@@ -62,7 +62,7 @@ class GeoSpace:
 
     def remove_agent(self, agent):
         """Remove an agent from the GeoSpace."""
-        self.idx.delete(agent.unique_id, agent.shape.bounds)
+        self.idx.delete(id(agent), agent.shape.bounds)
         self.update_bbox()
 
     def get_relation(self, agent, relation):
@@ -149,7 +149,7 @@ class GeoSpace:
         # Bulk insert agents
         def data_gen():
             for agent in agents:
-                yield (agent.unique_id, agent.shape.bounds, agent)
+                yield (id(agent), agent.shape.bounds, agent)
 
         self.idx = index.Index(data_gen())
         self.idx.maxid = len(agents)
