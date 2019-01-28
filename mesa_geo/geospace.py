@@ -51,7 +51,7 @@ class GeoSpace:
         if isinstance(agents, GeoAgent):
             agent = agents
             if hasattr(agent, "shape"):
-                self.idx.insert(agent.unique_id, agent.shape.bounds, agent)
+                self.idx.insert(id(agent), agent.shape.bounds, agent)
                 self.idx.agents.append(agent)
             else:
                 raise AttributeError("GeoAgents must have a shape attribute")
