@@ -13,7 +13,7 @@ with open("mesa_geo/__init__.py", "r") as fd:
         r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', fd.read(), re.MULTILINE
     ).group(1)
 
-with open("README.md", "rb", encoding="utf-8") as f:
+with open("README.md", "r") as f:
     readme = f.read()
 
 setup(
@@ -21,6 +21,7 @@ setup(
     version=version,
     description="Agent-based modeling (ABM) in Python 3+",
     long_description=readme,
+    long_description_content_type="text/markdown",
     author="Project GeoMesa Team",
     author_email="",
     url="https://github.com/corvince/mesa-geo",
