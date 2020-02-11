@@ -58,7 +58,7 @@ class SchellingModel(Model):
         self.minority_pc = minority_pc
 
         self.schedule = RandomActivation(self)
-        self.grid = GeoSpace(crs={"init": "epsg:4326"})
+        self.grid = GeoSpace()
 
         self.happy = 0
         self.datacollector = DataCollector({"happy": "happy"})
