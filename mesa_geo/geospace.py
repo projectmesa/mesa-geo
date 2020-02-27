@@ -6,7 +6,7 @@ from shapely.geometry import Point
 
 
 class GeoSpace:
-    def __init__(self, crs={"init": "epsg:3857"}):
+    def __init__(self, crs="epsg:3857"):
         """Create a GeoSpace for GIS enabled mesa modeling.
 
         Args:
@@ -34,7 +34,7 @@ class GeoSpace:
             update_bbox: Update the bounding box of the GeoSpace
         """
         self.crs = pyproj.Proj(crs)
-        self.WGS84 = pyproj.Proj({"init": "epsg:4326"})
+        self.WGS84 = pyproj.Proj("epsg:4326")
 
         self.bbox = None
         self._neighborhood = None
