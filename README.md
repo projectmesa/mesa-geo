@@ -112,7 +112,7 @@ To get a list of all states within a certain distance you can use the following
     'Utah',
     'Nevada']
 
-The unit for the distance depends on the coordinate reference system (CRS) of the GeoSpace. Since we did not specify the CRS, mesa-geo defaults to the 'Web Mercator' projection (in meters). If you want to do some serious measurements you should always set an appropriate CRS, since the accuracy of Web Mercator declines with distance from the equator.  We can achieve this by initializing the AgentCreator and the GeoSpace with the `crs` keyword  `crs={"init": "epsg:2163"}`. Mesa-geo then transforms all coordinates from the GeoJSON geographic coordinates into the set crs.
+The unit for the distance depends on the coordinate reference system (CRS) of the GeoSpace. Since we did not specify the CRS, mesa-geo defaults to the 'Web Mercator' projection (in meters). If you want to do some serious measurements you should always set an appropriate CRS, since the accuracy of Web Mercator declines with distance from the equator.  We can achieve this by initializing the AgentCreator and the GeoSpace with the `crs` keyword  `crs="epsg:2163"`. Mesa-geo then transforms all coordinates from the GeoJSON geographic coordinates into the set crs.
 
 ## Going further
 
