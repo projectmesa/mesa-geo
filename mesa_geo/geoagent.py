@@ -48,7 +48,7 @@ class GeoAgent(Agent):
 class AgentCreator:
     """Create GeoAgents from files, GeoDataFrames, GeoJSON or Shapely objects."""
 
-    def __init__(self, agent_class, agent_kwargs, crs={"init": "epsg:3857"}):
+    def __init__(self, agent_class, agent_kwargs, crs="epsg:3857"):
         """Define the agent_class and required agent_kwargs.
 
         Args:
@@ -135,7 +135,7 @@ class AgentCreator:
             gj = GeoJSON
 
         gdf = gpd.GeoDataFrame.from_features(gj)
-        gdf.crs = "+init=epsg:4326"
+        gdf.crs = "epsg:4326"
         agents = self.from_GeoDataFrame(
             gdf, unique_id=unique_id, set_attributes=set_attributes
         )
