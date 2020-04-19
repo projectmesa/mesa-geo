@@ -321,3 +321,6 @@ pip-log.txt
 
 #Visual studio code
 .vscode
+
+# Idea file
+.idea
