@@ -6,15 +6,15 @@ from mesa_geo import GeoSpace
 import random
 
 
-class SchellingAgent(GeoAgent):
-    """Schelling segregation agent."""
+class NeighbourhoodAgent(GeoAgent):
+    """Neighbourhood agent."""
 
     def __init__(self, unique_id, model, shape, agent_type=None):
-        """Create a new Schelling agent.
+        """Create a new Neighbourhood agent.
 
         Args:
             unique_id: Unique identifier for the agent.
-            agent_type: Indicator for the agent's type (minority=1, majority=0)
+            agent_type: Indicator if neighborhood is infected ("infected" or None)
         """
         super().__init__(unique_id, model, shape)
         self.atype = agent_type
@@ -44,14 +44,14 @@ class SchellingAgent(GeoAgent):
             self.atype = None
             self.model.schedule.remove(self)
         else:
-            self.model.happy += 1
+            self.model.infected += 1
 
     def __repr__(self):
         return "Agent " + str(self.unique_id)
 
 
-class SchellingModel(Model):
-    """Model class for the Schelling segregation model."""
+class InfectedModel(Model):
+    """Model class for a simplistic infection model."""
 
     def __init__(self, density, minority_pc):
         self.density = density
@@ -60,13 +60,13 @@ class SchellingModel(Model):
         self.schedule = RandomActivation(self)
         self.grid = GeoSpace()
 
-        self.happy = 0
-        self.datacollector = DataCollector({"happy": "happy"})
+        self.infected = 0
+        self.datacollector = DataCollector({"infected": "infected"})
 
         self.running = True
 
         # Set up the grid with patches for every NUTS region
-        AC = AgentCreator(SchellingAgent, {"model": self})
+        AC = AgentCreator(NeighbourhoodAgent, {"model": self})
         agents = AC.from_file("TorontoNeighbourhoods.geojson")
         self.grid.add_agents(agents)
 
@@ -84,9 +84,9 @@ class SchellingModel(Model):
 
         If All agents are happy, halt the model.
         """
-        self.happy = 0  # Reset counter of happy agents
+        self.infected = 0  # Reset counter of happy agents
         self.schedule.step()
         # self.datacollector.collect(self)
 
-        if self.happy == self.schedule.get_agent_count():
+        if self.infected == self.schedule.get_agent_count():
             self.running = False
