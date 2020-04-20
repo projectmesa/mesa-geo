@@ -21,7 +21,9 @@ class PersonAgent(GeoAgent):
         self.atype = agent_type
 
     def step(self):
-        # The agent's step will go here.
+        print(f"X: {self.shape.x}, Y:{self.shape.y}")
+        # self.shape.x += 10
+        # self.shape.y += 10
         self.infected += 1
         print(f"AGENT COUNTER: {self.infected}")
 
@@ -68,9 +70,36 @@ class InfectedModel(Model):
         for agent in neighbourhood_agents:
             self.schedule.add(agent)
 
+        pedromorales_string = {
+            "type": "FeatureCollection",
+            "name": "pedromorales",
+            "crs": {
+                "type": "name",
+                "properties": {
+                    "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+                }
+            },
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "AGENTNUM": 42,
+                        "NAME": "Pedro Morales"
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -79.404282800449266,
+                            43.647979616068149
+                        ]
+                    }
+                }
+            ]
+        }
         # Create a person Agent, add it to grid and scheduler
         ac_person = AgentCreator(PersonAgent, {"model": self})
-        person_agent = ac_person.from_file("pedromorales.geojson")
+        person_agent = ac_person.from_GeoJSON(pedromorales_string)
+        # person_agent = ac_person.from_file("pedromorales.geojson")
         for agent in person_agent:
             self.grid.add_agents(agent)
             self.schedule.add(agent)
