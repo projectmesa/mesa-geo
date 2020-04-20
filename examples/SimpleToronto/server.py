@@ -5,7 +5,7 @@ from model import InfectedModel
 from mesa_geo.visualization.MapModule import MapModule
 
 
-class InfectedElement(TextElement):
+class InfectedText(TextElement):
     """
     Display a text count of how many infected agents there are.
     """
@@ -30,15 +30,15 @@ def infected_draw(agent):
     Portrayal Method for canvas
     """
     portrayal = dict()
-    if agent.atype == 'infected':
+    if agent.atype in ['hotspot', 'infected']:
         portrayal["color"] = "Red"
     else:
         portrayal["color"] = "Blue"
     return portrayal
 
 
-infected_element = InfectedElement()
-map_element = MapModule(infected_draw, [43.741667, -79.373333], 11, 500, 500)
+infected_element = InfectedText()
+map_element = MapModule(infected_draw, [43.741667, -79.373333], 10, 500, 500)
 #map_element = MapModule(infected_draw, [43.547899,-96.735894], 4, 500, 500)
 infected_chart = ChartModule([{"Label": "infected", "Color": "Black"}])
 server = ModularServer(
