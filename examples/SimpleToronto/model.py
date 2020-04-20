@@ -18,7 +18,7 @@ class PersonAgent(GeoAgent):
             """
         super().__init__(unique_id, model, shape)
         self.infected = 0
-        self.agent_type = agent_type
+        self.atype = agent_type
 
     def step(self):
         # The agent's step will go here.
@@ -69,12 +69,11 @@ class InfectedModel(Model):
             self.schedule.add(agent)
 
         # Create a person Agent, add it to grid and scheduler
-        shape_pedromorales = {"type": "Feature",
-                              "properties": {"AGENTNUM": 42, "NAME": "Pedro Morales"},
-                              "geometry": {"type": "Point", "coordinates": [[[-79.404282800449266, 43.647979616068149]]]}}
-        person_agent = PersonAgent('test', self, shape_pedromorales)
-        self.grid.add_agents(person_agent)
-        self.schedule.add(person_agent)
+        ac_person = AgentCreator(PersonAgent, {"model": self})
+        person_agent = ac_person.from_file("pedromorales.geojson")
+        for agent in person_agent:
+            self.grid.add_agents(agent)
+            self.schedule.add(agent)
 
     def step(self):
         """Run one step of the model.

@@ -1,0 +1,26 @@
+{
+  "type": "FeatureCollection",
+  "name": "pedromorales",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "AGENTNUM": 42,
+        "NAME": "Pedro Morales"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.404282800449266,
+          43.647979616068149
+        ]
+      }
+    }
+  ]
+}
