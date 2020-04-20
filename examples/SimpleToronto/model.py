@@ -69,12 +69,12 @@ class InfectedModel(Model):
             self.schedule.add(agent)
 
         # Create a person Agent, add it to grid and scheduler
-        # shape_pedromorales = {"type": "Feature",
-        #                       "properties": {"AGENTNUM": 42, "NAME": "Pedro Morales"},
-        #                       "geometry": {"type": "Point", "coordinates": [[[-79.404282800449266, 43.647979616068149]]]}}
-        # person_agent = PersonAgent('test', self, shape_pedromorales)
-        # self.grid.add_agents(person_agent)
-        # self.schedule.add(person_agent)
+        shape_pedromorales = {"type": "Feature",
+                              "properties": {"AGENTNUM": 42, "NAME": "Pedro Morales"},
+                              "geometry": {"type": "Point", "coordinates": [[[-79.404282800449266, 43.647979616068149]]]}}
+        person_agent = PersonAgent('test', self, shape_pedromorales)
+        self.grid.add_agents(person_agent)
+        self.schedule.add(person_agent)
 
     def step(self):
         """Run one step of the model.
