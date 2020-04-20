@@ -3,6 +3,7 @@ from mesa import Model
 from mesa.time import RandomActivation
 from mesa_geo.geoagent import GeoAgent, AgentCreator
 from mesa_geo import GeoSpace
+from shapely.geometry import Point
 import random
 
 
@@ -20,10 +21,16 @@ class PersonAgent(GeoAgent):
         self.infected = 0
         self.atype = agent_type
 
+    def move_point(self, dx, dy):
+        """ Move a point by creating a new one"""
+        return Point(self.shape.x + dx, self.shape.y + dy)
+
     def step(self):
-        print(f"X: {self.shape.x}, Y:{self.shape.y}")
-        # self.shape.x += 10
-        # self.shape.y += 10
+        mobility_range = 10
+        move_x = random.randint(mobility_range)
+        move_y = random.randint(mobility_range)
+        self.shape = self.move_point(move_x, move_y)  # Reassign shape
+        print(f"X: {self.shape}, Y:{self.shape.y}")
         self.infected += 1
         print(f"AGENT COUNTER: {self.infected}")
 
