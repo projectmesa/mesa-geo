@@ -30,6 +30,11 @@ def infected_draw(agent):
     Portrayal Method for canvas
     """
     portrayal = dict()
+    portrayal["Shape"] = 'Circle'
+    portrayal["radius"] = '2'
+    portrayal["x"] = '0'
+    portrayal["y"] = '0'
+    portrayal["color"] = "Green"
     if agent.atype in ['hotspot', 'infected']:
         portrayal["color"] = "Red"
     else:
