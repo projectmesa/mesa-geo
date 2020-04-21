@@ -1,7 +1,7 @@
 from mesa_geo.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import ChartModule, TextElement
 from mesa.visualization.UserParam import UserSettableParameter
-from model import InfectedModel
+from model import InfectedModel, PersonAgent
 from mesa_geo.visualization.MapModule import MapModule
 
 
@@ -30,21 +30,22 @@ def infected_draw(agent):
     Portrayal Method for canvas
     """
     portrayal = dict()
-    portrayal["Shape"] = 'Circle'
-    portrayal["radius"] = '2'
-    portrayal["x"] = '0'
-    portrayal["y"] = '0'
-    portrayal["color"] = "Green"
+    if isinstance(agent, PersonAgent):
+        portrayal["Shape"] = 'Circle'
+        portrayal["radius"] = '2'
+        portrayal["x"] = '0'
+        portrayal["y"] = '0'
     if agent.atype in ['hotspot', 'infected']:
         portrayal["color"] = "Red"
     else:
-        portrayal["color"] = "Blue"
+        portrayal["color"] = "Green"
+    print(portrayal)
     return portrayal
 
 
 infected_element = InfectedText()
-map_element = MapModule(infected_draw, [43.741667, -79.373333], 10, 500, 500)
-#map_element = MapModule(infected_draw, [43.547899,-96.735894], 4, 500, 500)
+map_element = MapModule(infected_draw, [43.741667, -79.373333], 10, 500, 500)  # Toronto
+#map_element = MapModule(infected_draw, [43.547899,-96.735894], 4, 500, 500)  # Sioux Falls
 infected_chart = ChartModule([{"Label": "infected", "Color": "Black"}])
 server = ModularServer(
     InfectedModel, [map_element, infected_element, infected_chart], "Infected", model_params

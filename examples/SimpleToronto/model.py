@@ -26,13 +26,11 @@ class PersonAgent(GeoAgent):
         return Point(self.shape.x + dx, self.shape.y + dy)
 
     def step(self):
-        mobility_range = 10
-        move_x = random.randint(mobility_range)
-        move_y = random.randint(mobility_range)
+        mobility_range = 100
+        move_x = random.randint(0, mobility_range)
+        move_y = random.randint(0, mobility_range)
         self.shape = self.move_point(move_x, move_y)  # Reassign shape
-        print(f"X: {self.shape}, Y:{self.shape.y}")
-        self.infected += 1
-        print(f"AGENT COUNTER: {self.infected}")
+        self.atype = "infected" if self.random.random() > 0.5 else "susceptible"
 
 
 class NeighbourhoodAgent(GeoAgent):
@@ -69,7 +67,7 @@ class InfectedModel(Model):
 
         self.running = True
 
-        # Set up the grid with patches for every NUTS region
+        # Set up the grid with patches for every region
         AC = AgentCreator(NeighbourhoodAgent, {"model": self})
         neighbourhood_agents = AC.from_file("TorontoNeighbourhoods.geojson")
         self.grid.add_agents(neighbourhood_agents)
@@ -116,7 +114,7 @@ class InfectedModel(Model):
 
         After 10 steps, halt the model.
         """
-        self.infected = 0  # Reset counter of happy agents
+        self.infected += 1
         self.schedule.step()
         # self.datacollector.collect(self)
 
