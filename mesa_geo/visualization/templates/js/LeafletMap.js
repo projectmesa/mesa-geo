@@ -9,6 +9,14 @@ var MapModule = function (view, zoom, map_width, map_height) {
   var Lmap = L.map('mapid').setView(view, zoom)
   var AgentLayer = L.geoJSON().addTo(Lmap)
 
+  var geojsonMarkerOptions = {
+    radius: 2,
+    fillColor: "#ff7800",
+    color: "#000",
+    weight: 1,
+    opacity: 1,
+    fillOpacity: 0.8
+  }
 
   // create the OSM tile layer with correct attribution
   var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
@@ -33,7 +41,10 @@ var MapModule = function (view, zoom, map_width, map_height) {
     AgentLayer = L.geoJSON(data, {
       onEachFeature: PopUpProperties,
       style: function (feature) {
-        return {color: feature.properties.color}
+        return {color: feature.properties.color};
+      },
+      pointToLayer: function (feature, latlang) {
+        return L.circleMarker(latlang, {radius:feature.properties.radius, color: feature.properties.color});
       }
     }).addTo(Lmap)
   }
