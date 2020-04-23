@@ -42,9 +42,10 @@ def infected_draw(agent):
     return portrayal
 
 
+# coords = [43.547899, -96.735894]  # Sioux Falls
+coords = [43.741667, -79.373333]  # Toronto
 infected_text = InfectedText()
-map_element = MapModule(infected_draw, [43.741667, -79.373333], 10, 500, 500)  # Toronto
-#map_element = MapModule(infected_draw, [43.547899,-96.735894], 4, 500, 500)  # Sioux Falls
+map_element = MapModule(infected_draw, coords, 10, 500, 500)
 infected_chart = ChartModule([{"Label": "infected", "Color": "Black"}])
 server = ModularServer(
     InfectedModel, [map_element, infected_text, infected_chart], "Infected", model_params
