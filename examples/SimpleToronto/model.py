@@ -112,6 +112,9 @@ class InfectedModel(Model):
         # Create a person Agent, add it to grid and scheduler
         ac_person = AgentCreator(PersonAgent, {"model": self})
         person_agent = ac_person.from_GeoJSON(pedromorales_string, unique_id="AGENTNUM")
+        new_agent = ac_person.create_agent(person_agent[0].shape, unique_id="666")
+        new_agent.shape = new_agent.move_point(-3000, -3000)
+        person_agent.append(new_agent)
         # person_agent = ac_person.from_file("pedromorales.geojson")
         for agent in person_agent:
             self.grid.add_agents(agent)
