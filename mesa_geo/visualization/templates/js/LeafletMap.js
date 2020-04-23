@@ -16,7 +16,7 @@ var MapModule = function (view, zoom, map_width, map_height) {
     weight: 1,
     opacity: 1,
     fillOpacity: 0.8
-   }
+  }
 
   // create the OSM tile layer with correct attribution
   var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
@@ -38,18 +38,15 @@ var MapModule = function (view, zoom, map_width, map_height) {
 
     AgentLayer.remove()
     console.log(data)
-    //AgentLayer = L.geoJSON(data, {
-      //onEachFeature: PopUpProperties,
-      //style: function (feature) {
-        //return {color: feature.properties.color}
-      //}
-    //}).addTo(Lmap)
     AgentLayer = L.geoJSON(data, {
-    onEachFeature: PopUpProperties,  
-    pointToLayer: function (feature, latlng) {
-        return L.circleMarker(latlng, {radius:feature.properties.radius, color: feature.properties.color});
-    }
-    }).addTo(Lmap)   
+      onEachFeature: PopUpProperties,
+      style: function (feature) {
+        return {color: feature.properties.color};
+      },
+      pointToLayer: function (feature, latlang) {
+        return L.circleMarker(latlang, {radius:feature.properties.radius, color: feature.properties.color});
+      }
+    }).addTo(Lmap)
   }
 
   this.reset = function () {
