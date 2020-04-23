@@ -10,7 +10,7 @@ import random
 class PersonAgent(GeoAgent):
     """Person Agent."""
 
-    def __init__(self, unique_id, model, shape, agent_type="susceptible"):
+    def __init__(self, unique_id, model, shape, agent_type="infected"):
         """ Create a new Person agent.
 
         Args:
@@ -32,6 +32,9 @@ class PersonAgent(GeoAgent):
         self.shape = self.move_point(move_x, move_y)  # Reassign shape
         self.atype = "infected" if self.random.random() > 0.5 else "susceptible"
 
+    def __repr__(self):
+        return "Person " + str(self.unique_id)
+
 
 class NeighbourhoodAgent(GeoAgent):
     """Neighbourhood agent."""
@@ -48,11 +51,16 @@ class NeighbourhoodAgent(GeoAgent):
 
     def step(self):
         """Advance agent one step."""
-        "dumb test"
-        self.atype = "hotspot" if self.random.random() > 0.5 else "safe"
+        hotspot_threshold = 1
+        neighbors = self.model.grid.get_intersecting_agents(self)
+        infected_neighbors = [neighbor for neighbor in neighbors if neighbor.atype == 'infected']
+        if len(infected_neighbors) >= hotspot_threshold:
+            self.atype = "hotspot"
+        else:
+            self.atype = 'safe'
 
     def __repr__(self):
-        return "Agent " + str(self.unique_id)
+        return "Neighborhood " + str(self.unique_id)
 
 
 class InfectedModel(Model):
@@ -69,7 +77,7 @@ class InfectedModel(Model):
 
         # Set up the grid with patches for every region
         AC = AgentCreator(NeighbourhoodAgent, {"model": self})
-        neighbourhood_agents = AC.from_file("TorontoNeighbourhoods.geojson")
+        neighbourhood_agents = AC.from_file("TorontoNeighbourhoods.geojson", unique_id="HOODNUM")
         self.grid.add_agents(neighbourhood_agents)
         # Set up agents
         for agent in neighbourhood_agents:
@@ -94,7 +102,7 @@ class InfectedModel(Model):
                     "geometry": {
                         "type": "Point",
                         "coordinates": [
-                            -79.404282800449266,
+                            -79.394282800449266,
                             43.647979616068149
                         ]
                     }
@@ -103,7 +111,7 @@ class InfectedModel(Model):
         }
         # Create a person Agent, add it to grid and scheduler
         ac_person = AgentCreator(PersonAgent, {"model": self})
-        person_agent = ac_person.from_GeoJSON(pedromorales_string)
+        person_agent = ac_person.from_GeoJSON(pedromorales_string, unique_id="AGENTNUM")
         # person_agent = ac_person.from_file("pedromorales.geojson")
         for agent in person_agent:
             self.grid.add_agents(agent)
@@ -116,6 +124,7 @@ class InfectedModel(Model):
         """
         self.infected += 1
         self.schedule.step()
+        self.grid._recreate_rtree([])
         # self.datacollector.collect(self)
 
         # Run for 10 steps
