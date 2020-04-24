@@ -27,8 +27,8 @@ class PersonAgent(GeoAgent):
 
     def step(self):
         mobility_range = 100
-        move_x = self.random.randint(0, mobility_range)
-        move_y = self.random.randint(0, mobility_range)
+        move_x = self.random.randint(-mobility_range, mobility_range)
+        move_y = self.random.randint(-mobility_range, mobility_range)
         self.shape = self.move_point(move_x, move_y)  # Reassign shape
         self.atype = "infected" if self.random.random() > 0.5 else "susceptible"
 
