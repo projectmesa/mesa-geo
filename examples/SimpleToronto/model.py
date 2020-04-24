@@ -10,26 +10,49 @@ from shapely.geometry import Point
 class PersonAgent(GeoAgent):
     """Person Agent."""
 
-    def __init__(self, unique_id, model, shape, agent_type="susceptible", mobility_range=100):
+    def __init__(self, unique_id, model, shape, agent_type="susceptible", mobility_range=100,
+                 recovery_rate=0.2, death_risk=0.1):
         """ Create a new Person agent.
 
         Args:
             unique_id: Unique identifier for the agent
-            agent_type: Indicator if agent is infected ("infected" or "susceptible")
+            agent_type: Indicator if agent is infected ("infected", "susceptible", "recovered" or "dead")
             """
         super().__init__(unique_id, model, shape)
-        self.infected = 0
+        # Agent parameters
         self.atype = agent_type
         self.mobility_range = mobility_range
+        self.recovery_rate = recovery_rate
+        self.death_risk = death_risk
 
     def move_point(self, dx, dy):
         """ Move a point by creating a new one"""
         return Point(self.shape.x + dx, self.shape.y + dy)
 
     def step(self):
-        move_x = self.random.randint(-self.mobility_range, self.mobility_range)
-        move_y = self.random.randint(-self.mobility_range, self.mobility_range)
-        self.shape = self.move_point(move_x, move_y)  # Reassign shape
+        # If susceptible, check if exposed
+        if self.atype == "susceptible":
+            neighbors = self.model.grid.get_neighbors_within_distance(self, self.model.exposure_distance)
+            infected_neighbors = [neighbor for neighbor in neighbors if neighbor.atype == 'infected']
+            # If exposed, decide if infected
+            if len(infected_neighbors) >= 1:
+                if self.random.random() < self.model.infection_risk:
+                    self.atype = "infected"
+        # If infected, check if it recovers or if it dies
+        elif self.atype == "infected":
+            if self.random.random() < self.recovery_rate:
+                self.atype = "recovered"
+            elif self.random.random() < self.death_risk:
+                self.atype = "dead"
+
+        # If not dead, move
+        if self.atype != "dead":
+            move_x = self.random.randint(-self.mobility_range, self.mobility_range)
+            move_y = self.random.randint(-self.mobility_range, self.mobility_range)
+            self.shape = self.move_point(move_x, move_y)  # Reassign shape
+
+
+
 
     def __repr__(self):
         return "Person " + str(self.unique_id)
@@ -66,13 +89,18 @@ class InfectedModel(Model):
     """Model class for a simplistic infection model."""
     MAP_COORDS = [43.741667, -79.373333]  # Toronto
 
-    def __init__(self, pop_size, init_infected):
+    def __init__(self, pop_size, init_infected, exposure_distance=10, infection_risk=0.2):
         self.schedule = RandomActivation(self)
         self.grid = GeoSpace()
+        self.datacollector = DataCollector({"infected": "infected"})
 
         self.pop_size = pop_size
         self.infected = 0
-        self.datacollector = DataCollector({"infected": "infected"})
+        self.steps = 0
+
+        # SIR model parameters
+        self.exposure_distance = exposure_distance
+        self.infection_risk = infection_risk
 
         self.running = True
 
@@ -100,16 +128,13 @@ class InfectedModel(Model):
             self.schedule.add(this_person)
 
     def step(self):
-        """Run one step of the model.
-
-        After 10 steps, halt the model.
-        """
-        self.infected += 1
+        """Run one step of the model."""
+        self.steps += 1
         self.schedule.step()
         self.grid._recreate_rtree([])  # Recalculate spatial tree, because agents are moving
-        infected_people = [person for person in self.grid.agents if person.atype == 'infected']
+        self.infected = len([person for person in self.grid.agents if person.atype == 'infected'])
         # self.datacollector.collect(self)
 
         # Run until everyone infected
-        if len(infected_people) == self.pop_size:
+        if self.infected == self.pop_size:
             self.running = False
