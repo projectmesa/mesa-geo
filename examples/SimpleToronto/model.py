@@ -10,7 +10,7 @@ from shapely.geometry import Point
 class PersonAgent(GeoAgent):
     """Person Agent."""
 
-    def __init__(self, unique_id, model, shape, agent_type="infected"):
+    def __init__(self, unique_id, model, shape, agent_type="susceptible"):
         """ Create a new Person agent.
 
         Args:
@@ -30,7 +30,6 @@ class PersonAgent(GeoAgent):
         move_x = self.random.randint(-mobility_range, mobility_range)
         move_y = self.random.randint(-mobility_range, mobility_range)
         self.shape = self.move_point(move_x, move_y)  # Reassign shape
-        self.atype = "infected" if self.random.random() > 0.5 else "susceptible"
 
     def __repr__(self):
         return "Person " + str(self.unique_id)
@@ -67,7 +66,7 @@ class InfectedModel(Model):
     """Model class for a simplistic infection model."""
     MAP_COORDS = [43.741667, -79.373333]  # Toronto
 
-    def __init__(self, pop_size, minority_pc):
+    def __init__(self, pop_size, init_infected):
         self.schedule = RandomActivation(self)
         self.grid = GeoSpace()
 
@@ -90,11 +89,12 @@ class InfectedModel(Model):
         center_shape = transform(Point(long, lat), self.grid.WGS84, self.grid.crs)  # Convert to projection coordinates
         center_x, center_y = (center_shape.x, center_shape.y)
         ac_population = AgentCreator(PersonAgent, {"model": self})
-        # Generate population
         for i in range(pop_size):
-            new_x = center_x + self.random.randint(0, spread_x) - spread_x / 2
-            new_y = center_y + self.random.randint(0, spread_y) - spread_y / 2
-            this_person = ac_population.create_agent(Point(new_x, new_y), "P" + str(i))
+            this_x = center_x + self.random.randint(0, spread_x) - spread_x / 2
+            this_y = center_y + self.random.randint(0, spread_y) - spread_y / 2
+            this_person = ac_population.create_agent(Point(this_x, this_y), "P" + str(i))
+            if self.random.random() < init_infected:
+                this_person.atype = "infected"
             self.grid.add_agents(this_person)
             self.schedule.add(this_person)
 
