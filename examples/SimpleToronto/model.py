@@ -10,7 +10,7 @@ from shapely.geometry import Point
 class PersonAgent(GeoAgent):
     """Person Agent."""
 
-    def __init__(self, unique_id, model, shape, agent_type="susceptible"):
+    def __init__(self, unique_id, model, shape, agent_type="susceptible", mobility_range=100):
         """ Create a new Person agent.
 
         Args:
@@ -20,15 +20,15 @@ class PersonAgent(GeoAgent):
         super().__init__(unique_id, model, shape)
         self.infected = 0
         self.atype = agent_type
+        self.mobility_range = mobility_range
 
     def move_point(self, dx, dy):
         """ Move a point by creating a new one"""
         return Point(self.shape.x + dx, self.shape.y + dy)
 
     def step(self):
-        mobility_range = 100
-        move_x = self.random.randint(-mobility_range, mobility_range)
-        move_y = self.random.randint(-mobility_range, mobility_range)
+        move_x = self.random.randint(-self.mobility_range, self.mobility_range)
+        move_y = self.random.randint(-self.mobility_range, self.mobility_range)
         self.shape = self.move_point(move_x, move_y)  # Reassign shape
 
     def __repr__(self):
@@ -38,7 +38,7 @@ class PersonAgent(GeoAgent):
 class NeighbourhoodAgent(GeoAgent):
     """Neighbourhood agent."""
 
-    def __init__(self, unique_id, model, shape, agent_type="safe"):
+    def __init__(self, unique_id, model, shape, agent_type="safe", hotspot_threshold=1):
         """Create a new Neighbourhood agent.
 
         Args:
@@ -47,13 +47,13 @@ class NeighbourhoodAgent(GeoAgent):
         """
         super().__init__(unique_id, model, shape)
         self.atype = agent_type
+        self.hotspot_threshold = hotspot_threshold  # When a neighborhood is considered a hot-spot
 
     def step(self):
         """Advance agent one step."""
-        hotspot_threshold = 1
         neighbors = self.model.grid.get_intersecting_agents(self)
         infected_neighbors = [neighbor for neighbor in neighbors if neighbor.atype == 'infected']
-        if len(infected_neighbors) >= hotspot_threshold:
+        if len(infected_neighbors) >= self.hotspot_threshold:
             self.atype = "hotspot"
         else:
             self.atype = 'safe'
@@ -70,6 +70,7 @@ class InfectedModel(Model):
         self.schedule = RandomActivation(self)
         self.grid = GeoSpace()
 
+        self.pop_size = pop_size
         self.infected = 0
         self.datacollector = DataCollector({"infected": "infected"})
 
@@ -106,8 +107,9 @@ class InfectedModel(Model):
         self.infected += 1
         self.schedule.step()
         self.grid._recreate_rtree([])  # Recalculate spatial tree, because agents are moving
+        infected_people = [person for person in self.grid.agents if person.atype == 'infected']
         # self.datacollector.collect(self)
 
-        # Run for 10 steps
-        if self.infected == 10:
+        # Run until everyone infected
+        if len(infected_people) == self.pop_size:
             self.running = False
