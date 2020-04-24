@@ -3,8 +3,8 @@ from mesa import Model
 from mesa.time import RandomActivation
 from mesa_geo.geoagent import GeoAgent, AgentCreator
 from mesa_geo import GeoSpace
+from mesa_geo.utilities import transform
 from shapely.geometry import Point
-import random
 
 
 class PersonAgent(GeoAgent):
@@ -27,8 +27,8 @@ class PersonAgent(GeoAgent):
 
     def step(self):
         mobility_range = 100
-        move_x = random.randint(0, mobility_range)
-        move_y = random.randint(0, mobility_range)
+        move_x = self.random.randint(0, mobility_range)
+        move_y = self.random.randint(0, mobility_range)
         self.shape = self.move_point(move_x, move_y)  # Reassign shape
         self.atype = "infected" if self.random.random() > 0.5 else "susceptible"
 
@@ -65,8 +65,9 @@ class NeighbourhoodAgent(GeoAgent):
 
 class InfectedModel(Model):
     """Model class for a simplistic infection model."""
+    MAP_COORDS = [43.741667, -79.373333]  # Toronto
 
-    def __init__(self, density, minority_pc):
+    def __init__(self, pop_size, minority_pc):
         self.schedule = RandomActivation(self)
         self.grid = GeoSpace()
 
@@ -75,50 +76,28 @@ class InfectedModel(Model):
 
         self.running = True
 
-        # Set up the grid with patches for every region
+        # Set up the grid with patches for every region in file
         AC = AgentCreator(NeighbourhoodAgent, {"model": self})
         neighbourhood_agents = AC.from_file("TorontoNeighbourhoods.geojson", unique_id="HOODNUM")
         self.grid.add_agents(neighbourhood_agents)
-        # Set up agents
+        # Set up region agents
         for agent in neighbourhood_agents:
             self.schedule.add(agent)
 
-        pedromorales_string = {
-            "type": "FeatureCollection",
-            "name": "pedromorales",
-            "crs": {
-                "type": "name",
-                "properties": {
-                    "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
-                }
-            },
-            "features": [
-                {
-                    "type": "Feature",
-                    "properties": {
-                        "AGENTNUM": 42,
-                        "NAME": "Pedro Morales"
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [
-                            -79.394282800449266,
-                            43.647979616068149
-                        ]
-                    }
-                }
-            ]
-        }
-        # Create a person Agent, add it to grid and scheduler
-        ac_person = AgentCreator(PersonAgent, {"model": self})
-        person_agent = ac_person.from_GeoJSON(pedromorales_string, unique_id="AGENTNUM")
-        new_agent = ac_person.create_agent(person_agent[0].shape, unique_id="666")
-        new_agent.shape = new_agent.move_point(-3000, -3000)
-        person_agent.append(new_agent)
-        # person_agent = ac_person.from_file("pedromorales.geojson")
-        for agent in person_agent:
-            self.grid.add_agents(agent)
-            self.schedule.add(agent)
+        # Generate PersonAgent population
+        lat, long = self.MAP_COORDS
+        spread_x, spread_y = (5000, 5000)  # Range of initial population spread
+        center_shape = transform(Point(long, lat), self.grid.WGS84, self.grid.crs)  # Convert to projection coordinates
+        center_x, center_y = (center_shape.x, center_shape.y)
+        ac_population = AgentCreator(PersonAgent, {"model": self})
+        # Generate population
+        for i in range(pop_size):
+            this_person = ac_population.create_agent(Point(center_x + self.random.randint(0, spread_x) - spread_x / 2,
+                                                           center_y + self.random.randint(0, spread_y) - spread_y / 2),
+                                                     "P" + str(i))
+            # Add person to grid and scheduler
+            self.grid.add_agents(this_person)
+            self.schedule.add(this_person)
 
     def step(self):
         """Run one step of the model.
@@ -127,7 +106,7 @@ class InfectedModel(Model):
         """
         self.infected += 1
         self.schedule.step()
-        self.grid._recreate_rtree([])
+        self.grid._recreate_rtree([])  # Recalculate spatial tree, because agents are moving
         # self.datacollector.collect(self)
 
         # Run for 10 steps
