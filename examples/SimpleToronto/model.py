@@ -92,10 +92,9 @@ class InfectedModel(Model):
         ac_population = AgentCreator(PersonAgent, {"model": self})
         # Generate population
         for i in range(pop_size):
-            this_person = ac_population.create_agent(Point(center_x + self.random.randint(0, spread_x) - spread_x / 2,
-                                                           center_y + self.random.randint(0, spread_y) - spread_y / 2),
-                                                     "P" + str(i))
-            # Add person to grid and scheduler
+            new_x = center_x + self.random.randint(0, spread_x) - spread_x / 2
+            new_y = center_y + self.random.randint(0, spread_y) - spread_y / 2
+            this_person = ac_population.create_agent(Point(new_x, new_y), "P" + str(i))
             self.grid.add_agents(this_person)
             self.schedule.add(this_person)
 
