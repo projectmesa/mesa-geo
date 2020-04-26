@@ -47,7 +47,7 @@ class PersonAgent(GeoAgent):
         if self.atype == "susceptible":
             neighbors = self.model.grid.get_neighbors_within_distance(self, self.model.exposure_distance)
             infected_neighbors = [neighbor for neighbor in neighbors if neighbor.atype == 'infected']
-            # If exposed, decide if infected
+            # If exposed to at least one infected, decide randomly if infected
             if len(infected_neighbors) >= 1:
                 if self.random.random() < self.model.infection_risk:
                     self.atype = "infected"
@@ -71,7 +71,7 @@ class PersonAgent(GeoAgent):
 
 
 class NeighbourhoodAgent(GeoAgent):
-    """Neighbourhood agent."""
+    """Neighbourhood agent. Changes color according to number of infected inside it."""
 
     def __init__(self, unique_id, model, shape, agent_type="safe", hotspot_threshold=1):
         """
@@ -88,6 +88,7 @@ class NeighbourhoodAgent(GeoAgent):
 
     def step(self):
         """Advance agent one step."""
+        # Decide if this region agent is a hot-spot (if more than threshold person agents are infected)
         neighbors = self.model.grid.get_intersecting_agents(self)
         infected_neighbors = [neighbor for neighbor in neighbors if neighbor.atype == 'infected']
         if len(infected_neighbors) >= self.hotspot_threshold:
@@ -118,14 +119,13 @@ class InfectedModel(Model):
         """
         self.schedule = RandomActivation(self)
         self.grid = GeoSpace()
-
-        self.pop_size = pop_size
+        self.steps = 0
         self.counts = None
         self.reset_counts()
-        self.counts["susceptible"] = pop_size
-        self.steps = 0
 
         # SIR model parameters
+        self.pop_size = pop_size
+        self.counts["susceptible"] = pop_size
         self.exposure_distance = exposure_distance
         self.infection_risk = infection_risk
 
@@ -141,6 +141,7 @@ class InfectedModel(Model):
         center_shape = transform(Point(long, lat), self.grid.WGS84, self.grid.crs)  # Convert to projection coordinates
         center_x, center_y = (center_shape.x, center_shape.y)
         ac_population = AgentCreator(PersonAgent, {"model": self, "init_infected": init_infected})
+        # Generate random location, add agent to grid and scheduler
         for i in range(pop_size):
             this_x = center_x + self.random.randint(0, spread_x) - spread_x / 2
             this_y = center_y + self.random.randint(0, spread_y) - spread_y / 2
