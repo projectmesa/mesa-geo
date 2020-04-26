@@ -85,9 +85,14 @@ class NeighbourhoodAgent(GeoAgent):
         super().__init__(unique_id, model, shape)
         self.atype = agent_type
         self.hotspot_threshold = hotspot_threshold  # When a neighborhood is considered a hot-spot
+        self.color_hotspot()
 
     def step(self):
         """Advance agent one step."""
+        self.color_hotspot()
+        self.model.counts[self.atype] += 1  # Count agent type
+
+    def color_hotspot(self):
         # Decide if this region agent is a hot-spot (if more than threshold person agents are infected)
         neighbors = self.model.grid.get_intersecting_agents(self)
         infected_neighbors = [neighbor for neighbor in neighbors if neighbor.atype == 'infected']
@@ -95,8 +100,6 @@ class NeighbourhoodAgent(GeoAgent):
             self.atype = "hotspot"
         else:
             self.atype = 'safe'
-
-        self.model.counts[self.atype] += 1  # Count agent type
 
     def __repr__(self):
         return "Neighborhood " + str(self.unique_id)
@@ -149,7 +152,7 @@ class InfectedModel(Model):
             self.grid.add_agents(this_person)
             self.schedule.add(this_person)
 
-        # Set up the grid with patches for every region in file
+        # Set up the Neighbourhood patches for every region in file
         AC = AgentCreator(NeighbourhoodAgent, {"model": self})
         neighbourhood_agents = AC.from_file(self.geojson_regions, unique_id=self.unique_id)
         self.grid.add_agents(neighbourhood_agents)
