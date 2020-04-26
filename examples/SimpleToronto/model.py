@@ -12,12 +12,14 @@ class PersonAgent(GeoAgent):
 
     def __init__(self, unique_id, model, shape, agent_type="susceptible", mobility_range=100,
                  recovery_rate=0.2, death_risk=0.1, init_infected=0.1):
-        """ Create a new Person agent.
-
-        Args:
-            unique_id: Unique identifier for the agent
-            agent_type: Indicator if agent is infected ("infected", "susceptible", "recovered" or "dead")
-            """
+        """
+        Create a new person agent.
+        :param unique_id:   Unique identifier for the agent
+        :param model:       Model in which the agent runs
+        :param shape:       Shape object for the agent
+        :param agent_type:  Indicator if agent is infected ("infected", "susceptible", "recovered" or "dead")
+        :param mobility_range:  Range of distance to move in one step
+        """
         super().__init__(unique_id, model, shape)
         # Agent parameters
         self.atype = agent_type
@@ -32,10 +34,15 @@ class PersonAgent(GeoAgent):
             self.model.counts["susceptible"] -= 1
 
     def move_point(self, dx, dy):
-        """ Move a point by creating a new one"""
+        """
+        Move a point by creating a new one
+        :param dx:  Distance to move in x-axis
+        :param dy:  Distance to move in y-axis
+        """
         return Point(self.shape.x + dx, self.shape.y + dy)
 
     def step(self):
+        """Advance one step."""
         # If susceptible, check if exposed
         if self.atype == "susceptible":
             neighbors = self.model.grid.get_neighbors_within_distance(self, self.model.exposure_distance)
@@ -67,11 +74,13 @@ class NeighbourhoodAgent(GeoAgent):
     """Neighbourhood agent."""
 
     def __init__(self, unique_id, model, shape, agent_type="safe", hotspot_threshold=1):
-        """Create a new Neighbourhood agent.
-
-        Args:
-            unique_id: Unique identifier for the agent.
-            agent_type: Indicator if neighborhood is hot-spot ("hotspot" or "safe")
+        """
+        Create a new Neighbourhood agent.
+        :param unique_id:   Unique identifier for the agent
+        :param model:       Model in which the agent runs
+        :param shape:       Shape object for the agent
+        :param agent_type:  Indicator if agent is infected ("infected", "susceptible", "recovered" or "dead")
+        :param hotspot_threshold:   Number of infected agents in region to be considered a hot-spot
         """
         super().__init__(unique_id, model, shape)
         self.atype = agent_type
@@ -94,12 +103,19 @@ class NeighbourhoodAgent(GeoAgent):
 
 class InfectedModel(Model):
     """Model class for a simplistic infection model."""
-    # Vars for desired map
+    # Geographical parameters for desired map
     MAP_COORDS = [43.741667, -79.373333]  # Toronto
     geojson_regions = "TorontoNeighbourhoods.geojson"
     unique_id = "HOODNUM"
 
-    def __init__(self, pop_size, init_infected, exposure_distance=10, infection_risk=0.2):
+    def __init__(self, pop_size, init_infected, exposure_distance, infection_risk=0.2):
+        """
+        Create a new InfectedModel
+        :param pop_size:        Size of population
+        :param init_infected:   Probability of a person agent to start as infected
+        :param exposure_distance:   Proximity distance between agents to be exposed to each other
+        :param infection_risk:      Probability of agent to become infected, if it has been exposed to another infected
+        """
         self.schedule = RandomActivation(self)
         self.grid = GeoSpace()
 
@@ -153,13 +169,13 @@ class InfectedModel(Model):
         self.grid._recreate_rtree([])  # Recalculate spatial tree, because agents are moving
 
         self.datacollector.collect(self)
-        print(self.counts)
 
         # Run until no one is infected
         if self.counts['infected'] == 0:
             self.running = False
 
 
+# Functions needed for datacollector
 def get_infected_count(model):
     return model.counts["infected"]
 
