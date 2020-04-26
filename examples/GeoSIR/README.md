@@ -10,4 +10,5 @@ Person agents are initially located in random positions in the city, then start 
 A fraction of agents start with an infection and may recover or die in each step.
 Susceptible agents (those who have never been infected) who come in proximity with an infected agent may become infected.
 
-Neighbourhood agents represent neighbourhoods in the city, and become hot-spots (colored red) if there are infected agents inside them.
+Neighbourhood agents represent neighbourhoods in the Toronto, and become hot-spots (colored red) if there are infected agents inside them.
+Data obtained from [this link](http://adamw523.com/toronto-geojson/).
