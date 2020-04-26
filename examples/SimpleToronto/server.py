@@ -20,6 +20,7 @@ class InfectedText(TextElement):
 model_params = {
     "pop_size": UserSettableParameter("slider", "Population size", 10, 10, 100, 10),
     "init_infected": UserSettableParameter("slider", "Fraction initial infection", 0.2, 0.00, 1.0, 0.05),
+    "exposure_distance": UserSettableParameter("slider", "Exposure distance", 500, 100, 1000, 100)
 }
 
 
@@ -29,7 +30,6 @@ def infected_draw(agent):
     """
     portrayal = dict()
     if isinstance(agent, PersonAgent):
-        # portrayal["Shape"] = 'Triangle'
         portrayal["radius"] = '2'
     if agent.atype in ['hotspot', 'infected']:
         portrayal["color"] = "Red"
@@ -49,6 +49,6 @@ infected_chart = ChartModule([{"Label": "infected", "Color": "Red"},
                               {"Label": "recovered", "Color": "Blue"},
                               {"Label": "dead", "Color": "Black"}])
 server = ModularServer(
-    InfectedModel, [map_element, infected_text, infected_chart], "Infected", model_params
+    InfectedModel, [map_element, infected_text, infected_chart], "Basic agent-based SIR model", model_params
 )
 server.launch()
