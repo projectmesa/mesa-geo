@@ -11,7 +11,7 @@ class PersonAgent(GeoAgent):
     """Person Agent."""
 
     def __init__(self, unique_id, model, shape, agent_type="susceptible", mobility_range=100,
-                 recovery_rate=0.2, death_risk=0.1):
+                 recovery_rate=0.2, death_risk=0.1, init_infected=0.1):
         """ Create a new Person agent.
 
         Args:
@@ -24,6 +24,12 @@ class PersonAgent(GeoAgent):
         self.mobility_range = mobility_range
         self.recovery_rate = recovery_rate
         self.death_risk = death_risk
+
+        # Random choose if infected
+        if self.random.random() < init_infected:
+            self.atype = "infected"
+            self.model.counts["infected"] += 1  # Adjust initial counts
+            self.model.counts["susceptible"] -= 1
 
     def move_point(self, dx, dy):
         """ Move a point by creating a new one"""
@@ -51,8 +57,7 @@ class PersonAgent(GeoAgent):
             move_y = self.random.randint(-self.mobility_range, self.mobility_range)
             self.shape = self.move_point(move_x, move_y)  # Reassign shape
 
-
-
+        self.model.counts[self.atype] += 1  # Count agent type
 
     def __repr__(self):
         return "Person " + str(self.unique_id)
@@ -81,21 +86,27 @@ class NeighbourhoodAgent(GeoAgent):
         else:
             self.atype = 'safe'
 
+        self.model.counts[self.atype] += 1  # Count agent type
+
     def __repr__(self):
         return "Neighborhood " + str(self.unique_id)
 
 
 class InfectedModel(Model):
     """Model class for a simplistic infection model."""
+    # Vars for desired map
     MAP_COORDS = [43.741667, -79.373333]  # Toronto
+    geojson_regions = "TorontoNeighbourhoods.geojson"
+    unique_id = "HOODNUM"
 
     def __init__(self, pop_size, init_infected, exposure_distance=10, infection_risk=0.2):
         self.schedule = RandomActivation(self)
         self.grid = GeoSpace()
-        self.datacollector = DataCollector({"infected": "infected"})
 
         self.pop_size = pop_size
-        self.infected = 0
+        self.counts = None
+        self.reset_counts()
+        self.counts["susceptible"] = pop_size
         self.steps = 0
 
         # SIR model parameters
@@ -103,38 +114,63 @@ class InfectedModel(Model):
         self.infection_risk = infection_risk
 
         self.running = True
-
-        # Set up the grid with patches for every region in file
-        AC = AgentCreator(NeighbourhoodAgent, {"model": self})
-        neighbourhood_agents = AC.from_file("TorontoNeighbourhoods.geojson", unique_id="HOODNUM")
-        self.grid.add_agents(neighbourhood_agents)
-        # Set up region agents
-        for agent in neighbourhood_agents:
-            self.schedule.add(agent)
+        self.datacollector = DataCollector({'infected': get_infected_count,
+                                            'susceptible': get_susceptible_count,
+                                            'recovered': get_recovered_count,
+                                            'dead': get_dead_count})
 
         # Generate PersonAgent population
         lat, long = self.MAP_COORDS
         spread_x, spread_y = (5000, 5000)  # Range of initial population spread
         center_shape = transform(Point(long, lat), self.grid.WGS84, self.grid.crs)  # Convert to projection coordinates
         center_x, center_y = (center_shape.x, center_shape.y)
-        ac_population = AgentCreator(PersonAgent, {"model": self})
+        ac_population = AgentCreator(PersonAgent, {"model": self, "init_infected": init_infected})
         for i in range(pop_size):
             this_x = center_x + self.random.randint(0, spread_x) - spread_x / 2
             this_y = center_y + self.random.randint(0, spread_y) - spread_y / 2
             this_person = ac_population.create_agent(Point(this_x, this_y), "P" + str(i))
-            if self.random.random() < init_infected:
-                this_person.atype = "infected"
             self.grid.add_agents(this_person)
             self.schedule.add(this_person)
+
+        # Set up the grid with patches for every region in file
+        AC = AgentCreator(NeighbourhoodAgent, {"model": self})
+        neighbourhood_agents = AC.from_file(self.geojson_regions, unique_id=self.unique_id)
+        self.grid.add_agents(neighbourhood_agents)
+        # Set up region agents
+        for agent in neighbourhood_agents:
+            self.schedule.add(agent)
+
+        self.datacollector.collect(self)
+
+    def reset_counts(self):
+        self.counts = {"susceptible": 0, "infected": 0, "recovered": 0, "dead": 0, "safe": 0, "hotspot": 0}
 
     def step(self):
         """Run one step of the model."""
         self.steps += 1
+        self.reset_counts()
         self.schedule.step()
         self.grid._recreate_rtree([])  # Recalculate spatial tree, because agents are moving
-        self.infected = len([person for person in self.grid.agents if person.atype == 'infected'])
-        # self.datacollector.collect(self)
 
-        # Run until everyone infected
-        if self.infected == self.pop_size:
+        self.datacollector.collect(self)
+        print(self.counts)
+
+        # Run until no one is infected
+        if self.counts['infected'] == 0:
             self.running = False
+
+
+def get_infected_count(model):
+    return model.counts["infected"]
+
+
+def get_susceptible_count(model):
+    return model.counts["susceptible"]
+
+
+def get_recovered_count(model):
+    return model.counts["recovered"]
+
+
+def get_dead_count(model):
+    return model.counts["dead"]
