@@ -9,15 +9,6 @@ var MapModule = function (view, zoom, map_width, map_height) {
   var Lmap = L.map('mapid').setView(view, zoom)
   var AgentLayer = L.geoJSON().addTo(Lmap)
 
-  var geojsonMarkerOptions = {
-    radius: 2,
-    fillColor: "#ff7800",
-    color: "#000",
-    weight: 1,
-    opacity: 1,
-    fillOpacity: 0.8
-  }
-
   // create the OSM tile layer with correct attribution
   var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
   var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
