@@ -1,6 +1,6 @@
 from mesa.datacollection import DataCollector
 from mesa import Model
-from mesa.time import RandomActivation
+from mesa.time import BaseScheduler
 from mesa_geo.geoagent import GeoAgent, AgentCreator
 from mesa_geo import GeoSpace
 from mesa_geo.utilities import transform
@@ -121,7 +121,7 @@ class InfectedModel(Model):
         :param exposure_distance:   Proximity distance between agents to be exposed to each other
         :param infection_risk:      Probability of agent to become infected, if it has been exposed to another infected
         """
-        self.schedule = RandomActivation(self)
+        self.schedule = BaseScheduler(self)
         self.grid = GeoSpace()
         self.steps = 0
         self.counts = None

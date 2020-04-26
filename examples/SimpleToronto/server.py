@@ -18,7 +18,7 @@ class InfectedText(TextElement):
 
 
 model_params = {
-    "pop_size": UserSettableParameter("slider", "Population size", 10, 10, 100, 10),
+    "pop_size": UserSettableParameter("slider", "Population size", 30, 10, 100, 10),
     "init_infected": UserSettableParameter("slider", "Fraction initial infection", 0.2, 0.00, 1.0, 0.05),
     "exposure_distance": UserSettableParameter("slider", "Exposure distance", 500, 100, 1000, 100)
 }
