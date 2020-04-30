@@ -111,7 +111,6 @@ class InfectedModel(Model):
     MAP_COORDS = [43.741667, -79.373333]  # Toronto
     geojson_regions = "TorontoNeighbourhoods.geojson"
     unique_id = "HOODNUM"
-    spread_x, spread_y = (1000, 1000)  # Range of initial population spread
 
     def __init__(self, pop_size, init_infected, exposure_distance, infection_risk=0.2):
         """
@@ -149,10 +148,12 @@ class InfectedModel(Model):
         # Generate random location, add agent to grid and scheduler
         for i in range(pop_size):
             this_neighbourhood = self.random.randint(0, len(neighbourhood_agents) - 1)  # Region where agent starts
-            center_x = neighbourhood_agents[this_neighbourhood].shape.centroid.x
-            center_y = neighbourhood_agents[this_neighbourhood].shape.centroid.y
-            this_x = center_x + self.random.randint(0, self.spread_x) - self.spread_x / 2
-            this_y = center_y + self.random.randint(0, self.spread_y) - self.spread_y / 2
+            center_x, center_y = neighbourhood_agents[this_neighbourhood].shape.centroid.coords.xy
+            this_bounds = neighbourhood_agents[this_neighbourhood].shape.bounds
+            spread_x = int(this_bounds[2] - this_bounds[0])  # Heuristic for agent spread in region
+            spread_y = int(this_bounds[3] - this_bounds[1])
+            this_x = center_x[0] + self.random.randint(0, spread_x) - spread_x / 2
+            this_y = center_y[0] + self.random.randint(0, spread_y) - spread_y / 2
             this_person = ac_population.create_agent(Point(this_x, this_y), "P" + str(i))
             self.grid.add_agents(this_person)
             self.schedule.add(this_person)
