@@ -3,7 +3,6 @@ from mesa import Model
 from mesa.time import BaseScheduler
 from mesa_geo.geoagent import GeoAgent, AgentCreator
 from mesa_geo import GeoSpace
-from mesa_geo.utilities import transform
 from shapely.geometry import Point
 
 
