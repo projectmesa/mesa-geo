@@ -111,7 +111,7 @@ class InfectedModel(Model):
     MAP_COORDS = [43.741667, -79.373333]  # Toronto
     geojson_regions = "TorontoNeighbourhoods.geojson"
     unique_id = "HOODNUM"
-    spread_x, spread_y = (5000, 5000)  # Range of initial population spread
+    spread_x, spread_y = (1000, 1000)  # Range of initial population spread
 
     def __init__(self, pop_size, init_infected, exposure_distance, infection_risk=0.2):
         """
@@ -139,24 +139,26 @@ class InfectedModel(Model):
                                             'recovered': get_recovered_count,
                                             'dead': get_dead_count})
 
+        # Set up the Neighbourhood patches for every region in file (add to schedule later)
+        AC = AgentCreator(NeighbourhoodAgent, {"model": self})
+        neighbourhood_agents = AC.from_file(self.geojson_regions, unique_id=self.unique_id)
+        self.grid.add_agents(neighbourhood_agents)
+
         # Generate PersonAgent population
-        lat, long = self.MAP_COORDS
-        center_shape = transform(Point(long, lat), self.grid.WGS84, self.grid.crs)  # Convert to projection coordinates
-        center_x, center_y = (center_shape.x, center_shape.y)
         ac_population = AgentCreator(PersonAgent, {"model": self, "init_infected": init_infected})
         # Generate random location, add agent to grid and scheduler
         for i in range(pop_size):
+            this_neighbourhood = self.random.randint(0, len(neighbourhood_agents) - 1)  # Region where agent starts
+            center_x = neighbourhood_agents[this_neighbourhood].shape.centroid.x
+            center_y = neighbourhood_agents[this_neighbourhood].shape.centroid.y
             this_x = center_x + self.random.randint(0, self.spread_x) - self.spread_x / 2
             this_y = center_y + self.random.randint(0, self.spread_y) - self.spread_y / 2
             this_person = ac_population.create_agent(Point(this_x, this_y), "P" + str(i))
             self.grid.add_agents(this_person)
             self.schedule.add(this_person)
 
-        # Set up the Neighbourhood patches for every region in file
-        AC = AgentCreator(NeighbourhoodAgent, {"model": self})
-        neighbourhood_agents = AC.from_file(self.geojson_regions, unique_id=self.unique_id)
-        self.grid.add_agents(neighbourhood_agents)
-        # Set up region agents
+        # Add the neighbourhood agents to schedule AFTER person agents,
+        # to allow them to update their color by using BaseScheduler
         for agent in neighbourhood_agents:
             self.schedule.add(agent)
 
