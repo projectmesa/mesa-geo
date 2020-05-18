@@ -7,7 +7,7 @@ Core Objects: GeoAgent
 import json
 import geopandas as gpd
 from mesa import Agent
-from mesa_geo.utilities import transform
+from shapely.ops import transform
 from shapely.geometry import mapping
 from shapely.geometry.base import BaseGeometry
 import warnings
@@ -40,7 +40,7 @@ class GeoAgent(Agent):
         properties["model"] = str(self.model)
         shape = properties.pop("shape")
 
-        shape = transform(shape, self.model.grid.crs, self.model.grid.WGS84)
+        shape = transform(self.model.grid.Transformer.transform, shape)
 
         return {"type": "Feature", "geometry": mapping(shape), "properties": properties}
 
