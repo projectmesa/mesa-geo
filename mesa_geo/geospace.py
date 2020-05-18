@@ -37,7 +37,7 @@ class GeoSpace:
         self.crs = pyproj.CRS(crs)
         self.WGS84 = pyproj.CRS("epsg:4326")
         self.Transformer = pyproj.Transformer.from_crs(
-            self.crs, self.WGS84, skip_equivalent=True
+            self.crs, self.WGS84, skip_equivalent=True, always_xy=True
         )
 
         self.bbox = None
