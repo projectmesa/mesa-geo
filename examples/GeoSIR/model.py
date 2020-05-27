@@ -45,11 +45,11 @@ class PersonAgent(GeoAgent):
         # If susceptible, check if exposed
         if self.atype == "susceptible":
             neighbors = self.model.grid.get_neighbors_within_distance(self, self.model.exposure_distance)
-            infected_neighbors = [neighbor for neighbor in neighbors if neighbor.atype == 'infected']
-            # If exposed to at least one infected, decide randomly if infected
-            if len(infected_neighbors) >= 1:
-                if self.random.random() < self.model.infection_risk:
+            for neighbor in neighbors:
+                if neighbor.atype == "infected" and self.random.random() < self.model.infection_risk:
                     self.atype = "infected"
+                    break
+
         # If infected, check if it recovers or if it dies
         elif self.atype == "infected":
             if self.random.random() < self.recovery_rate:
