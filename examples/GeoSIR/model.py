@@ -9,8 +9,17 @@ from shapely.geometry import Point
 class PersonAgent(GeoAgent):
     """Person Agent."""
 
-    def __init__(self, unique_id, model, shape, agent_type="susceptible", mobility_range=100,
-                 recovery_rate=0.2, death_risk=0.1, init_infected=0.1):
+    def __init__(
+        self,
+        unique_id,
+        model,
+        shape,
+        agent_type="susceptible",
+        mobility_range=100,
+        recovery_rate=0.2,
+        death_risk=0.1,
+        init_infected=0.1,
+    ):
         """
         Create a new person agent.
         :param unique_id:   Unique identifier for the agent
@@ -44,9 +53,14 @@ class PersonAgent(GeoAgent):
         """Advance one step."""
         # If susceptible, check if exposed
         if self.atype == "susceptible":
-            neighbors = self.model.grid.get_neighbors_within_distance(self, self.model.exposure_distance)
+            neighbors = self.model.grid.get_neighbors_within_distance(
+                self, self.model.exposure_distance
+            )
             for neighbor in neighbors:
-                if neighbor.atype == "infected" and self.random.random() < self.model.infection_risk:
+                if (
+                    neighbor.atype == "infected"
+                    and self.random.random() < self.model.infection_risk
+                ):
                     self.atype = "infected"
                     break
 
@@ -83,7 +97,9 @@ class NeighbourhoodAgent(GeoAgent):
         """
         super().__init__(unique_id, model, shape)
         self.atype = agent_type
-        self.hotspot_threshold = hotspot_threshold  # When a neighborhood is considered a hot-spot
+        self.hotspot_threshold = (
+            hotspot_threshold
+        )  # When a neighborhood is considered a hot-spot
         self.color_hotspot()
 
     def step(self):
@@ -94,11 +110,13 @@ class NeighbourhoodAgent(GeoAgent):
     def color_hotspot(self):
         # Decide if this region agent is a hot-spot (if more than threshold person agents are infected)
         neighbors = self.model.grid.get_intersecting_agents(self)
-        infected_neighbors = [neighbor for neighbor in neighbors if neighbor.atype == 'infected']
+        infected_neighbors = [
+            neighbor for neighbor in neighbors if neighbor.atype == "infected"
+        ]
         if len(infected_neighbors) >= self.hotspot_threshold:
             self.atype = "hotspot"
         else:
-            self.atype = 'safe'
+            self.atype = "safe"
 
     def __repr__(self):
         return "Neighborhood " + str(self.unique_id)
@@ -106,6 +124,7 @@ class NeighbourhoodAgent(GeoAgent):
 
 class InfectedModel(Model):
     """Model class for a simplistic infection model."""
+
     # Geographical parameters for desired map
     MAP_COORDS = [43.741667, -79.373333]  # Toronto
     geojson_regions = "TorontoNeighbourhoods.geojson"
@@ -132,28 +151,44 @@ class InfectedModel(Model):
         self.infection_risk = infection_risk
 
         self.running = True
-        self.datacollector = DataCollector({'infected': get_infected_count,
-                                            'susceptible': get_susceptible_count,
-                                            'recovered': get_recovered_count,
-                                            'dead': get_dead_count})
+        self.datacollector = DataCollector(
+            {
+                "infected": get_infected_count,
+                "susceptible": get_susceptible_count,
+                "recovered": get_recovered_count,
+                "dead": get_dead_count,
+            }
+        )
 
         # Set up the Neighbourhood patches for every region in file (add to schedule later)
         AC = AgentCreator(NeighbourhoodAgent, {"model": self})
-        neighbourhood_agents = AC.from_file(self.geojson_regions, unique_id=self.unique_id)
+        neighbourhood_agents = AC.from_file(
+            self.geojson_regions, unique_id=self.unique_id
+        )
         self.grid.add_agents(neighbourhood_agents)
 
         # Generate PersonAgent population
-        ac_population = AgentCreator(PersonAgent, {"model": self, "init_infected": init_infected})
+        ac_population = AgentCreator(
+            PersonAgent, {"model": self, "init_infected": init_infected}
+        )
         # Generate random location, add agent to grid and scheduler
         for i in range(pop_size):
-            this_neighbourhood = self.random.randint(0, len(neighbourhood_agents) - 1)  # Region where agent starts
-            center_x, center_y = neighbourhood_agents[this_neighbourhood].shape.centroid.coords.xy
+            this_neighbourhood = self.random.randint(
+                0, len(neighbourhood_agents) - 1
+            )  # Region where agent starts
+            center_x, center_y = neighbourhood_agents[
+                this_neighbourhood
+            ].shape.centroid.coords.xy
             this_bounds = neighbourhood_agents[this_neighbourhood].shape.bounds
-            spread_x = int(this_bounds[2] - this_bounds[0])  # Heuristic for agent spread in region
+            spread_x = int(
+                this_bounds[2] - this_bounds[0]
+            )  # Heuristic for agent spread in region
             spread_y = int(this_bounds[3] - this_bounds[1])
             this_x = center_x[0] + self.random.randint(0, spread_x) - spread_x / 2
             this_y = center_y[0] + self.random.randint(0, spread_y) - spread_y / 2
-            this_person = ac_population.create_agent(Point(this_x, this_y), "P" + str(i))
+            this_person = ac_population.create_agent(
+                Point(this_x, this_y), "P" + str(i)
+            )
             self.grid.add_agents(this_person)
             self.schedule.add(this_person)
 
@@ -165,19 +200,26 @@ class InfectedModel(Model):
         self.datacollector.collect(self)
 
     def reset_counts(self):
-        self.counts = {"susceptible": 0, "infected": 0, "recovered": 0, "dead": 0, "safe": 0, "hotspot": 0}
+        self.counts = {
+            "susceptible": 0,
+            "infected": 0,
+            "recovered": 0,
+            "dead": 0,
+            "safe": 0,
+            "hotspot": 0,
+        }
 
     def step(self):
         """Run one step of the model."""
         self.steps += 1
         self.reset_counts()
         self.schedule.step()
-        self.grid._recreate_rtree([])  # Recalculate spatial tree, because agents are moving
+        self.grid._recreate_rtree()  # Recalculate spatial tree, because agents are moving
 
         self.datacollector.collect(self)
 
         # Run until no one is infected
-        if self.counts['infected'] == 0:
+        if self.counts["infected"] == 0:
             self.running = False
 
 
