@@ -2,6 +2,7 @@ import pyproj
 from libpysal import weights
 from rtree import index
 from shapely.geometry import Point
+from shapely.prepared import prep
 
 from mesa_geo.geoagent import GeoAgent
 
@@ -55,8 +56,8 @@ class GeoSpace:
         if isinstance(agents, GeoAgent):
             agent = agents
             if hasattr(agent, "shape"):
-                self.idx.insert(id(agent), agent.shape.bounds, agent.unique_id)
-                self.idx.agents[agent.unique_id] = agent
+                self.idx.insert(id(agent), agent.shape.bounds, None)
+                self.idx.agents[id(agent)] = agent
             else:
                 raise AttributeError("GeoAgents must have a shape attribute")
         else:
@@ -80,19 +81,14 @@ class GeoSpace:
                 Omit to compare against all other agents of the GeoSpace
         """
         related_agents = []
-        possible_agents = self._get_rtree_intersections(agent)
-        if possible_agents:
-            for other_agent in possible_agents:
-                if getattr(agent.shape, relation)(other_agent.shape):
-                    related_agents.append(other_agent)
-        return related_agents
+        possible_agents = self._get_rtree_intersections(agent.shape)
+        for other_agent in possible_agents:
+            if getattr(agent.shape, relation)(other_agent.shape):
+                yield other_agent
 
-    def _get_rtree_intersections(self, agent):
+    def _get_rtree_intersections(self, shape):
         """Calculate rtree intersections for candidate agents."""
-        return (
-            self.idx.agents[i]
-            for i in self.idx.intersection(agent.shape.bounds, objects="raw")
-        )
+        return (self.idx.agents[i] for i in self.idx.intersection(shape.bounds))
 
     def get_intersecting_agents(self, agent, other_agents=None):
         intersecting_agents = self.get_relation(agent, "intersects")
@@ -106,14 +102,15 @@ class GeoSpace:
         Distance is measured as a buffer around the agent's shape,
         set center=True to calculate distance from center.
         """
-        old_shape = agent.shape
         if center:
-            agent.shape = agent.shape.center().buffer(distance)
+            shape = agent.shape.center().buffer(distance)
         else:
-            agent.shape = agent.shape.buffer(distance)
-        neighbors = self.get_relation(agent, relation)
-        agent.shape = old_shape
-        return neighbors
+            shape = agent.shape.buffer(distance)
+        possible_neighbors = self._get_rtree_intersections(shape)
+        prepared_shape = prep(shape)
+        for other_agent in possible_neighbors:
+            if getattr(prepared_shape, relation)(other_agent.shape):
+                yield other_agent
 
     def agents_at(self, pos):
         """Return a list of agents at given pos."""
@@ -151,12 +148,10 @@ class GeoSpace:
         agents = old_agents + new_agents
 
         # Bulk insert agents
-        index_data = (
-            (id(agent), agent.shape.bounds, agent.unique_id) for agent in agents
-        )
+        index_data = ((id(agent), agent.shape.bounds, None) for agent in agents)
 
         self.idx = index.Index(index_data)
-        self.idx.agents = {agent.unique_id: agent for agent in agents}
+        self.idx.agents = {id(agent): agent for agent in agents}
 
     def update_bbox(self, bbox=None):
         """Update bounding box of the GeoSpace."""
