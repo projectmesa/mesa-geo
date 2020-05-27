@@ -26,6 +26,7 @@ class GeoAgent(Agent):
         self.unique_id = unique_id
         self.model = model
         self.shape = shape
+        self._geom = self.shape._geom
 
     def step(self):
         """Advance one step."""
