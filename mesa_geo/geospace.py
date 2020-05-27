@@ -142,8 +142,11 @@ class GeoSpace:
         neighbors = [self.agents[i] for i in neighbors_idx]
         return neighbors
 
-    def _recreate_rtree(self, new_agents):
+    def _recreate_rtree(self, new_agents=None):
         """Create a new rtree index from agents shapes."""
+
+        if new_agents is None:
+            new_agents = []
         old_agents = list(self.agents)
         agents = old_agents + new_agents
 
