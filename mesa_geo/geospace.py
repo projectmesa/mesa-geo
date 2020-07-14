@@ -167,7 +167,7 @@ class GeoSpace:
 
     @property
     def agents(self):
-        return self.idx.agents.values()
+        return list(self.idx.agents.values())
 
     @property
     def __geo_interface__(self):
