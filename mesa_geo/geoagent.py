@@ -5,12 +5,14 @@ Core Objects: GeoAgent
 
 """
 import json
+import warnings
+
 import geopandas as gpd
+import pyproj
 from mesa import Agent
 from shapely.ops import transform
 from shapely.geometry import mapping
 from shapely.geometry.base import BaseGeometry
-import warnings
 
 
 class GeoAgent(Agent):
@@ -28,20 +30,24 @@ class GeoAgent(Agent):
         self.shape = shape
         self._geom = self.shape._geom
 
+    def get_transformed_geometry(self, transformer):
+        """
+        Return the transformed geometry given a transformer.
+        """
+        return transform(transformer.transform, self.shape)
+
     def step(self):
         """Advance one step."""
         pass
 
     def __geo_interface__(self):
         """Return a GeoJSON Feature.
-
         Removes shape from attributes.
         """
         properties = dict(vars(self))
         properties["model"] = str(self.model)
         shape = properties.pop("shape")
-
-        shape = transform(self.model.grid.Transformer.transform, shape)
+        shape = transform(self.model.space.Transformer.transform, shape)
 
         return {"type": "Feature", "geometry": mapping(shape), "properties": properties}
 

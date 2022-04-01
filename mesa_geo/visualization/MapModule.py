@@ -1,3 +1,5 @@
+from shapely.geometry import mapping
+
 from mesa_geo.visualization.ModularVisualization import VisualizationElement
 
 
@@ -8,7 +10,7 @@ class MapModule(VisualizationElement):
     local_includes = []
 
     def __init__(
-        self, portrayal_method, view=[0, 0], zoom=10, map_height=500, map_width=500
+        self, portrayal_method=None, view=[0, 0], zoom=10, map_height=500, map_width=500
     ):
         self.portrayal_method = portrayal_method
         self.map_height = map_height
@@ -19,11 +21,17 @@ class MapModule(VisualizationElement):
         self.js_code = "elements.push(" + new_element + ");"
 
     def render(self, model):
-        featurecollection = dict(type="FeatureCollection", features=[])
-        for _, agent in enumerate(model.grid.agents):
-            shape = agent.__geo_interface__()
-            portrayal = self.portrayal_method(agent)
-            for key, value in portrayal.items():
-                shape["properties"][key] = value
-                featurecollection["features"].append(shape)
-        return featurecollection
+        feature_collection = {"type": "FeatureCollection", "features": []}
+        for agent in model.space.agents:
+            transformed_geometry = agent.get_transformed_geometry(
+                model.space.Transformer
+            )
+            properties = self.portrayal_method(agent) if self.portrayal_method else {}
+            feature_collection["features"].append(
+                {
+                    "type": "Feature",
+                    "geometry": mapping(transformed_geometry),
+                    "properties": properties,
+                }
+            )
+        return feature_collection
