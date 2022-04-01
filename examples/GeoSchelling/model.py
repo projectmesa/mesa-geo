@@ -23,7 +23,7 @@ class SchellingAgent(GeoAgent):
         """Advance agent one step."""
         similar = 0
         different = 0
-        neighbors = self.model.grid.get_neighbors(self)
+        neighbors = self.model.space.get_neighbors(self)
         if neighbors:
             for neighbor in neighbors:
                 if neighbor.atype is None:
@@ -36,7 +36,7 @@ class SchellingAgent(GeoAgent):
         # If unhappy, move:
         if similar < different:
             # Select an empty region
-            empties = [a for a in self.model.grid.agents if a.atype is None]
+            empties = [a for a in self.model.space.agents if a.atype is None]
             # Switch atypes and add/remove from scheduler
             new_region = random.choice(empties)
             new_region.atype = self.atype
@@ -58,7 +58,7 @@ class SchellingModel(Model):
         self.minority_pc = minority_pc
 
         self.schedule = RandomActivation(self)
-        self.grid = GeoSpace()
+        self.space = GeoSpace()
 
         self.happy = 0
         self.datacollector = DataCollector({"happy": "happy"})
@@ -68,7 +68,7 @@ class SchellingModel(Model):
         # Set up the grid with patches for every NUTS region
         AC = AgentCreator(SchellingAgent, {"model": self})
         agents = AC.from_file("nuts_rg_60M_2013_lvl_2.geojson")
-        self.grid.add_agents(agents)
+        self.space.add_agents(agents)
 
         # Set up agents
         for agent in agents:
