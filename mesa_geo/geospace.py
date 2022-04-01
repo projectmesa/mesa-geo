@@ -68,6 +68,7 @@ class GeoSpace:
     def remove_agent(self, agent):
         """Remove an agent from the GeoSpace."""
         self.idx.delete(id(agent), agent.shape.bounds)
+        del self.idx.agents[id(agent)]
         self.update_bbox()
 
     def get_relation(self, agent, relation):
