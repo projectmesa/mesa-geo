@@ -37,9 +37,7 @@ class GeoSpace:
         """
         self.crs = pyproj.CRS(crs)
         self.WGS84 = pyproj.CRS("epsg:4326")
-        self.Transformer = pyproj.Transformer.from_crs(
-            self.crs, self.WGS84, skip_equivalent=True, always_xy=True
-        )
+        self.Transformer = pyproj.Transformer.from_crs(self.crs, self.WGS84, always_xy=True)
 
         self.bbox = None
         self._neighborhood = None
@@ -95,9 +93,7 @@ class GeoSpace:
         intersecting_agents = self.get_relation(agent, "intersects")
         return intersecting_agents
 
-    def get_neighbors_within_distance(
-        self, agent, distance, center=False, relation="intersects"
-    ):
+    def get_neighbors_within_distance(self, agent, distance, center=False, relation="intersects"):
         """Return a list of agents within `distance` of `agent`.
 
         Distance is measured as a buffer around the agent's shape,
