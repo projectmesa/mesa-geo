@@ -49,12 +49,12 @@ class State(GeoAgent):
 
 class GeoModel(Model):
     def __init__(self):
-        self.grid = GeoSpace()
+        self.space = GeoSpace()
         
         state_agent_kwargs = dict(model=self)
         AC = AgentCreator(agent_class=State, agent_kwargs=state_agent_kwargs)
         agents = AC.from_GeoJSON(GeoJSON=geojson_states, unique_id="NAME")
-        self.grid.add_agents(agents)
+        self.space.add_agents(agents)
 ```
 
 In the `GeoModel` we first create an instance of AgentCreator, where we provide the Agent class (State) and its required arguments, except shape and unique_id. We then use the `.from_GeoJSON` function to create our agents from the shapes in the GeoJSON file. We provide the feature "name" as the key from which the agents get their unique_ids.
@@ -65,7 +65,7 @@ Let's instantiate our model and look at one of the agents:
 ```python
 m = GeoModel()
 
-agent = m.grid.agents[0]
+agent = m.space.agents[0]
 print(agent.unique_id)
 agent.shape
 ```
@@ -87,7 +87,7 @@ agent.CENSUSAREA
 Let's start to do some spatial analysis. We can use usual Mesa function names to get neighboring states
 
 ```python
-neighbors = m.grid.get_neighbors(agent)
+neighbors = m.space.get_neighbors(agent)
 print([a.unique_id for a in neighbors])
 ```
 
@@ -100,7 +100,7 @@ print([a.unique_id for a in neighbors])
 To get a list of all states within a certain distance you can use the following
 
 ```python
-[a.unique_id for a in m.grid.get_neighbors_within_distance(agent, 600000)]
+[a.unique_id for a in m.space.get_neighbors_within_distance(agent, 600000)]
 ```
 
     ['California',

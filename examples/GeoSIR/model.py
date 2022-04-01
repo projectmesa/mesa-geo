@@ -53,7 +53,7 @@ class PersonAgent(GeoAgent):
         """Advance one step."""
         # If susceptible, check if exposed
         if self.atype == "susceptible":
-            neighbors = self.model.grid.get_neighbors_within_distance(
+            neighbors = self.model.space.get_neighbors_within_distance(
                 self, self.model.exposure_distance
             )
             for neighbor in neighbors:
@@ -109,7 +109,7 @@ class NeighbourhoodAgent(GeoAgent):
 
     def color_hotspot(self):
         # Decide if this region agent is a hot-spot (if more than threshold person agents are infected)
-        neighbors = self.model.grid.get_intersecting_agents(self)
+        neighbors = self.model.space.get_intersecting_agents(self)
         infected_neighbors = [
             neighbor for neighbor in neighbors if neighbor.atype == "infected"
         ]
@@ -139,7 +139,7 @@ class InfectedModel(Model):
         :param infection_risk:      Probability of agent to become infected, if it has been exposed to another infected
         """
         self.schedule = BaseScheduler(self)
-        self.grid = GeoSpace()
+        self.space = GeoSpace()
         self.steps = 0
         self.counts = None
         self.reset_counts()
@@ -165,7 +165,7 @@ class InfectedModel(Model):
         neighbourhood_agents = AC.from_file(
             self.geojson_regions, unique_id=self.unique_id
         )
-        self.grid.add_agents(neighbourhood_agents)
+        self.space.add_agents(neighbourhood_agents)
 
         # Generate PersonAgent population
         ac_population = AgentCreator(
@@ -189,7 +189,7 @@ class InfectedModel(Model):
             this_person = ac_population.create_agent(
                 Point(this_x, this_y), "P" + str(i)
             )
-            self.grid.add_agents(this_person)
+            self.space.add_agents(this_person)
             self.schedule.add(this_person)
 
         # Add the neighbourhood agents to schedule AFTER person agents,
@@ -214,7 +214,7 @@ class InfectedModel(Model):
         self.steps += 1
         self.reset_counts()
         self.schedule.step()
-        self.grid._recreate_rtree()  # Recalculate spatial tree, because agents are moving
+        self.space._recreate_rtree()  # Recalculate spatial tree, because agents are moving
 
         self.datacollector.collect(self)
 
