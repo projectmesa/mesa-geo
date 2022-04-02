@@ -93,9 +93,7 @@ class GeoSpace:
         intersecting_agents = self.get_relation(agent, "intersects")
         return intersecting_agents
 
-    def get_neighbors_within_distance(
-            self, agent, distance, center=False, relation="intersects"
-    ):
+    def get_neighbors_within_distance(self, agent, distance, center=False, relation="intersects"):
         """Return a list of agents within `distance` of `agent`.
 
         Distance is measured as a buffer around the agent's shape,
