@@ -8,7 +8,6 @@ import json
 import warnings
 
 import geopandas as gpd
-import pyproj
 from mesa import Agent
 from shapely.ops import transform
 from shapely.geometry import mapping
