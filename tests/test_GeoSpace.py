@@ -9,10 +9,14 @@ from shapely.geometry import Point
 
 class TestGeoSpace(unittest.TestCase):
     def setUp(self) -> None:
-        self.agent_creator = AgentCreator(agent_class=GeoAgent, agent_kwargs={"model": None})
+        self.agent_creator = AgentCreator(
+            agent_class=GeoAgent, agent_kwargs={"model": None}
+        )
         self.shapes = [Point(1, 1)] * 7
-        self.agents = [self.agent_creator.create_agent(shape=shape, unique_id=uuid.uuid4().int)
-                       for shape in self.shapes]
+        self.agents = [
+            self.agent_creator.create_agent(shape=shape, unique_id=uuid.uuid4().int)
+            for shape in self.shapes
+        ]
         self.geo_space = GeoSpace()
 
     def tearDown(self) -> None:
