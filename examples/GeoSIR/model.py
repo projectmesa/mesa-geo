@@ -98,8 +98,8 @@ class NeighbourhoodAgent(GeoAgent):
         super().__init__(unique_id, model, shape)
         self.atype = agent_type
         self.hotspot_threshold = (
-            hotspot_threshold
-        )  # When a neighborhood is considered a hot-spot
+            hotspot_threshold  # When a neighborhood is considered a hot-spot
+        )
         self.color_hotspot()
 
     def step(self):
