@@ -66,7 +66,7 @@ jobs:
     - run: pip install flake8
     - name: Lint with flake8
       # TODO use .flake8 from projectmesa/mesa
-      run: flake8 . --count --show-source --statistics --ignore=E501 --select=B,C,E,F,W,T4,B9 --exclude=docs,build
+      run: flake8 . --count --show-source --statistics
 
   lint-black:
     runs-on: ubuntu-latest

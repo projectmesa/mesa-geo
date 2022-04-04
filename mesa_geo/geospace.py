@@ -81,7 +81,6 @@ class GeoSpace:
             other_agents: A list of agents to compare against.
                 Omit to compare against all other agents of the GeoSpace
         """
-        related_agents = []
         possible_agents = self._get_rtree_intersections(agent.shape)
         for other_agent in possible_agents:
             if getattr(agent.shape, relation)(other_agent.shape):
