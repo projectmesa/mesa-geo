@@ -22,7 +22,7 @@ pip install mesa-geo
 Since mesa-geo is in early development you could also install the latest version directly from Github via
 
 ```shell
-pip install -e git+https://github.com/corvince/mesa-geo.git#egg=mesa-geo
+pip install -e git+https://github.com/projectmesa/mesa-geo.git#egg=mesa-geo
 ```
 
 ## Getting started

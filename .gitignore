@@ -324,3 +324,13 @@ pip-log.txt
 
 # Idea file
 .idea
+
+# Mesa file
+mesa_geo/visualization/ModularVisualization.py
+mesa_geo/visualization/templates/fonts
+mesa_geo/visualization/templates/external
+mesa_geo/visualization/templates/css/*
+mesa_geo/visualization/templates/js/*
+!mesa_geo/visualization/templates/css/leaflet.css
+!mesa_geo/visualization/templates/js/leaflet.js
+!mesa_geo/visualization/templates/js/LeafletMap.js

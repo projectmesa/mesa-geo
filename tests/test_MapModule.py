@@ -5,7 +5,7 @@ from mesa.model import Model
 from shapely.geometry import Point
 
 from mesa_geo import AgentCreator, GeoAgent, GeoSpace
-from mesa_geo.visualization.MapModule import MapModule
+from mesa_geo.visualization.modules import MapModule
 
 
 class TestMapModule(unittest.TestCase):

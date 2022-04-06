@@ -30,8 +30,6 @@ jobs:
           - os: ubuntu
             python-version: "3.8"
           - os: ubuntu
-            python-version: "3.7"
-          - os: ubuntu
             python-version: 'pypy-3.8'
 
     steps:

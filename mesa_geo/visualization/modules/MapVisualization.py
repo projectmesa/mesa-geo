@@ -1,6 +1,5 @@
 from shapely.geometry import mapping
-
-from mesa_geo.visualization.ModularVisualization import VisualizationElement
+from mesa.visualization.ModularVisualization import VisualizationElement
 
 
 class MapModule(VisualizationElement):
