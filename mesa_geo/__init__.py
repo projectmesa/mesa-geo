@@ -10,7 +10,7 @@ from mesa_geo.geospace import GeoSpace
 
 __all__ = ["GeoSpace", "GeoAgent", "AgentCreator"]
 
-__title__ = "mesa-geo"
-__version__ = "0.1.2"
+__title__ = "Mesa-Geo"
+__version__ = "0.2.0"
 __license__ = "Apache 2.0"
-__copyright__ = "Copyright %s Project mesa-geo Team" % datetime.date.today().year
+__copyright__ = "Copyright %s Project Mesa-Geo Team" % datetime.date.today().year

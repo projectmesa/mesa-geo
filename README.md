@@ -1,12 +1,10 @@
-# mesa-geo - a GIS extension to Mesa Agent-Based Modeling
+# Mesa-Geo: a GIS extension for the Mesa agent-based modeling framework in Python
 
-mesa-geo implements a `GeoSpace` that can host GIS-based `GeoAgents`, which are like normal Agents, except they have a `shape` attribute that is a [Shapely object](https://shapely.readthedocs.io/en/latest/manual.html). You can use `Shapely` directly to create arbitrary shapes, but in most cases you will want to import your shapes from a file. Mesa-geo allows you to create GeoAgents from any vector data file (e.g. shapefiles), valid GeoJSON objects or a GeoPandas GeoDataFrame.
-
-This is the first release of mesa-geo. No functionality guaranteed, bugs included.
+Mesa-Geo implements a `GeoSpace` that can host GIS-based `GeoAgents`, which are like normal Agents, except they have a `shape` attribute that is a [Shapely object](https://shapely.readthedocs.io/en/latest/manual.html). You can use `Shapely` directly to create arbitrary shapes, but in most cases you will want to import your shapes from a file. Mesa-Geo allows you to create GeoAgents from any vector data file (e.g. shapefiles), valid GeoJSON objects or a GeoPandas GeoDataFrame.
 
 ## Installation
 
-To install mesa-geo on linux or macOS run
+To install Mesa-Geo on linux or macOS run
 
 ```shell
 pip install mesa-geo
@@ -19,7 +17,7 @@ conda install fiona pyproj rtree shapely
 pip install mesa-geo
 ```
 
-Since mesa-geo is in early development you could also install the latest version directly from Github via
+Since Mesa-Geo is in early development you could also install the latest version directly from Github via
 
 ```shell
 pip install -e git+https://github.com/projectmesa/mesa-geo.git#egg=mesa-geo
@@ -27,7 +25,7 @@ pip install -e git+https://github.com/projectmesa/mesa-geo.git#egg=mesa-geo
 
 ## Getting started
 
-You should be familiar with how [mesa](https://github.com/projectmesa/mesa) works.
+You should be familiar with how [Mesa](https://github.com/projectmesa/mesa) works.
 
 So let's get started with some shapes! We will work with [records of US states](http://eric.clst.org/Stuff/USGeoJSON). We use the `requests` library to retrieve the data, but of course you can work with local data.
 
@@ -112,10 +110,10 @@ To get a list of all states within a certain distance you can use the following
     'Utah',
     'Nevada']
 
-The unit for the distance depends on the coordinate reference system (CRS) of the GeoSpace. Since we did not specify the CRS, mesa-geo defaults to the 'Web Mercator' projection (in meters). If you want to do some serious measurements you should always set an appropriate CRS, since the accuracy of Web Mercator declines with distance from the equator.  We can achieve this by initializing the AgentCreator and the GeoSpace with the `crs` keyword  `crs="epsg:2163"`. Mesa-geo then transforms all coordinates from the GeoJSON geographic coordinates into the set crs.
+The unit for the distance depends on the coordinate reference system (CRS) of the GeoSpace. Since we did not specify the CRS, Mesa-Geo defaults to the 'Web Mercator' projection (in meters). If you want to do some serious measurements you should always set an appropriate CRS, since the accuracy of Web Mercator declines with distance from the equator.  We can achieve this by initializing the AgentCreator and the GeoSpace with the `crs` keyword  `crs="epsg:2163"`. Mesa-Geo then transforms all coordinates from the GeoJSON geographic coordinates into the set crs.
 
 ## Going further
 
-To get a deeper understanding of mesa-geo you should checkout the GeoSchelling example. It implements a Leaflet visualization which is similar to use as the CanvasGridVisualization of Mesa.
+To get a deeper understanding of Mesa-Geo you should checkout the GeoSchelling example. It implements a Leaflet visualization which is similar to use as the CanvasGridVisualization of Mesa.
 
 To add further functionality, I need feedback on which functionality is desired by users. Please post a message [here](https://groups.google.com/forum/#!topic/projectmesa-dev/qEf2XBFZYnI) or open an issue if you have any ideas or recommendations.
