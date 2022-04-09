@@ -5,10 +5,10 @@ import pkgutil
 import re
 import shutil
 import sys
+from distutils.command.build import build
 
 from setuptools import setup
 from setuptools.command.develop import develop
-from setuptools.command.install import install
 
 
 def get_version_from_package() -> str:
@@ -27,12 +27,12 @@ class DevelopCommand(develop):
         develop.run(self)
 
 
-class InstallCommand(install):
-    """Installation for installation mode."""
+class BuildCommand(build):
+    """Command for build mode."""
 
     def run(self):
         get_mesa_viz_files()
-        install.run(self)
+        build.run(self)
 
 
 def get_mesa_viz_files():
@@ -66,6 +66,6 @@ if __name__ == "__main__":
         version=get_version_from_package(),
         cmdclass={
             "develop": DevelopCommand,
-            "install": InstallCommand,
+            "build": BuildCommand,
         },
     )
