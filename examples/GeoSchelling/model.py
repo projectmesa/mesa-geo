@@ -9,14 +9,14 @@ import random
 class SchellingAgent(GeoAgent):
     """Schelling segregation agent."""
 
-    def __init__(self, unique_id, model, geometry, agent_type=None):
+    def __init__(self, unique_id, model, geometry, crs, agent_type=None):
         """Create a new Schelling agent.
 
         Args:
             unique_id: Unique identifier for the agent.
             agent_type: Indicator for the agent's type (minority=1, majority=0)
         """
-        super().__init__(unique_id, model, geometry)
+        super().__init__(unique_id, model, geometry, crs)
         self.atype = agent_type
 
     def step(self):
@@ -66,8 +66,8 @@ class SchellingModel(Model):
         self.running = True
 
         # Set up the grid with patches for every NUTS region
-        AC = AgentCreator(SchellingAgent, {"model": self})
-        agents = AC.from_file("nuts_rg_60M_2013_lvl_2.geojson")
+        ac = AgentCreator(SchellingAgent, model=self)
+        agents = ac.from_file("nuts_rg_60M_2013_lvl_2.geojson")
         self.space.add_agents(agents)
 
         # Set up agents

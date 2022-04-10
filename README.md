@@ -1,6 +1,6 @@
 # Mesa-Geo: a GIS extension for the Mesa agent-based modeling framework in Python
 
-Mesa-Geo implements a `GeoSpace` that can host GIS-based `GeoAgents`, which are like normal Agents, except they have a `geometry` attribute that is a [Shapely object](https://shapely.readthedocs.io/en/latest/manual.html). You can use `Shapely` directly to create arbitrary geometries, but in most cases you will want to import your geometries from a file. Mesa-Geo allows you to create GeoAgents from any vector data file (e.g. shapefiles), valid GeoJSON objects or a GeoPandas GeoDataFrame.
+Mesa-Geo implements a `GeoSpace` that can host GIS-based `GeoAgents`, which are like normal Agents, except they have a `geometry` attribute that is a [Shapely object](https://shapely.readthedocs.io/en/latest/manual.html) and a `crs` attribute for its Coordinate Reference System. You can use `Shapely` directly to create arbitrary geometries, but in most cases you will want to import your geometries from a file. Mesa-Geo allows you to create GeoAgents from any vector data file (e.g. shapefiles), valid GeoJSON objects or a GeoPandas GeoDataFrame.
 
 ## Installation
 
@@ -42,16 +42,15 @@ First we create a `State` Agent and a `GeoModel`. Both should look familiar if y
 
 ```python
 class State(GeoAgent):
-    def __init__(self, unique_id, model, geometry):
-        super().__init__(unique_id, model, geometry)
+    def __init__(self, unique_id, model, geometry, crs):
+        super().__init__(unique_id, model, geometry, crs)
 
 class GeoModel(Model):
     def __init__(self):
         self.space = GeoSpace()
         
-        state_agent_kwargs = dict(model=self)
-        AC = AgentCreator(agent_class=State, agent_kwargs=state_agent_kwargs)
-        agents = AC.from_GeoJSON(GeoJSON=geojson_states, unique_id="NAME")
+        ac = AgentCreator(agent_class=State, model=self)
+        agents = ac.from_GeoJSON(GeoJSON=geojson_states, unique_id="NAME")
         self.space.add_agents(agents)
 ```
 

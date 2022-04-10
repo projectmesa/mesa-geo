@@ -14,6 +14,7 @@ class PersonAgent(GeoAgent):
         unique_id,
         model,
         geometry,
+        crs,
         agent_type="susceptible",
         mobility_range=100,
         recovery_rate=0.2,
@@ -28,7 +29,7 @@ class PersonAgent(GeoAgent):
         :param agent_type:  Indicator if agent is infected ("infected", "susceptible", "recovered" or "dead")
         :param mobility_range:  Range of distance to move in one step
         """
-        super().__init__(unique_id, model, geometry)
+        super().__init__(unique_id, model, geometry, crs)
         # Agent parameters
         self.atype = agent_type
         self.mobility_range = mobility_range
@@ -87,7 +88,7 @@ class NeighbourhoodAgent(GeoAgent):
     """Neighbourhood agent. Changes color according to number of infected inside it."""
 
     def __init__(
-        self, unique_id, model, geometry, agent_type="safe", hotspot_threshold=1
+        self, unique_id, model, geometry, crs, agent_type="safe", hotspot_threshold=1
     ):
         """
         Create a new Neighbourhood agent.
@@ -97,7 +98,7 @@ class NeighbourhoodAgent(GeoAgent):
         :param agent_type:  Indicator if agent is infected ("infected", "susceptible", "recovered" or "dead")
         :param hotspot_threshold:   Number of infected agents in region to be considered a hot-spot
         """
-        super().__init__(unique_id, model, geometry)
+        super().__init__(unique_id, model, geometry, crs)
         self.atype = agent_type
         self.hotspot_threshold = (
             hotspot_threshold  # When a neighborhood is considered a hot-spot
@@ -163,15 +164,18 @@ class InfectedModel(Model):
         )
 
         # Set up the Neighbourhood patches for every region in file (add to schedule later)
-        AC = AgentCreator(NeighbourhoodAgent, {"model": self})
-        neighbourhood_agents = AC.from_file(
+        ac = AgentCreator(NeighbourhoodAgent, model=self)
+        neighbourhood_agents = ac.from_file(
             self.geojson_regions, unique_id=self.unique_id
         )
         self.space.add_agents(neighbourhood_agents)
 
         # Generate PersonAgent population
         ac_population = AgentCreator(
-            PersonAgent, {"model": self, "init_infected": init_infected}
+            PersonAgent,
+            model=self,
+            crs=self.space.crs,
+            agent_kwargs={"init_infected": init_infected},
         )
         # Generate random location, add agent to grid and scheduler
         for i in range(pop_size):
