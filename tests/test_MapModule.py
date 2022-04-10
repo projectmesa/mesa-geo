@@ -13,7 +13,7 @@ class TestMapModule(unittest.TestCase):
         self.model = Model()
         self.model.space = GeoSpace()
         self.agent_creator = AgentCreator(
-            agent_class=GeoAgent, agent_kwargs={"model": self.model}
+            agent_class=GeoAgent, model=self.model, crs="epsg:3857"
         )
         self.geometries = [Point(1, 1)] * 7
         self.agents = [
