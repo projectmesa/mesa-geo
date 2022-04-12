@@ -331,6 +331,4 @@ mesa_geo/visualization/templates/fonts
 mesa_geo/visualization/templates/external
 mesa_geo/visualization/templates/css/*
 mesa_geo/visualization/templates/js/*
-!mesa_geo/visualization/templates/css/leaflet.css
-!mesa_geo/visualization/templates/js/leaflet.js
-!mesa_geo/visualization/templates/js/LeafletMap.js
+!mesa_geo/visualization/templates/js/MapModule.js
