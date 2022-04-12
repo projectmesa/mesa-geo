@@ -5,7 +5,7 @@ from mesa.visualization.ModularVisualization import VisualizationElement
 class MapModule(VisualizationElement):
     """A MapModule for Leaflet maps."""
 
-    package_includes = ["leaflet.js", "LeafletMap.js"]
+    package_includes = ["external/leaflet-1.8.0.js", "MapModule.js"]
     local_includes = []
 
     def __init__(

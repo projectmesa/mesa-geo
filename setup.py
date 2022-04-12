@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import base64
+import hashlib
 import os
 import pkgutil
 import re
 import shutil
 import sys
+import urllib.request
 from distutils.command.build import build
 
 from setuptools import setup
@@ -24,6 +27,7 @@ class DevelopCommand(develop):
 
     def run(self):
         get_mesa_viz_files()
+        get_frontend_dep()
         develop.run(self)
 
 
@@ -32,6 +36,7 @@ class BuildCommand(build):
 
     def run(self):
         get_mesa_viz_files()
+        get_frontend_dep()
         build.run(self)
 
 
@@ -58,6 +63,49 @@ def get_mesa_templates(package, template_dir):
                 os.path.join("mesa_geo", template_dir, subdir),
                 dirs_exist_ok=True,
             )
+
+
+def get_frontend_dep():
+    # Important: Make sure to update package_includes with the new version number in
+    # mesa_geo/visualization/modules/MapVisualization.py,
+    # and the hardcoded css file in mesa_geo/visualization/templates/modular_template.html.
+    leaflet_version = "1.8.0"
+    ensure_frontend_dep_single(
+        f"https://unpkg.com/leaflet@{leaflet_version}/dist/leaflet.js",
+        out_name=f"leaflet-{leaflet_version}.js",
+        external_dir_single="mesa_geo/visualization/templates/js/external",
+        integrity_hash="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==",
+    )
+    ensure_frontend_dep_single(
+        f"https://unpkg.com/leaflet@{leaflet_version}/dist/leaflet.css",
+        out_name=f"leaflet-{leaflet_version}.css",
+        external_dir_single="mesa_geo/visualization/templates/css/external",
+        integrity_hash="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==",
+    )
+
+
+def ensure_frontend_dep_single(
+    url, external_dir_single, out_name=None, integrity_hash=None
+):
+    os.makedirs(external_dir_single, exist_ok=True)
+    # Used for downloading e.g. Leaflet single file
+    if out_name is None:
+        out_name = url.split("/")[-1]
+    dst_path = os.path.join(external_dir_single, out_name)
+    if os.path.isfile(dst_path):
+        return
+    urllib.request.urlretrieve(url, out_name)
+    if integrity_hash:
+        with open(out_name, "rb") as f:
+            bytes = f.read()
+        actual_hash = base64.b64encode(hashlib.sha512(bytes).digest())
+        actual_hash = "sha512-" + actual_hash.decode()
+        if actual_hash != integrity_hash:
+            os.remove(out_name)
+            raise ValueError(
+                f"Integrity check failed for {out_name}. Expected {integrity_hash}, received {actual_hash}."
+            )
+    shutil.move(out_name, dst_path)
 
 
 if __name__ == "__main__":
