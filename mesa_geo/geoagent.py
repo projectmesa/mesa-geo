@@ -17,23 +17,23 @@ from shapely.geometry.base import BaseGeometry
 class GeoAgent(Agent):
     """Base class for a geo model agent."""
 
-    def __init__(self, unique_id, model, shape):
+    def __init__(self, unique_id, model, geometry):
         """Create a new agent.
 
         unique_id: Id of agent. Uniqueness is not guaranteed!
         model: The associated model of the agent
-        shape: A Shapely shape object
+        geometry: A Shapely object representing the geometry
+            of the agent
         """
         self.unique_id = unique_id
         self.model = model
-        self.shape = shape
-        self._geom = self.shape._geom
+        self.geometry = geometry
 
     def get_transformed_geometry(self, transformer):
         """
         Return the transformed geometry given a transformer.
         """
-        return transform(transformer.transform, self.shape)
+        return transform(transformer.transform, self.geometry)
 
     def step(self):
         """Advance one step."""
@@ -41,14 +41,18 @@ class GeoAgent(Agent):
 
     def __geo_interface__(self):
         """Return a GeoJSON Feature.
-        Removes shape from attributes.
+        Removes geometry from attributes.
         """
         properties = dict(vars(self))
         properties["model"] = str(self.model)
-        shape = properties.pop("shape")
-        shape = transform(self.model.space.Transformer.transform, shape)
+        geometry = properties.pop("geometry")
+        geometry = transform(self.model.space.Transformer.transform, geometry)
 
-        return {"type": "Feature", "geometry": mapping(shape), "properties": properties}
+        return {
+            "type": "Feature",
+            "geometry": mapping(geometry),
+            "properties": properties,
+        }
 
 
 class AgentCreator:
@@ -61,8 +65,8 @@ class AgentCreator:
             agent_class: Reference to a GeoAgent class
             agent_kwargs: Dictionary with required agent creation arguments.
                 Must at least include 'model' and must NOT include unique_id
-            crs: Coordinate reference system. If shapes are loaded from file
-                they will be converted into this crs automatically.
+            crs: Coordinate reference system. If geometries are loaded from
+                file they will be converted into this crs automatically.
         """
         if "unique_id" in agent_kwargs:
             agent_kwargs.remove("unique_id")
@@ -72,16 +76,16 @@ class AgentCreator:
         self.agent_kwargs = agent_kwargs
         self.crs = crs
 
-    def create_agent(self, shape, unique_id):
-        """Create a single agent from a shape and a unique_id
+    def create_agent(self, geometry, unique_id):
+        """Create a single agent from a geometry and a unique_id
 
         Shape must be a valid Shapely object."""
 
-        if not isinstance(shape, BaseGeometry):
-            raise TypeError("Shape must be a Shapely Geometry")
+        if not isinstance(geometry, BaseGeometry):
+            raise TypeError("Geometry must be a Shapely Geometry")
 
         new_agent = self.agent_class(
-            unique_id=unique_id, shape=shape, **self.agent_kwargs
+            unique_id=unique_id, geometry=geometry, **self.agent_kwargs
         )
 
         return new_agent
@@ -103,12 +107,12 @@ class AgentCreator:
         agents = list()
 
         for index, row in gdf.iterrows():
-            shape = row.geometry
-            new_agent = self.create_agent(shape=shape, unique_id=index)
+            geometry = row[gdf.geometry.name]
+            new_agent = self.create_agent(geometry=geometry, unique_id=index)
 
             if set_attributes:
                 for col in row.index:
-                    if not col == "geometry":
+                    if not col == gdf.geometry.name:
                         setattr(new_agent, col, row[col])
             agents.append(new_agent)
         return agents

@@ -13,7 +13,7 @@ class PersonAgent(GeoAgent):
         self,
         unique_id,
         model,
-        shape,
+        geometry,
         agent_type="susceptible",
         mobility_range=100,
         recovery_rate=0.2,
@@ -24,11 +24,11 @@ class PersonAgent(GeoAgent):
         Create a new person agent.
         :param unique_id:   Unique identifier for the agent
         :param model:       Model in which the agent runs
-        :param shape:       Shape object for the agent
+        :param geometry:    Shape object for the agent
         :param agent_type:  Indicator if agent is infected ("infected", "susceptible", "recovered" or "dead")
         :param mobility_range:  Range of distance to move in one step
         """
-        super().__init__(unique_id, model, shape)
+        super().__init__(unique_id, model, geometry)
         # Agent parameters
         self.atype = agent_type
         self.mobility_range = mobility_range
@@ -47,7 +47,7 @@ class PersonAgent(GeoAgent):
         :param dx:  Distance to move in x-axis
         :param dy:  Distance to move in y-axis
         """
-        return Point(self.shape.x + dx, self.shape.y + dy)
+        return Point(self.geometry.x + dx, self.geometry.y + dy)
 
     def step(self):
         """Advance one step."""
@@ -75,7 +75,7 @@ class PersonAgent(GeoAgent):
         if self.atype != "dead":
             move_x = self.random.randint(-self.mobility_range, self.mobility_range)
             move_y = self.random.randint(-self.mobility_range, self.mobility_range)
-            self.shape = self.move_point(move_x, move_y)  # Reassign shape
+            self.geometry = self.move_point(move_x, move_y)  # Reassign geometry
 
         self.model.counts[self.atype] += 1  # Count agent type
 
@@ -86,16 +86,18 @@ class PersonAgent(GeoAgent):
 class NeighbourhoodAgent(GeoAgent):
     """Neighbourhood agent. Changes color according to number of infected inside it."""
 
-    def __init__(self, unique_id, model, shape, agent_type="safe", hotspot_threshold=1):
+    def __init__(
+        self, unique_id, model, geometry, agent_type="safe", hotspot_threshold=1
+    ):
         """
         Create a new Neighbourhood agent.
         :param unique_id:   Unique identifier for the agent
         :param model:       Model in which the agent runs
-        :param shape:       Shape object for the agent
+        :param geometry:    Shape object for the agent
         :param agent_type:  Indicator if agent is infected ("infected", "susceptible", "recovered" or "dead")
         :param hotspot_threshold:   Number of infected agents in region to be considered a hot-spot
         """
-        super().__init__(unique_id, model, shape)
+        super().__init__(unique_id, model, geometry)
         self.atype = agent_type
         self.hotspot_threshold = (
             hotspot_threshold  # When a neighborhood is considered a hot-spot
@@ -178,8 +180,8 @@ class InfectedModel(Model):
             )  # Region where agent starts
             center_x, center_y = neighbourhood_agents[
                 this_neighbourhood
-            ].shape.centroid.coords.xy
-            this_bounds = neighbourhood_agents[this_neighbourhood].shape.bounds
+            ].geometry.centroid.coords.xy
+            this_bounds = neighbourhood_agents[this_neighbourhood].geometry.bounds
             spread_x = int(
                 this_bounds[2] - this_bounds[0]
             )  # Heuristic for agent spread in region

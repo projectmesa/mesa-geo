@@ -9,14 +9,14 @@ import random
 class SchellingAgent(GeoAgent):
     """Schelling segregation agent."""
 
-    def __init__(self, unique_id, model, shape, agent_type=None):
+    def __init__(self, unique_id, model, geometry, agent_type=None):
         """Create a new Schelling agent.
 
         Args:
             unique_id: Unique identifier for the agent.
             agent_type: Indicator for the agent's type (minority=1, majority=0)
         """
-        super().__init__(unique_id, model, shape)
+        super().__init__(unique_id, model, geometry)
         self.atype = agent_type
 
     def step(self):

@@ -12,10 +12,12 @@ class TestGeoSpace(unittest.TestCase):
         self.agent_creator = AgentCreator(
             agent_class=GeoAgent, agent_kwargs={"model": None}
         )
-        self.shapes = [Point(1, 1)] * 7
+        self.geometries = [Point(1, 1)] * 7
         self.agents = [
-            self.agent_creator.create_agent(shape=shape, unique_id=uuid.uuid4().int)
-            for shape in self.shapes
+            self.agent_creator.create_agent(
+                geometry=geometry, unique_id=uuid.uuid4().int
+            )
+            for geometry in self.geometries
         ]
         self.geo_space = GeoSpace()
 

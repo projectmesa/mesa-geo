@@ -1,6 +1,6 @@
 # Mesa-Geo: a GIS extension for the Mesa agent-based modeling framework in Python
 
-Mesa-Geo implements a `GeoSpace` that can host GIS-based `GeoAgents`, which are like normal Agents, except they have a `shape` attribute that is a [Shapely object](https://shapely.readthedocs.io/en/latest/manual.html). You can use `Shapely` directly to create arbitrary shapes, but in most cases you will want to import your shapes from a file. Mesa-Geo allows you to create GeoAgents from any vector data file (e.g. shapefiles), valid GeoJSON objects or a GeoPandas GeoDataFrame.
+Mesa-Geo implements a `GeoSpace` that can host GIS-based `GeoAgents`, which are like normal Agents, except they have a `geometry` attribute that is a [Shapely object](https://shapely.readthedocs.io/en/latest/manual.html). You can use `Shapely` directly to create arbitrary geometries, but in most cases you will want to import your geometries from a file. Mesa-Geo allows you to create GeoAgents from any vector data file (e.g. shapefiles), valid GeoJSON objects or a GeoPandas GeoDataFrame.
 
 ## Installation
 
@@ -27,7 +27,7 @@ pip install -e git+https://github.com/projectmesa/mesa-geo.git#egg=mesa-geo
 
 You should be familiar with how [Mesa](https://github.com/projectmesa/mesa) works.
 
-So let's get started with some shapes! We will work with [records of US states](http://eric.clst.org/Stuff/USGeoJSON). We use the `requests` library to retrieve the data, but of course you can work with local data.
+So let's get started with some geometries! We will work with [records of US states](http://eric.clst.org/Stuff/USGeoJSON). We use the `requests` library to retrieve the data, but of course you can work with local data.
 
 ```python
 from mesa_geo import GeoSpace, GeoAgent, AgentCreator
@@ -42,8 +42,8 @@ First we create a `State` Agent and a `GeoModel`. Both should look familiar if y
 
 ```python
 class State(GeoAgent):
-    def __init__(self, unique_id, model, shape):
-        super().__init__(unique_id, model, shape)
+    def __init__(self, unique_id, model, geometry):
+        super().__init__(unique_id, model, geometry)
 
 class GeoModel(Model):
     def __init__(self):
@@ -55,7 +55,7 @@ class GeoModel(Model):
         self.space.add_agents(agents)
 ```
 
-In the `GeoModel` we first create an instance of AgentCreator, where we provide the Agent class (State) and its required arguments, except shape and unique_id. We then use the `.from_GeoJSON` function to create our agents from the shapes in the GeoJSON file. We provide the feature "name" as the key from which the agents get their unique_ids.
+In the `GeoModel` we first create an instance of AgentCreator, where we provide the Agent class (State) and its required arguments, except geometry and unique_id. We then use the `.from_GeoJSON` function to create our agents from the geometries in the GeoJSON file. We provide the feature "name" as the key from which the agents get their unique_ids.
 Finally, we add the agents to the GeoSpace
 
 Let's instantiate our model and look at one of the agents:
@@ -65,10 +65,10 @@ m = GeoModel()
 
 agent = m.space.agents[0]
 print(agent.unique_id)
-agent.shape
+agent.geometry
 ```
 
-If you work in the Jupyter Notebook your output should give you the name of the state and a visual representation of the shape.
+If you work in the Jupyter Notebook your output should give you the name of the state and a visual representation of the geometry.
 
     Arizona
 
