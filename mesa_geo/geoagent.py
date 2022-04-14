@@ -62,7 +62,7 @@ class GeoAgent(Agent):
         properties = dict(vars(self))
         properties["model"] = str(self.model)
         geometry = properties.pop("geometry")
-        geometry = transform(self.model.space.Transformer.transform, geometry)
+        geometry = transform(self.model.space.transformer.transform, geometry)
 
         return {
             "type": "Feature",
