@@ -23,7 +23,7 @@ class MapModule(VisualizationElement):
         feature_collection = {"type": "FeatureCollection", "features": []}
         for agent in model.space.agents:
             transformed_geometry = agent.get_transformed_geometry(
-                model.space.Transformer
+                model.space.transformer
             )
             properties = self.portrayal_method(agent) if self.portrayal_method else {}
             feature_collection["features"].append(

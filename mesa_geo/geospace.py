@@ -18,7 +18,9 @@ class GeoSpace:
                 increase with latitude.
 
         Properties:
-            crs: Project coordinate reference system
+            crs: Coordinate reference system of the GeoSpace
+            transformer: A pyproj.Transformer that transforms the GeoSpace into
+                         epsg:4326. Mainly used for GeoJSON serialization.
             idx: R-tree index for fast spatial queries
             bbox: Bounding box of all agents within the GeoSpace
             agents: List of all agents in the Geospace
@@ -35,10 +37,9 @@ class GeoSpace:
             get_agents_touches: Returns a list of agents that touch
             update_bbox: Update the bounding box of the GeoSpace
         """
-        self.crs = pyproj.CRS(crs)
-        self.WGS84 = pyproj.CRS("epsg:4326")
-        self.Transformer = pyproj.Transformer.from_crs(
-            self.crs, self.WGS84, always_xy=True
+        self._crs = pyproj.CRS.from_user_input(crs)
+        self._transformer = pyproj.Transformer.from_crs(
+            crs_from=self.crs, crs_to="epsg:4326", always_xy=True
         )
 
         self.bbox = None
@@ -48,19 +49,65 @@ class GeoSpace:
         self.idx = index.Index()
         self.idx.agents = {}
 
-    def add_agents(self, agents):
+    @property
+    def crs(self):
+        """
+        Return the coordinate reference system of the GeoSpace.
+        """
+        return self._crs
+
+    @property
+    def transformer(self):
+        """
+        Return the pyproj.Transformer that transforms the GeoSpace into
+        epsg:4326. Mainly used for GeoJSON serialization.
+        """
+        return self._transformer
+
+    def add_agents(self, agents, auto_convert_crs=False):
         """Add a list of GeoAgents to the Geospace.
 
         GeoAgents must have a geometry attribute. This function may also be called
-        with a single GeoAgent."""
+        with a single GeoAgent.
+
+        Args:
+            agents: List of GeoAgents, or a single GeoAgent, to be added into GeoSpace.
+            auto_convert_crs: Whether to automatically convert GeoAgent of different
+                crs into the crs of the GeoSpace. Default to False.
+
+        Raises:
+            ValueError: If GeoAgent of different crs is added into the GeoSpace, while
+                `self.auto_convert_crs` is set to False.
+        """
         if isinstance(agents, GeoAgent):
             agent = agents
             if hasattr(agent, "geometry"):
+                if not self.crs.is_exact_same(agent.crs):
+                    if auto_convert_crs:
+                        agent.to_crs(self.crs)
+                    else:
+                        raise ValueError(
+                            f"Inconsistent crs: {agent.__class__.__name__} is of crs {agent.crs.to_string()}, "
+                            f"different from the crs of {self.__class__.__name__} - {self.crs.to_string()}. "
+                            "Please check your crs settings, or set `auto_convert_crs` to `True` to allow "
+                            "automatic crs conversion of GeoAgents to GeoSpace."
+                        )
                 self.idx.insert(id(agent), agent.geometry.bounds, None)
                 self.idx.agents[id(agent)] = agent
             else:
                 raise AttributeError("GeoAgents must have a geometry attribute")
         else:
+            for agent in agents:
+                if not self.crs.is_exact_same(agent.crs):
+                    if auto_convert_crs:
+                        agent.to_crs(self.crs)
+                    else:
+                        raise ValueError(
+                            f"Inconsistent crs: {agent.__class__.__name__} is of crs {agent.crs.to_string()}, "
+                            f"different from the crs of {self.__class__.__name__} - {self.crs.to_string()}. "
+                            "Please check your crs settings, or set `auto_convert_crs` to `True` to allow "
+                            "automatic crs conversion of GeoAgents to GeoSpace."
+                        )
             self._recreate_rtree(agents)
 
         self.update_bbox()
@@ -167,6 +214,9 @@ class GeoSpace:
 
     @property
     def agents(self):
+        """
+        Return a list of all agents in the Geospace.
+        """
         return list(self.idx.agents.values())
 
     @property
