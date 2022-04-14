@@ -51,15 +51,15 @@ class GeoSpace:
     def add_agents(self, agents):
         """Add a list of GeoAgents to the Geospace.
 
-        GeoAgents must have a shape attribute. This function may also be called
+        GeoAgents must have a geometry attribute. This function may also be called
         with a single GeoAgent."""
         if isinstance(agents, GeoAgent):
             agent = agents
-            if hasattr(agent, "shape"):
-                self.idx.insert(id(agent), agent.shape.bounds, None)
+            if hasattr(agent, "geometry"):
+                self.idx.insert(id(agent), agent.geometry.bounds, None)
                 self.idx.agents[id(agent)] = agent
             else:
-                raise AttributeError("GeoAgents must have a shape attribute")
+                raise AttributeError("GeoAgents must have a geometry attribute")
         else:
             self._recreate_rtree(agents)
 
@@ -67,7 +67,7 @@ class GeoSpace:
 
     def remove_agent(self, agent):
         """Remove an agent from the GeoSpace."""
-        self.idx.delete(id(agent), agent.shape.bounds)
+        self.idx.delete(id(agent), agent.geometry.bounds)
         del self.idx.agents[id(agent)]
         self.update_bbox()
 
@@ -81,14 +81,14 @@ class GeoSpace:
             other_agents: A list of agents to compare against.
                 Omit to compare against all other agents of the GeoSpace
         """
-        possible_agents = self._get_rtree_intersections(agent.shape)
+        possible_agents = self._get_rtree_intersections(agent.geometry)
         for other_agent in possible_agents:
-            if getattr(agent.shape, relation)(other_agent.shape):
+            if getattr(agent.geometry, relation)(other_agent.geometry):
                 yield other_agent
 
-    def _get_rtree_intersections(self, shape):
+    def _get_rtree_intersections(self, geometry):
         """Calculate rtree intersections for candidate agents."""
-        return (self.idx.agents[i] for i in self.idx.intersection(shape.bounds))
+        return (self.idx.agents[i] for i in self.idx.intersection(geometry.bounds))
 
     def get_intersecting_agents(self, agent, other_agents=None):
         intersecting_agents = self.get_relation(agent, "intersects")
@@ -99,17 +99,17 @@ class GeoSpace:
     ):
         """Return a list of agents within `distance` of `agent`.
 
-        Distance is measured as a buffer around the agent's shape,
+        Distance is measured as a buffer around the agent's geometry,
         set center=True to calculate distance from center.
         """
         if center:
-            shape = agent.shape.center().buffer(distance)
+            geometry = agent.geometry.center().buffer(distance)
         else:
-            shape = agent.shape.buffer(distance)
-        possible_neighbors = self._get_rtree_intersections(shape)
-        prepared_shape = prep(shape)
+            geometry = agent.geometry.buffer(distance)
+        possible_neighbors = self._get_rtree_intersections(geometry)
+        prepared_geometry = prep(geometry)
         for other_agent in possible_neighbors:
-            if getattr(prepared_shape, relation)(other_agent.shape):
+            if getattr(prepared_geometry, relation)(other_agent.geometry):
                 yield other_agent
 
     def agents_at(self, pos):
@@ -120,13 +120,13 @@ class GeoSpace:
 
     def distance(self, agent_a, agent_b):
         """Return distance of two agents."""
-        return agent_a.shape.distance(agent_b.shape)
+        return agent_a.geometry.distance(agent_b.geometry)
 
     def _create_neighborhood(self):
         """Create a neighborhood graph of all agents."""
         agents = self.agents
-        shapes = [agent.shape for agent in agents]
-        self._neighborhood = weights.contiguity.Queen.from_iterable(shapes)
+        geometries = [agent.geometry for agent in agents]
+        self._neighborhood = weights.contiguity.Queen.from_iterable(geometries)
         self._neighborhood.agents = agents
         self._neighborhood.idx = {}
         for agent, key in zip(agents, self._neighborhood.neighbors.keys()):
@@ -143,7 +143,7 @@ class GeoSpace:
         return neighbors
 
     def _recreate_rtree(self, new_agents=None):
-        """Create a new rtree index from agents shapes."""
+        """Create a new rtree index from agents geometries."""
 
         if new_agents is None:
             new_agents = []
@@ -151,7 +151,7 @@ class GeoSpace:
         agents = old_agents + new_agents
 
         # Bulk insert agents
-        index_data = ((id(agent), agent.shape.bounds, None) for agent in agents)
+        index_data = ((id(agent), agent.geometry.bounds, None) for agent in agents)
 
         self.idx = index.Index(index_data)
         self.idx.agents = {id(agent): agent for agent in agents}
