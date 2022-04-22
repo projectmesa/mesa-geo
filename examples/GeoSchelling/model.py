@@ -68,7 +68,7 @@ class SchellingModel(Model):
         # Set up the grid with patches for every NUTS region
         ac = AgentCreator(SchellingAgent, model=self)
         agents = ac.from_file("nuts_rg_60M_2013_lvl_2.geojson")
-        self.space.add_agents(agents)
+        self.space.add_agents(agents, auto_convert_crs=True)
 
         # Set up agents
         for agent in agents:
