@@ -168,7 +168,7 @@ class InfectedModel(Model):
         neighbourhood_agents = ac.from_file(
             self.geojson_regions, unique_id=self.unique_id
         )
-        self.space.add_agents(neighbourhood_agents)
+        self.space.add_agents(neighbourhood_agents, auto_convert_crs=True)
 
         # Generate PersonAgent population
         ac_population = AgentCreator(
