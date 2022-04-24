@@ -66,19 +66,16 @@ def get_mesa_templates(package, template_dir):
 
 
 def get_frontend_dep():
-    # Important: Make sure to update package_includes with the new version number in
-    # mesa_geo/visualization/modules/MapVisualization.py,
-    # and the hardcoded css file in mesa_geo/visualization/templates/modular_template.html.
+    # Important: Make sure to update the integrity_hash together with the new version number,
+    # otherwise the previous file is going to be kept and used.
     leaflet_version = "1.8.0"
     ensure_frontend_dep_single(
         f"https://unpkg.com/leaflet@{leaflet_version}/dist/leaflet.js",
-        out_name=f"leaflet-{leaflet_version}.js",
         external_dir_single="mesa_geo/visualization/templates/js/external",
         integrity_hash="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==",
     )
     ensure_frontend_dep_single(
         f"https://unpkg.com/leaflet@{leaflet_version}/dist/leaflet.css",
-        out_name=f"leaflet-{leaflet_version}.css",
         external_dir_single="mesa_geo/visualization/templates/css/external",
         integrity_hash="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==",
     )
@@ -87,24 +84,29 @@ def get_frontend_dep():
 def ensure_frontend_dep_single(
     url, external_dir_single, out_name=None, integrity_hash=None
 ):
+    def _hash(filepath):
+        with open(filepath, "rb") as f:
+            file_as_bytes = f.read()
+        file_hash = base64.b64encode(hashlib.sha512(file_as_bytes).digest())
+        return "sha512-" + file_hash.decode()
+
     os.makedirs(external_dir_single, exist_ok=True)
     # Used for downloading e.g. Leaflet single file
     if out_name is None:
         out_name = url.split("/")[-1]
     dst_path = os.path.join(external_dir_single, out_name)
     if os.path.isfile(dst_path):
-        return
+        if integrity_hash and (_hash(dst_path) == integrity_hash):
+            return
+        else:
+            return
+    print(f"Downloading the {out_name} dependency from the internet...")
     urllib.request.urlretrieve(url, out_name)
-    if integrity_hash:
-        with open(out_name, "rb") as f:
-            bytes = f.read()
-        actual_hash = base64.b64encode(hashlib.sha512(bytes).digest())
-        actual_hash = "sha512-" + actual_hash.decode()
-        if actual_hash != integrity_hash:
-            os.remove(out_name)
-            raise ValueError(
-                f"Integrity check failed for {out_name}. Expected {integrity_hash}, received {actual_hash}."
-            )
+    if integrity_hash and ((actual_hash := _hash(out_name)) != integrity_hash):
+        os.remove(out_name)
+        raise ValueError(
+            f"Integrity check failed for {out_name}. Expected {integrity_hash}, received {actual_hash}."
+        )
     shutil.move(out_name, dst_path)
 
 
