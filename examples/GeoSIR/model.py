@@ -142,7 +142,7 @@ class InfectedModel(Model):
         :param infection_risk:      Probability of agent to become infected, if it has been exposed to another infected
         """
         self.schedule = BaseScheduler(self)
-        self.space = GeoSpace()
+        self.space = GeoSpace(warn_crs_conversion=False)
         self.steps = 0
         self.counts = None
         self.reset_counts()
@@ -168,7 +168,7 @@ class InfectedModel(Model):
         neighbourhood_agents = ac.from_file(
             self.geojson_regions, unique_id=self.unique_id
         )
-        self.space.add_agents(neighbourhood_agents, auto_convert_crs=True)
+        self.space.add_agents(neighbourhood_agents)
 
         # Generate PersonAgent population
         ac_population = AgentCreator(

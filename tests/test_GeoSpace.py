@@ -1,18 +1,18 @@
 import unittest
 import uuid
 import random
+import warnings
 
-from mesa_geo.geospace import GeoSpace
+import numpy as np
+import rasterio as rio
+from mesa_geo.geospace import GeoSpace, RasterLayer
 from mesa_geo.geoagent import GeoAgent, AgentCreator
 from shapely.geometry import Point
 
 
 class TestGeoSpace(unittest.TestCase):
     def setUp(self) -> None:
-        self.agent_creator = AgentCreator(
-            agent_class=GeoAgent,
-            crs="epsg:3857",
-        )
+        self.agent_creator = AgentCreator(agent_class=GeoAgent, crs="epsg:3857")
         self.geometries = [Point(1, 1)] * 7
         self.agents = [
             self.agent_creator.create_agent(
@@ -20,6 +20,24 @@ class TestGeoSpace(unittest.TestCase):
             )
             for geometry in self.geometries
         ]
+        self.raster_layer = RasterLayer(
+            values=np.random.uniform(low=0, high=255, size=(3, 500, 500)),
+            crs="epsg:4326",
+            transform=rio.transform.Affine(
+                0.0011111111111859,
+                0.00,
+                -122.26638888878,
+                0.00,
+                -0.0011111111111859,
+                43.01472222189958,
+            ),
+            bounds=[
+                -122.26638888878,
+                42.855833333,
+                -121.94972222209202,
+                43.01472222189958,
+            ],
+        )
         self.geo_space = GeoSpace()
         self.geo_space_with_different_crs = GeoSpace(crs="epsg:2283")
 
@@ -36,10 +54,16 @@ class TestGeoSpace(unittest.TestCase):
 
     def test_add_agents_with_different_crs(self):
         self.assertEqual(len(self.geo_space_with_different_crs.agents), 0)
-        with self.assertRaises(ValueError):
+        with self.assertWarns(Warning):
             self.geo_space_with_different_crs.add_agents(self.agents)
 
-        self.geo_space_with_different_crs.add_agents(self.agents, auto_convert_crs=True)
+        self.geo_space_with_different_crs.warn_crs_conversion = False
+        # assert no warning
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            self.geo_space_with_different_crs.add_agents(self.agents)
+
+        self.geo_space_with_different_crs.add_agents(self.agents)
         self.assertEqual(
             len(self.geo_space_with_different_crs.agents), len(self.agents)
         )
@@ -55,3 +79,15 @@ class TestGeoSpace(unittest.TestCase):
 
         self.assertEqual(len(self.geo_space.agents), len(self.agents) - 1)
         self.assertTrue(agent_to_remove.unique_id not in remaining_agent_idx)
+
+    def test_add_layer(self):
+        with self.assertWarns(Warning):
+            self.geo_space.add_layer(self.raster_layer)
+        self.assertEqual(len(self.geo_space.layers), 1)
+
+        self.geo_space.warn_crs_conversion = False
+        # assert no warning
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            self.geo_space.add_layer(self.raster_layer)
+        self.assertEqual(len(self.geo_space.layers), 2)

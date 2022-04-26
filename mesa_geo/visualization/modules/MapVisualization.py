@@ -1,5 +1,9 @@
+import geopandas as gpd
+from folium.utilities import image_to_url
 from shapely.geometry import mapping
 from mesa.visualization.ModularVisualization import VisualizationElement
+
+from mesa_geo.geospace import RasterLayer
 
 
 class MapModule(VisualizationElement):
@@ -18,8 +22,38 @@ class MapModule(VisualizationElement):
         new_element = "new MapModule({}, {}, {}, {})"
         new_element = new_element.format(view, zoom, map_width, map_height)
         self.js_code = "elements.push(" + new_element + ");"
+        self._crs = "epsg:4326"
 
     def render(self, model):
+        return {
+            "layers": self._render_layers(model),
+            "agents": self._render_agents(model),
+        }
+
+    def _render_layers(self, model):
+        layers = {"rasters": [], "vectors": [], "bounds": []}
+        for layer in model.space.layers:
+            if isinstance(layer, RasterLayer):
+                layers["rasters"].append(
+                    image_to_url(layer.to_crs(self._crs).values.transpose([1, 2, 0]))
+                )
+            elif isinstance(layer, gpd.GeoDataFrame):
+                layers["vectors"].append(
+                    layer.to_crs(self._crs)[["geometry"]].__geo_interface__
+                )
+        # longlat [min_x, min_y, max_x, max_y] to latlong [min_y, min_x, max_y, max_x]
+        if model.space.bounds:
+            transformed_xx, transformed_yy = model.space.transformer.transform(
+                xx=[model.space.bounds[0], model.space.bounds[2]],
+                yy=[model.space.bounds[1], model.space.bounds[3]],
+            )
+            layers["bounds"] = [
+                [transformed_yy[0], transformed_xx[0]],  # min_y, min_x
+                [transformed_yy[1], transformed_xx[1]],  # max_y, max_x
+            ]
+        return layers
+
+    def _render_agents(self, model):
         feature_collection = {"type": "FeatureCollection", "features": []}
         for agent in model.space.agents:
             transformed_geometry = agent.get_transformed_geometry(
