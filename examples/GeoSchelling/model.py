@@ -58,7 +58,7 @@ class SchellingModel(Model):
         self.minority_pc = minority_pc
 
         self.schedule = RandomActivation(self)
-        self.space = GeoSpace()
+        self.space = GeoSpace(warn_crs_conversion=False)
 
         self.happy = 0
         self.datacollector = DataCollector({"happy": "happy"})
@@ -68,7 +68,7 @@ class SchellingModel(Model):
         # Set up the grid with patches for every NUTS region
         ac = AgentCreator(SchellingAgent, model=self)
         agents = ac.from_file("nuts_rg_60M_2013_lvl_2.geojson")
-        self.space.add_agents(agents, auto_convert_crs=True)
+        self.space.add_agents(agents)
 
         # Set up agents
         for agent in agents:
@@ -86,7 +86,7 @@ class SchellingModel(Model):
         """
         self.happy = 0  # Reset counter of happy agents
         self.schedule.step()
-        # self.datacollector.collect(self)
+        self.datacollector.collect(self)
 
         if self.happy == self.schedule.get_agent_count():
             self.running = False

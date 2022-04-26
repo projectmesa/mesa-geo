@@ -6,9 +6,9 @@ Core Objects: GeoSpace, GeoAgent
 import datetime
 
 from mesa_geo.geoagent import GeoAgent, AgentCreator
-from mesa_geo.geospace import GeoSpace
+from mesa_geo.geospace import GeoSpace, RasterLayer
 
-__all__ = ["GeoSpace", "GeoAgent", "AgentCreator"]
+__all__ = ["GeoSpace", "GeoAgent", "AgentCreator", "RasterLayer"]
 
 __title__ = "Mesa-Geo"
 __version__ = "0.2.0"

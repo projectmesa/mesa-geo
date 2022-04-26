@@ -27,10 +27,10 @@ class TestMapModule(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_render(self):
+    def test_render_agents(self):
         map_module = MapModule(portrayal_method=lambda x: {"color": "red", "radius": 7})
         self.assertDictEqual(
-            map_module.render(self.model),
+            map_module.render(self.model).get("agents"),
             {
                 "type": "FeatureCollection",
                 "features": [
