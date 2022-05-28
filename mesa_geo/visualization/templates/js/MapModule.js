@@ -17,13 +17,13 @@ var MapModule = function (view, zoom, map_width, map_height) {
 
     this.renderLayers = function (layers) {
         layers.rasters.forEach(function (layer) {
-            L.imageOverlay(layer, layers.bounds).addTo(Lmap)
+            L.imageOverlay(layer, layers.total_bounds).addTo(Lmap)
         })
         layers.vectors.forEach(function (layer) {
             L.geoJSON(layer).addTo(Lmap)
         })
-        // if (layers.bounds.length !== 0) {
-        //     Lmap.fitBounds(layers.bounds)
+        // if (layers.total_bounds.length !== 0) {
+        //     Lmap.fitBounds(layers.total_bounds)
         // }
     }
 

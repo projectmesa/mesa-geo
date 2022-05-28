@@ -1,9 +1,9 @@
 import geopandas as gpd
 from folium.utilities import image_to_url
-from shapely.geometry import mapping
 from mesa.visualization.ModularVisualization import VisualizationElement
+from shapely.geometry import mapping
 
-from mesa_geo.geospace import ImageLayer
+from mesa_geo.raster_layers import RasterLayer, RasterBase
 
 
 class MapModule(VisualizationElement):
@@ -31,9 +31,11 @@ class MapModule(VisualizationElement):
         }
 
     def _render_layers(self, model):
-        layers = {"rasters": [], "vectors": [], "bounds": []}
+        layers = {"rasters": [], "vectors": [], "total_bounds": []}
         for layer in model.space.layers:
-            if isinstance(layer, ImageLayer):
+            if isinstance(layer, RasterBase):
+                if isinstance(layer, RasterLayer):
+                    layer = layer.to_image(colormap=self.portrayal_method)
                 layers["rasters"].append(
                     image_to_url(layer.to_crs(self._crs).values.transpose([1, 2, 0]))
                 )
@@ -42,12 +44,12 @@ class MapModule(VisualizationElement):
                     layer.to_crs(self._crs)[["geometry"]].__geo_interface__
                 )
         # longlat [min_x, min_y, max_x, max_y] to latlong [min_y, min_x, max_y, max_x]
-        if model.space.bounds:
+        if model.space.total_bounds is not None:
             transformed_xx, transformed_yy = model.space.transformer.transform(
-                xx=[model.space.bounds[0], model.space.bounds[2]],
-                yy=[model.space.bounds[1], model.space.bounds[3]],
+                xx=[model.space.total_bounds[0], model.space.total_bounds[2]],
+                yy=[model.space.total_bounds[1], model.space.total_bounds[3]],
             )
-            layers["bounds"] = [
+            layers["total_bounds"] = [
                 [transformed_yy[0], transformed_xx[0]],  # min_y, min_x
                 [transformed_yy[1], transformed_xx[1]],  # max_y, max_x
             ]

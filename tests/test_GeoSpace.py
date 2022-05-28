@@ -23,7 +23,7 @@ class TestGeoSpace(unittest.TestCase):
         self.image_layer = ImageLayer(
             values=np.random.uniform(low=0, high=255, size=(3, 500, 500)),
             crs="epsg:4326",
-            bounds=[
+            total_bounds=[
                 -122.26638888878,
                 42.855833333,
                 -121.94972222209202,
