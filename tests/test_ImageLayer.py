@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import rasterio as rio
 
-from mesa_geo.geospace import ImageLayer
+from mesa_geo.raster_layers import ImageLayer
 
 
 class TestImageLayer(unittest.TestCase):
@@ -45,7 +45,7 @@ class TestImageLayer(unittest.TestCase):
         self.image_layer = ImageLayer(
             values=np.random.uniform(low=0, high=255, size=self.src_shape),
             crs=self.src_crs,
-            bounds=self.src_bounds,
+            total_bounds=self.src_bounds,
         )
 
     def tearDown(self) -> None:
@@ -54,29 +54,34 @@ class TestImageLayer(unittest.TestCase):
     def test_to_crs(self):
         transformed_image_layer = self.image_layer.to_crs(self.dst_crs)
         self.assertEqual(transformed_image_layer.crs, self.dst_crs)
-        self.assertEqual(transformed_image_layer.shape, self.dst_shape)
+        self.assertEqual(transformed_image_layer.height, self.dst_shape[1])
+        self.assertEqual(transformed_image_layer.width, self.dst_shape[2])
 
         self.assertTrue(
             transformed_image_layer.transform.almost_equals(self.dst_transform)
         )
-        np.testing.assert_almost_equal(transformed_image_layer.bounds, self.dst_bounds)
+        np.testing.assert_almost_equal(
+            transformed_image_layer.total_bounds, self.dst_bounds
+        )
         np.testing.assert_almost_equal(
             transformed_image_layer.resolution, self.dst_resolution
         )
 
         # no change to original layer
         self.assertEqual(self.image_layer.crs, self.src_crs)
-        self.assertEqual(self.image_layer.shape, self.src_shape)
+        self.assertEqual(self.image_layer.height, self.src_shape[1])
+        self.assertEqual(self.image_layer.width, self.src_shape[2])
 
         self.assertTrue(self.image_layer.transform.almost_equals(self.src_transform))
-        np.testing.assert_almost_equal(self.image_layer.bounds, self.src_bounds)
+        np.testing.assert_almost_equal(self.image_layer.total_bounds, self.src_bounds)
 
         np.testing.assert_almost_equal(self.image_layer.resolution, self.src_resolution)
 
     def test_to_crs_inplace(self):
         self.image_layer.to_crs(self.dst_crs, inplace=True)
         self.assertEqual(self.image_layer.crs, self.dst_crs)
-        self.assertEqual(self.image_layer.shape, self.dst_shape)
+        self.assertEqual(self.image_layer.height, self.dst_shape[1])
+        self.assertEqual(self.image_layer.width, self.dst_shape[2])
         self.assertTrue(self.image_layer.transform.almost_equals(self.dst_transform))
-        np.testing.assert_almost_equal(self.image_layer.bounds, self.dst_bounds)
+        np.testing.assert_almost_equal(self.image_layer.total_bounds, self.dst_bounds)
         np.testing.assert_almost_equal(self.image_layer.resolution, self.dst_resolution)

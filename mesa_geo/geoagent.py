@@ -4,18 +4,24 @@ The geoagent class for the mesa_geo framework.
 Core Objects: GeoAgent
 
 """
+from __future__ import annotations
+
+import copy
 import json
 import warnings
 
 import geopandas as gpd
+import numpy as np
 import pyproj
 from mesa import Agent
 from shapely.geometry import mapping
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import transform
 
+from mesa_geo.geo_base import GeoBase
 
-class GeoAgent(Agent):
+
+class GeoAgent(Agent, GeoBase):
     """Base class for a geo model agent."""
 
     def __init__(self, unique_id, model, geometry, crs):
@@ -27,23 +33,31 @@ class GeoAgent(Agent):
             of the agent
         crs: Coordinate reference system.
         """
-        self.unique_id = unique_id
-        self.model = model
+        Agent.__init__(self, unique_id, model)
+        GeoBase.__init__(self, crs=crs)
         self.geometry = geometry
-        self.crs = pyproj.CRS.from_user_input(crs)
 
-    def to_crs(self, crs):
-        if self.crs is None:
-            raise TypeError("Need a valid crs to transform from.")
-        if crs is None:
-            raise TypeError("Need a valid crs to transform to.")
+    @property
+    def total_bounds(self) -> np.ndarray | None:
+        if self.geometry is not None:
+            return self.geometry.bounds
+        else:
+            return None
 
-        if not self.crs.is_exact_same(crs):
+    def to_crs(self, crs, inplace=False) -> GeoAgent | None:
+        super()._to_crs_check(crs)
+
+        agent = self if inplace else copy.copy(self)
+
+        if not agent.crs.is_exact_same(crs):
             transformer = pyproj.Transformer.from_crs(
-                crs_from=self.crs, crs_to=crs, always_xy=True
+                crs_from=agent.crs, crs_to=crs, always_xy=True
             )
-            self.geometry = self.get_transformed_geometry(transformer)
-            self.crs = crs
+            agent.geometry = agent.get_transformed_geometry(transformer)
+            agent.crs = crs
+
+        if not inplace:
+            return agent
 
     def get_transformed_geometry(self, transformer):
         """
