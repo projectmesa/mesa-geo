@@ -1,13 +1,13 @@
+import random
 import unittest
 import uuid
-import random
 import warnings
 
 import numpy as np
-import rasterio as rio
-from mesa_geo.geospace import GeoSpace, RasterLayer
-from mesa_geo.geoagent import GeoAgent, AgentCreator
 from shapely.geometry import Point
+
+from mesa_geo.geoagent import GeoAgent, AgentCreator
+from mesa_geo.geospace import GeoSpace, ImageLayer
 
 
 class TestGeoSpace(unittest.TestCase):
@@ -20,17 +20,9 @@ class TestGeoSpace(unittest.TestCase):
             )
             for geometry in self.geometries
         ]
-        self.raster_layer = RasterLayer(
+        self.image_layer = ImageLayer(
             values=np.random.uniform(low=0, high=255, size=(3, 500, 500)),
             crs="epsg:4326",
-            transform=rio.transform.Affine(
-                0.0011111111111859,
-                0.00,
-                -122.26638888878,
-                0.00,
-                -0.0011111111111859,
-                43.01472222189958,
-            ),
             bounds=[
                 -122.26638888878,
                 42.855833333,
@@ -82,12 +74,12 @@ class TestGeoSpace(unittest.TestCase):
 
     def test_add_layer(self):
         with self.assertWarns(Warning):
-            self.geo_space.add_layer(self.raster_layer)
+            self.geo_space.add_layer(self.image_layer)
         self.assertEqual(len(self.geo_space.layers), 1)
 
         self.geo_space.warn_crs_conversion = False
         # assert no warning
         with warnings.catch_warnings():
             warnings.simplefilter("error")
-            self.geo_space.add_layer(self.raster_layer)
+            self.geo_space.add_layer(self.image_layer)
         self.assertEqual(len(self.geo_space.layers), 2)
