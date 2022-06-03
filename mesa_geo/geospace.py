@@ -57,7 +57,7 @@ class GeoSpace:
             get_intersecting_agents: Returns list of agents that intersect
             get_relation: Return a list of related agents
             get_neighbors_within_distance: Return a list of agents within `distance` of `agent`
-            add_layer: Add a RasterLayer or a geopandas.GeoDataFrame
+            add_layer: Add a ImageLayer or a geopandas.GeoDataFrame
         """
         self._crs = pyproj.CRS.from_user_input(crs)
         self._transformer = pyproj.Transformer.from_crs(
@@ -91,7 +91,7 @@ class GeoSpace:
         return self._agent_layer.agents
 
     @property
-    def layers(self) -> List[RasterLayer | gpd.GeoDataFrame]:
+    def layers(self) -> List[ImageLayer | gpd.GeoDataFrame]:
         """
         Return a list of all layers in the Geospace.
         """
@@ -121,11 +121,11 @@ class GeoSpace:
         features = [a.__geo_interface__() for a in self.agents]
         return {"type": "FeatureCollection", "features": features}
 
-    def add_layer(self, layer: RasterLayer | gpd.GeoDataFrame) -> None:
+    def add_layer(self, layer: ImageLayer | gpd.GeoDataFrame) -> None:
         """Add a layer to the Geospace.
 
         Args:
-            layer: A RasterLayer or a geopandas.GeoDataFrame, to be added into GeoSpace.
+            layer: A ImageLayer or a geopandas.GeoDataFrame, to be added into GeoSpace.
         """
         if not self.crs.is_exact_same(layer.crs):
             if self.warn_crs_conversion:
@@ -137,7 +137,7 @@ class GeoSpace:
                 )
             layer.to_crs(self.crs, inplace=True)
         layer_bounds = (
-            layer.bounds if isinstance(layer, RasterLayer) else list(layer.total_bounds)
+            layer.bounds if isinstance(layer, ImageLayer) else list(layer.total_bounds)
         )
         self.update_bounds(layer_bounds)
         self._static_layers.append(layer)
@@ -368,17 +368,16 @@ class _AgentLayer:
         return neighbors
 
 
-class RasterLayer:
+class ImageLayer:
     _values: np.ndarray
     _crs: pyproj.CRS | None
     _transform: Affine
     _bounds: List[float]  # [min_x, min_y, max_x, max_y]
 
-    def __init__(self, values, crs, transform, bounds):
+    def __init__(self, values, crs, bounds):
         self._values = values
         self.crs = crs
-        self._transform = transform
-        self._bounds = bounds
+        self.bounds = bounds
 
     @property
     def shape(self):
@@ -427,7 +426,7 @@ class RasterLayer:
     def crs(self, crs) -> None:
         self._crs = pyproj.CRS.from_user_input(crs) if crs else None
 
-    def to_crs(self, crs, inplace=False) -> RasterLayer | None:
+    def to_crs(self, crs, inplace=False) -> ImageLayer | None:
         if self.crs is None:
             raise TypeError("Need a valid crs to transform from.")
         if crs is None:
@@ -465,7 +464,7 @@ class RasterLayer:
             return layer
 
     @classmethod
-    def from_file(cls, raster_file: str) -> RasterLayer:
+    def from_file(cls, raster_file: str) -> ImageLayer:
         with rio.open(raster_file, "r") as dataset:
             values = dataset.read()
             bounds = [
@@ -474,15 +473,9 @@ class RasterLayer:
                 dataset.bounds.right,
                 dataset.bounds.top,
             ]
-            return cls(
-                values=values,
-                crs=dataset.crs,
-                transform=dataset.transform,
-                bounds=bounds,
-            )
+            obj = cls(values=values, crs=dataset.crs, bounds=bounds)
+            obj._transform = dataset.transform
+            return obj
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}(crs={self.crs}, bounds={self.bounds}, transform={repr(self.transform)},"
-            f" values={repr(self.values)})"
-        )
+        return f"{self.__class__.__name__}(crs={self.crs}, bounds={self.bounds}, values={repr(self.values)})"

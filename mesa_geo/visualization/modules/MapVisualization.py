@@ -3,7 +3,7 @@ from folium.utilities import image_to_url
 from shapely.geometry import mapping
 from mesa.visualization.ModularVisualization import VisualizationElement
 
-from mesa_geo.geospace import RasterLayer
+from mesa_geo.geospace import ImageLayer
 
 
 class MapModule(VisualizationElement):
@@ -33,7 +33,7 @@ class MapModule(VisualizationElement):
     def _render_layers(self, model):
         layers = {"rasters": [], "vectors": [], "bounds": []}
         for layer in model.space.layers:
-            if isinstance(layer, RasterLayer):
+            if isinstance(layer, ImageLayer):
                 layers["rasters"].append(
                     image_to_url(layer.to_crs(self._crs).values.transpose([1, 2, 0]))
                 )
