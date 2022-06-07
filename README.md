@@ -113,6 +113,21 @@ The unit for the distance depends on the coordinate reference system (CRS) of th
 
 ## Going further
 
-To get a deeper understanding of Mesa-Geo you should checkout the GeoSchelling example. It implements a Leaflet visualization which is similar to use as the CanvasGridVisualization of Mesa.
+To get a deeper understanding of Mesa-Geo you should check out the GeoSchelling example. It implements a Leaflet visualization which is similar to use as the CanvasGridVisualization of Mesa.
 
-To add further functionality, I need feedback on which functionality is desired by users. Please post a message [here](https://groups.google.com/forum/#!topic/projectmesa-dev/qEf2XBFZYnI) or open an issue if you have any ideas or recommendations.
+To add further functionality, I need feedback on which functionality is desired by users. Please post a message at [Mesa-Geo discussions](https://github.com/projectmesa/mesa-geo/discussions) or open an [issue](https://github.com/projectmesa/mesa-geo/issues) if you have any ideas or recommendations.
+
+## Contributing to Mesa-Geo
+
+Want to join the team or just curious about what is happening with Mesa & Mesa-Geo? You can...
+
+  * Join our [Matrix chat room](https://matrix.to/#/#project-mesa:matrix.org) in which questions, issues, and ideas can be (informally) discussed.
+  * Come to a monthly dev session (you can find dev session times, agendas and notes at [Mesa discussions](https://github.com/projectmesa/mesa/discussions).
+  * Just check out the code at [GitHub](https://github.com/projectmesa/mesa-geo/).
+
+If you run into an issue, please file a [ticket](https://github.com/projectmesa/mesa-geo/issues) for us to discuss. If possible, follow up with a pull request.
+
+If you would like to add a feature, please reach out via [ticket](https://github.com/projectmesa/mesa-geo/issues) or join a dev session (see [Mesa discussions](https://github.com/projectmesa/mesa/discussions)).
+A feature is most likely to be added if you build it!
+
+Don't forget to check out the [Contributors guide](https://github.com/projectmesa/mesa-geo/blob/master/CONTRIBUTING.rst).
