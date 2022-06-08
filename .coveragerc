@@ -1,0 +1,7 @@
+[run]
+source = mesa_geo
+branch = True
+
+[report]
+omit =
+    tests/*

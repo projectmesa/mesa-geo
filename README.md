@@ -130,4 +130,4 @@ If you run into an issue, please file a [ticket](https://github.com/projectmesa/
 If you would like to add a feature, please reach out via [ticket](https://github.com/projectmesa/mesa-geo/issues) or join a dev session (see [Mesa discussions](https://github.com/projectmesa/mesa/discussions)).
 A feature is most likely to be added if you build it!
 
-Don't forget to check out the [Contributors guide](https://github.com/projectmesa/mesa-geo/blob/master/CONTRIBUTING.rst).
+Don't forget to check out the [Contributors guide](https://github.com/projectmesa/mesa-geo/blob/master/CONTRIBUTING.md).
