@@ -83,3 +83,19 @@ class TestGeoSpace(unittest.TestCase):
             warnings.simplefilter("error")
             self.geo_space.add_layer(self.image_layer)
         self.assertEqual(len(self.geo_space.layers), 2)
+
+    def test_get_neighbors_within_distance(self):
+        self.geo_space.add_agents(self.agents)
+        agent_to_check = random.choice(self.agents)
+
+        neighbors = list(
+            self.geo_space.get_neighbors_within_distance(
+                agent_to_check, distance=1.0, center=True
+            )
+        )
+        self.assertEqual(len(neighbors), 7)
+
+        neighbors = list(
+            self.geo_space.get_neighbors_within_distance(agent_to_check, distance=1.0)
+        )
+        self.assertEqual(len(neighbors), 7)

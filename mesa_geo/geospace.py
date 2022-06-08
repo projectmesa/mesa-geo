@@ -338,7 +338,7 @@ class _AgentLayer:
         set center=True to calculate distance from center.
         """
         if center:
-            geometry = agent.geometry.center().buffer(distance)
+            geometry = agent.geometry.centroid.buffer(distance)
         else:
             geometry = agent.geometry.buffer(distance)
         possible_neighbors = self._get_rtree_intersections(geometry)
