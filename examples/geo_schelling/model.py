@@ -1,9 +1,12 @@
-from mesa.datacollection import DataCollector
-from mesa import Model
-from mesa.time import RandomActivation
-from mesa_geo.geoagent import GeoAgent, AgentCreator
-from mesa_geo import GeoSpace
 import random
+
+from mesa import Model
+from mesa.datacollection import DataCollector
+from mesa.time import RandomActivation
+
+from mesa_geo import GeoSpace
+from mesa_geo.geoagent import AgentCreator
+from mesa_geo.geoagent import GeoAgent
 
 
 class SchellingAgent(GeoAgent):
@@ -50,10 +53,10 @@ class SchellingAgent(GeoAgent):
         return "Agent " + str(self.unique_id)
 
 
-class SchellingModel(Model):
+class GeoSchelling(Model):
     """Model class for the Schelling segregation model."""
 
-    def __init__(self, density, minority_pc):
+    def __init__(self, density=0.6, minority_pc=0.2):
         self.density = density
         self.minority_pc = minority_pc
 
@@ -67,7 +70,7 @@ class SchellingModel(Model):
 
         # Set up the grid with patches for every NUTS region
         ac = AgentCreator(SchellingAgent, model=self)
-        agents = ac.from_file("nuts_rg_60M_2013_lvl_2.geojson")
+        agents = ac.from_file("data/nuts_rg_60M_2013_lvl_2.geojson")
         self.space.add_agents(agents)
 
         # Set up agents

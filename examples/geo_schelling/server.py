@@ -1,8 +1,9 @@
 from mesa_geo.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import ChartModule, TextElement
 from mesa.visualization.UserParam import UserSettableParameter
-from model import SchellingModel
 from mesa_geo.visualization.modules import MapModule
+
+from model import GeoSchelling
 
 
 class HappyElement(TextElement):
@@ -45,4 +46,3 @@ happy_chart = ChartModule([{"Label": "happy", "Color": "Black"}])
 server = ModularServer(
     SchellingModel, [map_element, happy_element, happy_chart], "Schelling", model_params
 )
-server.launch()
