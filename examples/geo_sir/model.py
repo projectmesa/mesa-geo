@@ -9,7 +9,7 @@ from mesa_geo.geoagent import AgentCreator
 from agents import PersonAgent, NeighbourhoodAgent
 
 
-class InfectedModel(Model):
+class GeoSir(Model):
     """Model class for a simplistic infection model."""
 
     # Geographical parameters for desired map
@@ -17,7 +17,9 @@ class InfectedModel(Model):
     geojson_regions = "data/TorontoNeighbourhoods.geojson"
     unique_id = "HOODNUM"
 
-    def __init__(self, pop_size, init_infected, exposure_distance, infection_risk=0.2):
+    def __init__(
+        self, pop_size=30, init_infected=0.2, exposure_distance=500, infection_risk=0.2
+    ):
         """
         Create a new InfectedModel
         :param pop_size:        Size of population
