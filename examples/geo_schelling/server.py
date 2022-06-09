@@ -44,5 +44,5 @@ happy_element = HappyElement()
 map_element = MapModule(schelling_draw, [52, 12], 4, 500, 500)
 happy_chart = ChartModule([{"Label": "happy", "Color": "Black"}])
 server = ModularServer(
-    SchellingModel, [map_element, happy_element, happy_chart], "Schelling", model_params
+    GeoSchelling, [map_element, happy_element, happy_chart], "Schelling", model_params
 )

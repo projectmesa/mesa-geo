@@ -49,7 +49,7 @@ def infected_draw(agent):
 
 
 infected_text = InfectedText()
-map_element = MapModule(infected_draw, InfectedModel.MAP_COORDS, 10, 500, 500)
+map_element = MapModule(infected_draw, GeoSir.MAP_COORDS, 10, 500, 500)
 infected_chart = ChartModule(
     [
         {"Label": "infected", "Color": "Red"},
@@ -59,7 +59,7 @@ infected_chart = ChartModule(
     ]
 )
 server = ModularServer(
-    InfectedModel,
+    GeoSir,
     [map_element, infected_text, infected_chart],
     "Basic agent-based SIR model",
     model_params,
