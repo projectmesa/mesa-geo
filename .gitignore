@@ -327,6 +327,7 @@ pip-log.txt
 
 # Mesa file
 mesa_geo/visualization/ModularVisualization.py
+mesa_geo/visualization/templates/*.html
 mesa_geo/visualization/templates/fonts
 mesa_geo/visualization/templates/external
 mesa_geo/visualization/templates/css/*

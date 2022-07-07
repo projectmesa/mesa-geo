@@ -9,7 +9,7 @@ from mesa_geo.geospace import ImageLayer
 class MapModule(VisualizationElement):
     """A MapModule for Leaflet maps."""
 
-    package_includes = ["external/leaflet.js", "MapModule.js"]
+    package_includes = ["external/leaflet.js", "external/leaflet.css", "MapModule.js"]
     local_includes = []
 
     def __init__(
