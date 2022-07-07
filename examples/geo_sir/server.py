@@ -1,6 +1,6 @@
+import mesa
 from mesa_geo.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import ChartModule, TextElement
-from mesa.visualization.UserParam import UserSettableParameter
 from mesa_geo.visualization.modules import MapModule
 
 from model import GeoSir
@@ -20,12 +20,12 @@ class InfectedText(TextElement):
 
 
 model_params = {
-    "pop_size": UserSettableParameter("slider", "Population size", 30, 10, 100, 10),
-    "init_infected": UserSettableParameter(
-        "slider", "Fraction initial infection", 0.2, 0.00, 1.0, 0.05
+    "pop_size": mesa.visualization.Slider("Population size", 30, 10, 100, 10),
+    "init_infected": mesa.visualization.Slider(
+        "Fraction initial infection", 0.2, 0.00, 1.0, 0.05
     ),
-    "exposure_distance": UserSettableParameter(
-        "slider", "Exposure distance", 500, 100, 1000, 100
+    "exposure_distance": mesa.visualization.Slider(
+        "Exposure distance", 500, 100, 1000, 100
     ),
 }
 
