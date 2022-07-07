@@ -1,4 +1,4 @@
-from mesa.visualization.UserParam import UserSettableParameter
+import mesa
 from mesa.visualization.modules import ChartModule, TextElement
 
 from mesa_geo.visualization.ModularVisualization import ModularServer
@@ -18,9 +18,9 @@ class UnhappyElement(TextElement):
 
 
 model_params = {
-    "red_percentage": UserSettableParameter("slider", "% red", 0.5, 0.00, 1.0, 0.05),
-    "similarity_threshold": UserSettableParameter(
-        "slider", "% similar wanted", 0.5, 0.00, 1.0, 0.05
+    "red_percentage": mesa.visualization.Slider("% red", 0.5, 0.00, 1.0, 0.05),
+    "similarity_threshold": mesa.visualization.Slider(
+        "% similar wanted", 0.5, 0.00, 1.0, 0.05
     ),
 }
 
