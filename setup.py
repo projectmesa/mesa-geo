@@ -55,14 +55,11 @@ def get_viz_server_file(package, server_file):
 
 def get_mesa_templates(package, template_dir):
     pkg_dir = sys.modules[package].__path__[0]
-    for subdir in os.listdir(os.path.join(pkg_dir, template_dir)):
-        # do not copy modular_template.html to avoid being overwritten
-        if os.path.isdir(os.path.join(pkg_dir, template_dir, subdir)):
-            shutil.copytree(
-                os.path.join(pkg_dir, template_dir, subdir),
-                os.path.join("mesa_geo", template_dir, subdir),
-                dirs_exist_ok=True,
-            )
+    shutil.copytree(
+        os.path.join(pkg_dir, template_dir),
+        os.path.join("mesa_geo", template_dir),
+        dirs_exist_ok=True,
+    )
 
 
 def get_frontend_dep():
