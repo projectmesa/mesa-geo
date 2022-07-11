@@ -1,13 +1,43 @@
+from __future__ import annotations
+
+import dataclasses
+from dataclasses import dataclass
+from typing import Dict, Union
+
 import geopandas as gpd
 from folium.utilities import image_to_url
 from mesa.visualization.ModularVisualization import VisualizationElement
-from shapely.geometry import mapping
+from shapely.geometry import mapping, Point
 
 from mesa_geo.raster_layers import RasterLayer, RasterBase
 
+LeafletOption = Union[str, bool, int, float]
+
+
+@dataclass
+class LeafletPortrayal:
+    """A dataclass defining the portrayal of a GeoAgent in Leaflet map.
+
+    The fields are defined to be consistent with GeoJSON options in
+    Leaflet.js: https://leafletjs.com/reference.html#geojson
+    """
+
+    style: Dict[str, LeafletOption] | None = None
+    pointToLayer: Dict[str, LeafletOption] | None = None
+    popupProperties: Dict[str, LeafletOption] | None = None
+
 
 class MapModule(VisualizationElement):
-    """A MapModule for Leaflet maps."""
+    """A MapModule for Leaflet maps that uses a user-defined portrayal method
+    to generate a portrayal of a raster Cell or a GeoAgent.
+
+    For a raster Cell, the portrayal method should return a (r, g, b, a) tuple.
+
+    For a GeoAgent, the portrayal method should return a dictionary.
+        For a Line or a Polygon, the available options can be found at: https://leafletjs.com/reference.html#path-option
+        For a Point, the available options can be found at: https://leafletjs.com/reference.html#circlemarker-option
+        In addition, the portrayal dictionary can contain a "description" key, which will be used as the popup text.
+    """
 
     package_includes = ["external/leaflet.js", "external/leaflet.css", "MapModule.js"]
     local_includes = []
@@ -61,12 +91,25 @@ class MapModule(VisualizationElement):
             transformed_geometry = agent.get_transformed_geometry(
                 model.space.transformer
             )
-            properties = self.portrayal_method(agent) if self.portrayal_method else {}
+            agent_portrayal = {}
+            if self.portrayal_method:
+                properties = self.portrayal_method(agent)
+                agent_portrayal = LeafletPortrayal(
+                    popupProperties=properties.pop("description", None)
+                )
+                if isinstance(agent.geometry, Point):
+                    agent_portrayal.pointToLayer = properties
+                else:
+                    agent_portrayal.style = properties
+                agent_portrayal = dataclasses.asdict(
+                    agent_portrayal,
+                    dict_factory=lambda x: {k: v for (k, v) in x if v is not None},
+                )
             feature_collection["features"].append(
                 {
                     "type": "Feature",
                     "geometry": mapping(transformed_geometry),
-                    "properties": properties,
+                    "properties": agent_portrayal,
                 }
             )
         return feature_collection

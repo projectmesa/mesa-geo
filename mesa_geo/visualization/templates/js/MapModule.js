@@ -37,10 +37,10 @@ const MapModule = function (view, zoom, map_width, map_height) {
         agentLayer = L.geoJSON(agents, {
             onEachFeature: PopUpProperties,
             style: function (feature) {
-                return {color: feature.properties.color};
+                return feature.properties.style
             },
             pointToLayer: function (feature, latlang) {
-                return L.circleMarker(latlang, {radius: feature.properties.radius, color: feature.properties.color});
+                return L.circleMarker(latlang, feature.properties.pointToLayer);
             }
         }).addTo(Lmap)
     }
@@ -58,9 +58,9 @@ const MapModule = function (view, zoom, map_width, map_height) {
 
 function PopUpProperties(feature, layer) {
     let popupContent = '<table>'
-    if (feature.properties) {
-        for (const p in feature.properties) {
-            popupContent += '<tr><td>' + p + '</td><td>' + feature.properties[p] + '</td></tr>'
+    if (feature.properties.popupProperties) {
+        for (const p in feature.properties.popupProperties) {
+            popupContent += '<tr><td>' + p + '</td><td>' + feature.properties.popupProperties[p] + '</td></tr>'
         }
     }
     popupContent += '</table>'
