@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import itertools
 import math
+import uuid
 from typing import (
     Tuple,
     List,
@@ -110,7 +111,7 @@ class Cell(Agent):
     indices: Coordinate | None  # (row, col), origin is at upper left corner of the grid
 
     def __init__(self, pos=None, indices=None):
-        super().__init__(None, None)
+        super().__init__(uuid.uuid4().int, None)
         self.pos = pos
         self.indices = indices
 
