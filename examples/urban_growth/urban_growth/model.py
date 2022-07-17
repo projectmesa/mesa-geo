@@ -1,5 +1,3 @@
-import random
-
 import mesa
 import numpy as np
 
@@ -31,6 +29,7 @@ class UrbanGrowth(mesa.Model):
         self.slope_coefficient = slope_coefficient
         self.critical_slope = critical_slope
         self.road_influence = road_influence
+        self.schedule = mesa.time.RandomActivation(self)
 
         self.dispersion_value = (dispersion_coefficient * 0.005) * (
             world_width**2 + world_height**2
@@ -48,14 +47,12 @@ class UrbanGrowth(mesa.Model):
                 cell.run_value = cell.road_1 / 4 * self.dispersion_coefficient
             cell.road_found = False
             cell.road_pixel = None
+            cell.model = self
+            self.schedule.add(cell)
 
-        self.schedule = mesa.time.RandomActivation(self)
-        self.datacollector = mesa.DataCollector(
-            {
-                "Percentage Urbanized": "pct_urbanized",
-            }
+        self.initialize_data_collector(
+            model_reporters={"Percentage Urbanized": "pct_urbanized"}
         )
-        self.datacollector.collect(self)
 
     @property
     def pct_urbanized(self) -> float:
@@ -109,8 +106,7 @@ class UrbanGrowth(mesa.Model):
 
     def step(self):
         self._spontaneous_growth()
-        self._new_spreading_center_growth()
-        self._edge_growth()
+        self.schedule.step()
         if self.road_influence:
             self._road_influenced_growth()
         self.datacollector.collect(self)
@@ -125,36 +121,6 @@ class UrbanGrowth(mesa.Model):
             if (not random_cell.urban) and random_cell.suitable:
                 random_cell.urban = True
                 random_cell.new_urbanized = True
-
-    def _new_spreading_center_growth(self) -> None:
-        for cell in self.space.raster_layer:
-            if cell.new_urbanized:
-                x = np.random.randint(self.max_coefficient)
-                if x < self.breed_coefficient:
-                    neighbors = self.space.raster_layer.get_neighboring_cells(
-                        cell.pos, moore=True
-                    )
-                    for random_neighbor in random.choices(neighbors, k=2):
-                        if (not random_neighbor.urban) and random_neighbor.suitable:
-                            random_neighbor.urban = True
-                            random_neighbor.new_urbanized = True
-                cell.new_urbanized = False
-
-    def _edge_growth(self) -> None:
-        for cell in self.space.raster_layer:
-            if cell.urban:
-                x = np.random.randint(self.max_coefficient)
-                if x < self.spread_coefficient:
-                    neighbors = self.space.raster_layer.get_neighboring_cells(
-                        cell.pos, moore=True
-                    )
-                    urban_neighbors = [c for c in neighbors if c.urban]
-                    non_urban_neighbors = [c for c in neighbors if not c.urban]
-                    if len(urban_neighbors) > 1 and len(non_urban_neighbors) > 0:
-                        random_non_urban_neighbor = random.choice(non_urban_neighbors)
-                        if random_non_urban_neighbor.suitable:
-                            random_non_urban_neighbor.urban = True
-                            random_non_urban_neighbor.new_urbanized = True
 
     def _road_influenced_growth(self) -> None:
         pass
