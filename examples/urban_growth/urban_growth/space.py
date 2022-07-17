@@ -2,7 +2,9 @@ from __future__ import annotations
 import gzip
 
 import mesa
+import numpy as np
 import rasterio as rio
+import random
 
 from mesa_geo import Cell, RasterLayer
 from mesa_geo.geospace import GeoSpace
@@ -43,7 +45,36 @@ class UrbanCell(Cell):
         self.new_urbanized = None
 
     def step(self):
-        pass
+        self._new_spreading_center_growth()
+        self._edge_growth()
+
+    def _new_spreading_center_growth(self) -> None:
+        if self.new_urbanized:
+            x = np.random.randint(self.model.max_coefficient)
+            if x < self.model.breed_coefficient:
+                neighbors = self.model.space.raster_layer.get_neighboring_cells(
+                    self.pos, moore=True
+                )
+                for random_neighbor in random.choices(neighbors, k=2):
+                    if (not random_neighbor.urban) and random_neighbor.suitable:
+                        random_neighbor.urban = True
+                        random_neighbor.new_urbanized = True
+            self.new_urbanized = False
+
+    def _edge_growth(self) -> None:
+        if self.urban:
+            x = np.random.randint(self.model.max_coefficient)
+            if x < self.model.spread_coefficient:
+                neighbors = self.model.space.raster_layer.get_neighboring_cells(
+                    self.pos, moore=True
+                )
+                urban_neighbors = [c for c in neighbors if c.urban]
+                non_urban_neighbors = [c for c in neighbors if not c.urban]
+                if len(urban_neighbors) > 1 and len(non_urban_neighbors) > 0:
+                    random_non_urban_neighbor = random.choice(non_urban_neighbors)
+                    if random_non_urban_neighbor.suitable:
+                        random_non_urban_neighbor.urban = True
+                        random_non_urban_neighbor.new_urbanized = True
 
 
 class City(GeoSpace):
