@@ -4,6 +4,7 @@ import uuid
 import warnings
 
 import numpy as np
+import geopandas as gpd
 from shapely.geometry import Point
 
 from mesa_geo.geoagent import GeoAgent, AgentCreator
@@ -29,6 +30,10 @@ class TestGeoSpace(unittest.TestCase):
                 -121.94972222209202,
                 43.01472222189958,
             ],
+        )
+        self.vector_layer = gpd.GeoDataFrame(
+            {"name": ["point_1", "point_2"], "geometry": [Point(1, 2), Point(2, 1)]},
+            crs="epsg:4326",
         )
         self.geo_space = GeoSpace()
         self.geo_space_with_different_crs = GeoSpace(crs="epsg:2283")
@@ -72,7 +77,7 @@ class TestGeoSpace(unittest.TestCase):
         self.assertEqual(len(self.geo_space.agents), len(self.agents) - 1)
         self.assertTrue(agent_to_remove.unique_id not in remaining_agent_idx)
 
-    def test_add_layer(self):
+    def test_add_image_layer(self):
         with self.assertWarns(Warning):
             self.geo_space.add_layer(self.image_layer)
         self.assertEqual(len(self.geo_space.layers), 1)
@@ -82,6 +87,18 @@ class TestGeoSpace(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.simplefilter("error")
             self.geo_space.add_layer(self.image_layer)
+        self.assertEqual(len(self.geo_space.layers), 2)
+
+    def test_add_vector_layer(self):
+        with self.assertWarns(Warning):
+            self.geo_space.add_layer(self.vector_layer)
+        self.assertEqual(len(self.geo_space.layers), 1)
+
+        self.geo_space.warn_crs_conversion = False
+        # assert no warning
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            self.geo_space.add_layer(self.vector_layer)
         self.assertEqual(len(self.geo_space.layers), 2)
 
     def test_get_neighbors_within_distance(self):
