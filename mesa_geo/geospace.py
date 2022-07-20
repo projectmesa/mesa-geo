@@ -108,7 +108,7 @@ class GeoSpace(GeoBase):
         return self._total_bounds
 
     def _update_bounds(self, new_bounds: np.ndarray) -> None:
-        if new_bounds:
+        if new_bounds is not None:
             if self._total_bounds is not None:
                 new_min_x = min(self.total_bounds[0], new_bounds[0])
                 new_min_y = min(self.total_bounds[1], new_bounds[1])
