@@ -23,7 +23,7 @@ No contribution is too small. Although, contributions can be too big, so let's d
 - Fork the Mesa-Geo repository.
 - [Clone your repository] from GitHub to your machine.
 - Create a new branch in your fork: `git checkout -b BRANCH_NAME`
-- Run `git config pull.rebase true`. This prevents messy merge commits when updating your branch on top of Mesa-Geo master branch.
+- Run `git config pull.rebase true`. This prevents messy merge commits when updating your branch on top of Mesa-Geo main branch.
 - Install an editable version with developer requirements locally: `pip install -e ".[dev]"`
 - Edit the code. Save.
 - Git add the new files and files with changes: `git add FILE_NAME`
@@ -44,7 +44,7 @@ No contribution is too small. Although, contributions can be too big, so let's d
 Testing and Code Standards
 --------------------------
 
-[![](https://codecov.io/gh/projectmesa/mesa-geo/branch/master/graph/badge.svg)](https://codecov.io/gh/projectmesa/mesa-geo) [![](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![](https://codecov.io/gh/projectmesa/mesa-geo/branch/main/graph/badge.svg)](https://codecov.io/gh/projectmesa/mesa-geo) [![](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 As part of our contribution process, we practice continuous integration and use GH Actions to help enforce best practices.
 
@@ -91,7 +91,7 @@ Licensing
 
 The license of this project is located in [LICENSE]. By submitting a contribution to this project, you are agreeing that your contribution will be released under the terms of this license.
 
-[LICENSE]: https://github.com/projectmesa/mesa-geo/blob/master/LICENSE
+[LICENSE]: https://github.com/projectmesa/mesa-geo/blob/main/LICENSE
 
 Special Thanks
 --------------
