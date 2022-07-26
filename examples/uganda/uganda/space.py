@@ -5,7 +5,6 @@ import uuid
 
 import geopandas as gpd
 import mesa
-import rasterio as rio
 
 from mesa_geo.geoagent import GeoAgent
 from mesa_geo.geospace import GeoSpace
@@ -38,20 +37,12 @@ class UgandaArea(GeoSpace):
     def load_data(self, population_gzip_file, lake_zip_file, world_zip_file):
         world_size = gpd.GeoDataFrame.from_file(world_zip_file)
         with gzip.open(population_gzip_file, "rb") as population_file:
-            with rio.open(population_file, "r") as population_data:
-                values = population_data.read()
-                _, height, width = values.shape
-        self.add_layer(
-            RasterLayer(
-                width,
-                height,
-                world_size.crs,
-                world_size.total_bounds,
-                cell_cls=UgandaCell,
+            raster_layer = RasterLayer.from_file(
+                population_file, cell_cls=UgandaCell, attr_name="population"
             )
-        )
-        self.population_layer.apply_raster(values, name="population")
-
+            raster_layer.crs = world_size.crs
+            raster_layer.total_bounds = world_size.total_bounds
+            self.add_layer(raster_layer)
         self.lake = gpd.GeoDataFrame.from_file(lake_zip_file).geometry[0]
         self.add_agents(GeoAgent(uuid.uuid4().int, None, self.lake, self.crs))
 

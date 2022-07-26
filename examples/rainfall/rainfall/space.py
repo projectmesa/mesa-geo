@@ -3,7 +3,6 @@ import gzip
 
 import mesa
 import numpy as np
-import rasterio as rio
 
 from mesa_geo import Cell, RasterLayer
 from mesa_geo.geospace import GeoSpace
@@ -34,13 +33,14 @@ class CraterLake(GeoSpace):
 
     def set_elevation_layer(self, elevation_gzip_file, crs):
         with gzip.open(elevation_gzip_file, "rb") as elevation_file:
-            with rio.open(elevation_file, "r") as dataset:
-                values = dataset.read()
-                _, height, width = values.shape
-                total_bounds = dataset.bounds
-        raster_layer = RasterLayer(width, height, crs, total_bounds, cell_cls=LakeCell)
-        raster_layer.apply_raster(data=values, name="elevation")
-        raster_layer.apply_raster(data=np.zeros(values.shape), name="water_level")
+            raster_layer = RasterLayer.from_file(
+                elevation_file, cell_cls=LakeCell, attr_name="elevation"
+            )
+            raster_layer.crs = crs
+        raster_layer.apply_raster(
+            data=np.zeros(shape=(1, raster_layer.height, raster_layer.width)),
+            attr_name="water_level",
+        )
         super().add_layer(raster_layer)
 
     @property
