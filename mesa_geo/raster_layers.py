@@ -15,6 +15,7 @@ from typing import (
     Sequence,
     Iterator,
     Iterable,
+    Type,
 )
 
 import numpy as np
@@ -154,7 +155,7 @@ class RasterLayer(RasterBase):
     cells: List[List[Cell]]
     _neighborhood_cache: Dict[Any, List[Coordinate]]
 
-    def __init__(self, width, height, crs, total_bounds, cell_cls=Cell):
+    def __init__(self, width, height, crs, total_bounds, cell_cls: Type[Cell] = Cell):
         super().__init__(width, height, crs, total_bounds)
         self.cell_cls = cell_cls
         self.cells = []
@@ -232,13 +233,13 @@ class RasterLayer(RasterBase):
             for col in range(self.height):
                 yield self.cells[row][col], row, col  # cell, x, y
 
-    def apply_raster(self, data: np.ndarray, name: str = None) -> None:
+    def apply_raster(self, data: np.ndarray, attr_name: str = None) -> None:
         assert data.shape == (1, self.height, self.width)
-        if name is None:
-            name = f"attribute_{len(self.cell_cls.__dict__)}"
+        if attr_name is None:
+            attr_name = f"attribute_{len(self.cell_cls.__dict__)}"
         for x in range(self.width):
             for y in range(self.height):
-                setattr(self.cells[x][y], name, data[0, self.height - y - 1, x])
+                setattr(self.cells[x][y], attr_name, data[0, self.height - y - 1, x])
 
     def iter_neighborhood(
         self,
@@ -396,6 +397,24 @@ class RasterLayer(RasterBase):
             values[:, row, col] = colormap(cell)
         return ImageLayer(values=values, crs=self.crs, total_bounds=self.total_bounds)
 
+    @classmethod
+    def from_file(
+        cls, raster_file, cell_cls: Type[Cell] = Cell, attr_name: str = None
+    ) -> RasterLayer:
+        with rio.open(raster_file, "r") as dataset:
+            values = dataset.read()
+            _, height, width = values.shape
+            total_bounds = [
+                dataset.bounds.left,
+                dataset.bounds.bottom,
+                dataset.bounds.right,
+                dataset.bounds.top,
+            ]
+            obj = cls(width, height, dataset.crs, total_bounds, cell_cls)
+            obj._transform = dataset.transform
+            obj.apply_raster(values, attr_name=attr_name)
+            return obj
+
 
 class ImageLayer(RasterBase):
     _values: np.ndarray
@@ -458,8 +477,8 @@ class ImageLayer(RasterBase):
             return layer
 
     @classmethod
-    def from_file(cls, raster_file: str) -> ImageLayer:
-        with rio.open(raster_file, "r") as dataset:
+    def from_file(cls, image_file) -> ImageLayer:
+        with rio.open(image_file, "r") as dataset:
             values = dataset.read()
             total_bounds = [
                 dataset.bounds.left,

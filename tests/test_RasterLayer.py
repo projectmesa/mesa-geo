@@ -38,12 +38,12 @@ class TestRasterLayer(unittest.TestCase):
         """
         self.assertEqual(self.raster_layer.cells[0][1].attribute_5, 3)
 
-        self.raster_layer.apply_raster(raster_data, name="elevation")
+        self.raster_layer.apply_raster(raster_data, attr_name="elevation")
         self.assertEqual(self.raster_layer.cells[0][1].elevation, 3)
 
     def test_get_min_cell(self):
         self.raster_layer.apply_raster(
-            np.array([[[1, 2], [3, 4], [5, 6]]]), name="elevation"
+            np.array([[[1, 2], [3, 4], [5, 6]]]), attr_name="elevation"
         )
 
         min_cell = min(
@@ -63,7 +63,7 @@ class TestRasterLayer(unittest.TestCase):
         self.assertEqual(min_cell.elevation, 1)
 
         self.raster_layer.apply_raster(
-            np.array([[[1, 2], [3, 4], [5, 6]]]), name="water_level"
+            np.array([[[1, 2], [3, 4], [5, 6]]]), attr_name="water_level"
         )
         min_cell = min(
             self.raster_layer.get_neighboring_cells(
@@ -77,7 +77,7 @@ class TestRasterLayer(unittest.TestCase):
 
     def test_get_max_cell(self):
         self.raster_layer.apply_raster(
-            np.array([[[1, 2], [3, 4], [5, 6]]]), name="elevation"
+            np.array([[[1, 2], [3, 4], [5, 6]]]), attr_name="elevation"
         )
 
         max_cell = max(
