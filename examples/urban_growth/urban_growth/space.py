@@ -98,7 +98,7 @@ class City(GeoSpace):
             with gzip.open(data_file, "rb") as f:
                 with rio.open(f, "r") as dataset:
                     values = dataset.read()
-            self.raster_layer.apply_raster(values, name=attribute_name)
+            self.raster_layer.apply_raster(values, attr_name=attribute_name)
 
         for cell in self.raster_layer:
             cell.urban = True if cell.urban == 2 else False
