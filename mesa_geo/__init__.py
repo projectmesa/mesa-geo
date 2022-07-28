@@ -12,6 +12,6 @@ from mesa_geo.raster_layers import ImageLayer, Cell, RasterLayer
 __all__ = ["GeoSpace", "GeoAgent", "AgentCreator", "ImageLayer", "Cell", "RasterLayer"]
 
 __title__ = "Mesa-Geo"
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __license__ = "Apache 2.0"
 __copyright__ = "Copyright %s Project Mesa-Geo Team" % datetime.date.today().year
