@@ -4,6 +4,7 @@ import uuid
 import warnings
 
 import numpy as np
+import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
 
@@ -116,3 +117,20 @@ class TestGeoSpace(unittest.TestCase):
             self.geo_space.get_neighbors_within_distance(agent_to_check, distance=1.0)
         )
         self.assertEqual(len(neighbors), 7)
+
+    def test_get_agents_as_GeoDataFrame(self):
+        self.geo_space.add_agents(self.agents)
+
+        agents_list = [
+            {"geometry": agent.geometry, "unique_id": agent.unique_id}
+            for agent in self.agents
+        ]
+        agents_gdf = gpd.GeoDataFrame.from_records(agents_list, index="unique_id")
+        agents_gdf.crs = self.geo_space.crs
+
+        pd.testing.assert_frame_equal(
+            self.geo_space.get_agents_as_GeoDataFrame(), agents_gdf
+        )
+        self.assertEqual(
+            self.geo_space.get_agents_as_GeoDataFrame().crs, agents_gdf.crs
+        )

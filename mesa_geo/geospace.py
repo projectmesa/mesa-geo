@@ -226,6 +226,9 @@ class GeoSpace(GeoBase):
         """Get (touching) neighbors of an agent."""
         return self._agent_layer.get_neighbors(agent)
 
+    def get_agents_as_GeoDataFrame(self, agent_cls=GeoAgent) -> gpd.GeoDataFrame:
+        return self._agent_layer.get_agents_as_GeoDataFrame(agent_cls)
+
 
 class _AgentLayer:
     """Layer that contains the GeoAgents. Mainly for internal usage within `GeoSpace`.
@@ -368,3 +371,19 @@ class _AgentLayer:
         neighbors_idx = self._neighborhood.neighbors[idx]
         neighbors = [self.agents[i] for i in neighbors_idx]
         return neighbors
+
+    def get_agents_as_GeoDataFrame(self, agent_cls=GeoAgent) -> gpd.GeoDataFrame:
+        agents_list = []
+        crs = None
+        for agent in self.agents:
+            if isinstance(agent, agent_cls):
+                crs = agent.crs
+                agent_dict = {
+                    attr: value
+                    for attr, value in vars(agent).items()
+                    if attr not in {"model", "pos", "_crs"}
+                }
+                agents_list.append(agent_dict)
+        agents_gdf = gpd.GeoDataFrame.from_records(agents_list, index="unique_id")
+        agents_gdf.crs = crs
+        return agents_gdf
