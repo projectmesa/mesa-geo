@@ -37,9 +37,40 @@ class TestRasterLayer(unittest.TestCase):
           [5, 6]]]
         """
         self.assertEqual(self.raster_layer.cells[0][1].attribute_5, 3)
+        self.assertEqual(self.raster_layer.attributes, {"attribute_5"})
 
         self.raster_layer.apply_raster(raster_data, attr_name="elevation")
         self.assertEqual(self.raster_layer.cells[0][1].elevation, 3)
+        self.assertEqual(self.raster_layer.attributes, {"attribute_5", "elevation"})
+
+        with self.assertRaises(ValueError):
+            self.raster_layer.apply_raster(np.empty((1, 100, 100)))
+
+    def test_get_raster(self):
+        raster_data = np.array([[[1, 2], [3, 4], [5, 6]]])
+        self.raster_layer.apply_raster(raster_data)
+        """
+        (x, y) coordinates:
+        (0, 2), (1, 2)
+        (0, 1), (1, 1)
+        (0, 0), (1, 0)
+
+        values:
+        [[[1, 2],
+          [3, 4],
+          [5, 6]]]
+        """
+        self.raster_layer.apply_raster(raster_data, attr_name="elevation")
+        np.testing.assert_array_equal(
+            self.raster_layer.get_raster(attr_name="elevation"), raster_data
+        )
+
+        self.raster_layer.apply_raster(raster_data)
+        np.testing.assert_array_equal(
+            self.raster_layer.get_raster(), np.concatenate((raster_data, raster_data))
+        )
+        with self.assertRaises(ValueError):
+            self.raster_layer.get_raster("not_existing_attr")
 
     def test_get_min_cell(self):
         self.raster_layer.apply_raster(
