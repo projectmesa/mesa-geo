@@ -56,10 +56,12 @@ class RaindropAgent(GeoAgent):
 
 
 class Rainfall(mesa.Model):
-    def __init__(self, rain_rate=500, water_height=5):
+    def __init__(self, rain_rate=500, water_height=5, export_data=False, num_steps=20):
         super().__init__()
         self.rain_rate = rain_rate
         self.water_amount = 0
+        self.export_data = export_data
+        self.num_steps = num_steps
 
         self.space = CraterLake(crs="epsg:4326", water_height=water_height)
         self.schedule = mesa.time.RandomActivation(self)
@@ -81,6 +83,13 @@ class Rainfall(mesa.Model):
     def outflow(self):
         return self.space.outflow
 
+    def export_water_level_to_file(self):
+        self.space.raster_layer.to_file(
+            raster_file="data/water_level.asc",
+            attr_name="water_level",
+            driver="AAIGrid",
+        )
+
     def step(self):
         for _ in range(self.rain_rate):
             random_x = np.random.randint(0, self.space.raster_layer.width)
@@ -96,3 +105,9 @@ class Rainfall(mesa.Model):
 
         self.schedule.step()
         self.datacollector.collect(self)
+
+        self.num_steps -= 1
+        if self.num_steps == 0:
+            self.running = False
+        if not self.running and self.export_data:
+            self.export_water_level_to_file()

@@ -21,6 +21,7 @@ class HappyElement(TextElement):
 model_params = {
     "density": mesa.visualization.Slider("Agent density", 0.6, 0.1, 1.0, 0.1),
     "minority_pc": mesa.visualization.Slider("Fraction minority", 0.2, 0.00, 1.0, 0.05),
+    "export_data": mesa.visualization.Checkbox("Export data after simulation", False),
 }
 
 

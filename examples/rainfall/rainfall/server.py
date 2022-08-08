@@ -10,6 +10,8 @@ from .space import LakeCell
 model_params = {
     "rain_rate": mesa.visualization.Slider("rain rate", 500, 0, 500, 5),
     "water_height": mesa.visualization.Slider("water height", 5, 1, 5, 1),
+    "num_steps": mesa.visualization.Slider("total number of steps", 20, 1, 100, 1),
+    "export_data": mesa.visualization.Checkbox("export data after simulation", False),
 }
 
 

@@ -56,9 +56,10 @@ class SchellingAgent(GeoAgent):
 class GeoSchelling(Model):
     """Model class for the Schelling segregation model."""
 
-    def __init__(self, density=0.6, minority_pc=0.2):
+    def __init__(self, density=0.6, minority_pc=0.2, export_data=False):
         self.density = density
         self.minority_pc = minority_pc
+        self.export_data = export_data
 
         self.schedule = RandomActivation(self)
         self.space = GeoSpace(warn_crs_conversion=False)
@@ -82,6 +83,11 @@ class GeoSchelling(Model):
                     agent.atype = 0
                 self.schedule.add(agent)
 
+    def export_agents_to_file(self) -> None:
+        self.space.get_agents_as_GeoDataFrame(agent_cls=SchellingAgent).to_crs(
+            "epsg:4326"
+        ).to_file("data/schelling_agents.geojson", driver="GeoJSON")
+
     def step(self):
         """Run one step of the model.
 
@@ -93,3 +99,6 @@ class GeoSchelling(Model):
 
         if self.happy == self.schedule.get_agent_count():
             self.running = False
+
+        if not self.running and self.export_data:
+            self.export_agents_to_file()
