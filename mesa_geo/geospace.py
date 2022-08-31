@@ -1,3 +1,8 @@
+"""
+GeoSpace
+--------
+"""
+
 from __future__ import annotations
 
 import warnings
@@ -17,39 +22,21 @@ from mesa_geo.raster_layers import ImageLayer, RasterLayer
 
 
 class GeoSpace(GeoBase):
+    """
+    Space used to add a geospatial component to a model.
+    """
+
     def __init__(self, crs="epsg:3857", *, warn_crs_conversion=True):
-        """Create a GeoSpace for GIS enabled mesa modeling.
+        """
+        Create a GeoSpace for GIS enabled mesa modeling.
 
-        Args:
-            crs: Coordinate reference system of the GeoSpace
-                If `crs` is not set, epsg:3857 (Web Mercator) is used as default.
-                However, this system is only accurate at the equator and errors
-                increase with latitude.
-            warn_crs_conversion: Whether to receive warning messages about
-                converting layers and GeoAgents of different crs into the crs of
-                GeoSpace. Default to True.
-
-        Properties:
-            crs: Coordinate reference system of the GeoSpace
-            warn_crs_conversion: Whether to receive warning messages about
-                                 converting layers and GeoAgents of different crs
-                                 into the crs of GeoSpace.
-            transformer: A pyproj.Transformer that transforms the GeoSpace into
-                         epsg:4326. Mainly used for GeoJSON serialization.
-            agents: List of all agents in the GeoSpace.
-            layers: List of all layers in the GeoSpace.
-            total_bounds: Bounds of the GeoSpace in [min_x, min_y, max_x, max_y] format.
-
-        Methods:
-            add_agents: Add a list or a single GeoAgent.
-            remove_agent: Remove a single agent from GeoSpace
-            agents_at: List all agents at a specific position
-            distance: Calculate distance between two agents
-            get_neighbors: Returns a list of (touching) neighbors
-            get_intersecting_agents: Returns list of agents that intersect
-            get_relation: Return a list of related agents
-            get_neighbors_within_distance: Return a list of agents within `distance` of `agent`
-            add_layer: Add an ImageLayer, RasterLayer or a geopandas.GeoDataFrame
+        :param crs: The coordinate reference system of the GeoSpace.
+            If `crs` is not set, epsg:3857 (Web Mercator) is used as default.
+            However, this system is only accurate at the equator and errors
+            increase with latitude.
+        :param warn_crs_conversion: Whether to warn when converting layers and
+            GeoAgents of different crs into the crs of GeoSpace. Default to
+            True.
         """
         super().__init__(crs)
         self._transformer = pyproj.Transformer.from_crs(
@@ -122,15 +109,16 @@ class GeoSpace(GeoBase):
 
     @property
     def __geo_interface__(self):
-        """Return a GeoJSON FeatureCollection."""
+        """
+        Return a GeoJSON FeatureCollection.
+        """
         features = [a.__geo_interface__() for a in self.agents]
         return {"type": "FeatureCollection", "features": features}
 
     def add_layer(self, layer: ImageLayer | RasterLayer | gpd.GeoDataFrame) -> None:
         """Add a layer to the Geospace.
 
-        Args:
-            layer: An ImageLayer, RasterLayer or a geopandas.GeoDataFrame, to be added into GeoSpace.
+        :param ImageLayer | RasterLayer | gpd.GeoDataFrame layer: The layer to add.
         """
         if not self.crs.is_exact_same(layer.crs):
             if self.warn_crs_conversion:
@@ -164,11 +152,8 @@ class GeoSpace(GeoBase):
         GeoAgents must have a geometry attribute. This function may also be called
         with a single GeoAgent.
 
-        Args:
-            agents: List of GeoAgents, or a single GeoAgent, to be added into GeoSpace.
-
-        Raises:
-            AttributeError: If GeoAgent doesn't have a geometry attribute.
+        :param agents: A list of GeoAgents or a single GeoAgent to be added into GeoSpace.
+        :raises AttributeError: If the GeoAgents do not have a geometry attribute.
         """
         if isinstance(agents, GeoAgent):
             agent = agents
@@ -190,12 +175,9 @@ class GeoSpace(GeoBase):
     def get_relation(self, agent, relation):
         """Return a list of related agents.
 
-        Args:
-            agent: the agent for which to compute the relation
-            relation: must be one of 'intersects', 'within', 'contains',
-                'touches'
-            other_agents: A list of agents to compare against.
-                Omit to compare against all other agents of the GeoSpace
+        :param GeoAgent agent: The agent to find related agents for.
+        :param str relation: The relation to find. Must be one of 'intersects',
+            'within', 'contains', 'touches'.
         """
         yield from self._agent_layer.get_relation(agent, relation)
 
@@ -215,38 +197,38 @@ class GeoSpace(GeoBase):
         )
 
     def agents_at(self, pos):
-        """Return a list of agents at given pos."""
+        """
+        Return a list of agents at given pos.
+        """
         return self._agent_layer.agents_at(pos)
 
     def distance(self, agent_a, agent_b):
-        """Return distance of two agents."""
+        """
+        Return distance of two agents.
+        """
         return self._agent_layer.distance(agent_a, agent_b)
 
     def get_neighbors(self, agent):
-        """Get (touching) neighbors of an agent."""
+        """
+        Get (touching) neighbors of an agent.
+        """
         return self._agent_layer.get_neighbors(agent)
 
     def get_agents_as_GeoDataFrame(self, agent_cls=GeoAgent) -> gpd.GeoDataFrame:
+        """
+        Extract GeoAgents as a GeoDataFrame.
+
+        :param agent_cls: The class of the GeoAgents to extract. Default is `GeoAgent`.
+        :return: A GeoDataFrame of the GeoAgents.
+        :rtype: gpd.GeoDataFrame
+        """
+
         return self._agent_layer.get_agents_as_GeoDataFrame(agent_cls)
 
 
 class _AgentLayer:
-    """Layer that contains the GeoAgents. Mainly for internal usage within `GeoSpace`.
-
-    Properties:
-        idx: R-tree index for fast spatial queries
-        total_bounds: Bounds of the layer in [min_x, min_y, max_x, max_y] format
-        agents: List of all agents in the layer
-
-    Methods:
-        add_agents: add a list or a single GeoAgent.
-        remove_agent: Remove a single agent from the layer
-        agents_at: List all agents at a specific position
-        distance: Calculate distance between two agents
-        get_neighbors: Returns a list of (touching) neighbors
-        get_intersecting_agents: Returns list of agents that intersect
-        get_relation: Return a list of related agents
-        get_neighbors_within_distance: Return a list of agents within `distance` of `agent`
+    """
+    Layer that contains the GeoAgents. Mainly for internal usage within `GeoSpace`.
     """
 
     def __init__(self):
@@ -258,18 +240,32 @@ class _AgentLayer:
 
     @property
     def agents(self):
+        """
+        Return a list of all agents in the layer.
+        """
+
         return list(self.idx.agents.values())
 
     @property
     def total_bounds(self):
+        """
+        Return the bounds of the layer in [min_x, min_y, max_x, max_y] format.
+        """
+
         return self.idx.get_bounds(coordinate_interleaved=True)
 
     def _get_rtree_intersections(self, geometry):
-        """Calculate rtree intersections for candidate agents."""
+        """
+        Calculate rtree intersections for candidate agents.
+        """
+
         return (self.idx.agents[i] for i in self.idx.intersection(geometry.bounds))
 
     def _create_neighborhood(self):
-        """Create a neighborhood graph of all agents."""
+        """
+        Create a neighborhood graph of all agents.
+        """
+
         agents = self.agents
         geometries = [agent.geometry for agent in agents]
         self._neighborhood = weights.contiguity.Queen.from_iterable(geometries)
@@ -279,7 +275,9 @@ class _AgentLayer:
             self._neighborhood.idx[agent] = key
 
     def _recreate_rtree(self, new_agents=None):
-        """Create a new rtree index from agents geometries."""
+        """
+        Create a new rtree index from agents geometries.
+        """
 
         if new_agents is None:
             new_agents = []
@@ -293,16 +291,17 @@ class _AgentLayer:
         self.idx.agents = {id(agent): agent for agent in agents}
 
     def add_agents(self, agents):
-        """Add a list of GeoAgents to the layer without checking their crs.
+        """
+        Add a list of GeoAgents to the layer without checking their crs.
 
         GeoAgents must have the same crs to avoid incorrect spatial indexing results.
         To change the crs of a GeoAgent, use `GeoAgent.to_crs()` method. Refer to
         `GeoSpace._check_agent()` as an example.
         This function may also be called with a single GeoAgent.
 
-        Args:
-            agents: List of GeoAgents, or a single GeoAgent, to be added into the layer.
+        :param agents: A list of GeoAgents or a single GeoAgent to be added into the layer.
         """
+
         if isinstance(agents, GeoAgent):
             agent = agents
             self.idx.insert(id(agent), agent.geometry.bounds, None)
@@ -311,7 +310,10 @@ class _AgentLayer:
             self._recreate_rtree(agents)
 
     def remove_agent(self, agent):
-        """Remove an agent from the layer."""
+        """
+        Remove an agent from the layer.
+        """
+
         self.idx.delete(id(agent), agent.geometry.bounds)
         del self.idx.agents[id(agent)]
 
@@ -325,6 +327,7 @@ class _AgentLayer:
             other_agents: A list of agents to compare against.
                 Omit to compare against all other agents of the layer.
         """
+
         possible_agents = self._get_rtree_intersections(agent.geometry)
         for other_agent in possible_agents:
             if getattr(agent.geometry, relation)(other_agent.geometry):
@@ -342,6 +345,7 @@ class _AgentLayer:
         Distance is measured as a buffer around the agent's geometry,
         set center=True to calculate distance from center.
         """
+
         if center:
             geometry = agent.geometry.centroid.buffer(distance)
         else:
@@ -353,17 +357,26 @@ class _AgentLayer:
                 yield other_agent
 
     def agents_at(self, pos):
-        """Return a list of agents at given pos."""
+        """
+        Return a list of agents at given pos.
+        """
+
         if not isinstance(pos, Point):
             pos = Point(pos)
         return self.get_relation(pos, "within")
 
     def distance(self, agent_a, agent_b):
-        """Return distance of two agents."""
+        """
+        Return distance of two agents.
+        """
+
         return agent_a.geometry.distance(agent_b.geometry)
 
     def get_neighbors(self, agent):
-        """Get (touching) neighbors of an agent."""
+        """
+        Get (touching) neighbors of an agent.
+        """
+
         if not self._neighborhood or self._neighborhood.agents != self.agents:
             self._create_neighborhood()
 
@@ -373,6 +386,14 @@ class _AgentLayer:
         return neighbors
 
     def get_agents_as_GeoDataFrame(self, agent_cls=GeoAgent) -> gpd.GeoDataFrame:
+        """
+        Extract GeoAgents as a GeoDataFrame.
+
+        :param agent_cls: The class of the GeoAgents to extract. Default is `GeoAgent`.
+        :return: A GeoDataFrame of the GeoAgents.
+        :rtype: geopandas.GeoDataFrame
+        """
+
         agents_list = []
         crs = None
         for agent in self.agents:

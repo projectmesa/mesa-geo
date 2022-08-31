@@ -1,3 +1,8 @@
+"""
+Raster Layers
+-------------
+"""
+
 from __future__ import annotations
 
 import copy
@@ -44,6 +49,15 @@ class RasterBase(GeoBase):
     _total_bounds: np.ndarray  # [min_x, min_y, max_x, max_y]
 
     def __init__(self, width, height, crs, total_bounds):
+        """
+        Initialize a raster base layer.
+
+        :param width: Width of the raster base layer.
+        :param height: Height of the raster base layer.
+        :param crs: Coordinate reference system of the raster base layer.
+        :param total_bounds: Bounds of the raster base layer in [min_x, min_y, max_x, max_y] format.
+        """
+
         super().__init__(crs)
         self._width = width
         self._height = height
@@ -52,40 +66,83 @@ class RasterBase(GeoBase):
 
     @property
     def width(self) -> int:
+        """
+        Return the width of the raster base layer.
+
+        :return: Width of the raster base layer.
+        :rtype: int
+        """
+
         return self._width
 
     @width.setter
     def width(self, width: int) -> None:
+        """
+        Set the width of the raster base layer.
+
+        :param int width: Width of the raster base layer.
+        """
+
         self._width = width
         self._update_transform()
 
     @property
     def height(self) -> int:
+        """
+        Return the height of the raster base layer.
+
+        :return: Height of the raster base layer.
+        :rtype: int
+        """
+
         return self._height
 
     @height.setter
     def height(self, height: int) -> None:
+        """
+        Set the height of the raster base layer.
+
+        :param int height: Height of the raster base layer.
+        """
+
         self._height = height
         self._update_transform()
 
     @property
-    def total_bounds(self) -> np.ndarray:
+    def total_bounds(self) -> np.ndarray | None:
         return self._total_bounds
 
     @total_bounds.setter
     def total_bounds(self, total_bounds: np.ndarray) -> None:
+        """
+        Set the bounds of the raster base layer in [min_x, min_y, max_x, max_y] format.
+
+        :param np.ndarray total_bounds: Bounds of the raster base layer in [min_x, min_y, max_x, max_y] format.
+        """
+
         self._total_bounds = total_bounds
         self._update_transform()
 
     @property
     def transform(self) -> Affine:
+        """
+        Return the affine transformation of the raster base layer.
+
+        :return: Affine transformation of the raster base layer.
+        :rtype: Affine
+        """
+
         return self._transform
 
     @property
     def resolution(self) -> Tuple[float, float]:
         """
         Returns the (width, height) of a cell in the units of CRS.
+
+        :return: Width and height of a cell in the units of CRS.
+        :rtype: Tuple[float, float]
         """
+
         a, b, _, d, e, _, _, _, _ = self.transform
         return math.sqrt(a**2 + d**2), math.sqrt(b**2 + e**2)
 
@@ -98,7 +155,14 @@ class RasterBase(GeoBase):
         raise NotImplementedError
 
     def out_of_bounds(self, pos: Coordinate) -> bool:
-        """Determines whether position is off the grid."""
+        """
+        Determines whether position is off the grid.
+
+        :param Coordinate pos: Position to check.
+        :return: True if position is off the grid, False otherwise.
+        :rtype: bool
+        """
+
         x, y = pos
         return x < 0 or x >= self.width or y < 0 or y >= self.height
 
@@ -108,10 +172,19 @@ class Cell(Agent):
     Cells are containers of raster attributes, and are building blocks of `RasterLayer`.
     """
 
-    pos: Coordinate | None  # (x, y), origin is at lower left corner of the grid
-    indices: Coordinate | None  # (row, col), origin is at upper left corner of the grid
+    pos: Coordinate | None
+    indices: Coordinate | None
 
     def __init__(self, pos=None, indices=None):
+        """
+        Initialize a cell.
+
+        :param pos: Position of the cell in (x, y) format.
+            Origin is at lower left corner of the grid
+        :param indices: Indices of the cell in (row, col) format.
+            Origin is at upper left corner of the grid
+        """
+
         super().__init__(uuid.uuid4().int, None)
         self.pos = pos
         self.indices = indices
@@ -172,6 +245,12 @@ class RasterLayer(RasterBase):
 
     @property
     def attributes(self) -> Set[str]:
+        """
+        Return the attributes of the cells in the raster layer.
+
+        :return: Attributes of the cells in the raster layer.
+        :rtype: Set[str]
+        """
         return self._attributes
 
     @overload
@@ -189,7 +268,9 @@ class RasterLayer(RasterBase):
     def __getitem__(
         self, index: int | Sequence[Coordinate] | Tuple[int | slice, int | slice]
     ) -> Cell | List[Cell]:
-        """Access contents from the grid."""
+        """
+        Access contents from the grid.
+        """
 
         if isinstance(index, int):
             # cells[x]
@@ -229,26 +310,32 @@ class RasterLayer(RasterBase):
         return cells
 
     def __iter__(self) -> Iterator[Cell]:
-        """Create an iterator that chains the rows of the cells together
-        as if it is one list"""
+        """
+        Create an iterator that chains the rows of the cells together
+        as if it is one list
+        """
+
         return itertools.chain(*self.cells)
 
     def coord_iter(self) -> Iterator[Tuple[Cell, int, int]]:
-        """An iterator that returns coordinates as well as cell contents."""
+        """
+        An iterator that returns coordinates as well as cell contents.
+        """
+
         for row in range(self.width):
             for col in range(self.height):
                 yield self.cells[row][col], row, col  # cell, x, y
 
     def apply_raster(self, data: np.ndarray, attr_name: str | None = None) -> None:
-        """Apply raster data to the cells.
-        Args:
-            data: 2D numpy array with shape (1, height, width).
-            attr_name: name of the attribute to be added to the cells. If None, a random name will be generated. Default is None.
-        Returns:
-            None
-        Raises:
-            ValueError: if the shape of the data is not (1, height, width).
         """
+        Apply raster data to the cells.
+
+        :param np.ndarray data: 2D numpy array with shape (1, height, width).
+        :param str | None attr_name: Name of the attribute to be added to the cells.
+            If None, a random name will be generated. Default is None.
+        :raises ValueError: If the shape of the data is not (1, height, width).
+        """
+
         if data.shape != (1, self.height, self.width):
             raise ValueError(
                 f"Data shape does not match raster shape. "
@@ -262,12 +349,15 @@ class RasterLayer(RasterBase):
                 setattr(self.cells[x][y], attr_name, data[0, self.height - y - 1, x])
 
     def get_raster(self, attr_name: str | None = None) -> np.ndarray:
-        """Returns the values of given attribute.
-        Args:
-            attr_name: The name of the attribute to return. If None, returns all attributes. Default is None.
-        Returns:
-            The values of given attribute.
         """
+        Return the values of given attribute.
+
+        :param str | None attr_name: Name of the attribute to be returned. If None,
+            returns all attributes. Default is None.
+        :return: The values of given attribute as a 2D numpy array with shape (1, height, width).
+        :rtype: np.ndarray
+        """
+
         if attr_name is not None and attr_name not in self.attributes:
             raise ValueError(
                 f"Attribute {attr_name} does not exist. "
@@ -293,23 +383,24 @@ class RasterLayer(RasterBase):
         include_center: bool = False,
         radius: int = 1,
     ) -> Iterator[Coordinate]:
-        """Return an iterator over cell coordinates that are in the
-        neighborhood of a certain point.
-        Args:
-            pos: Coordinate tuple for the neighborhood to get.
-            moore: If True, return Moore neighborhood
-                        (including diagonals)
-                   If False, return Von Neumann neighborhood
-                        (exclude diagonals)
-            include_center: If True, return the (x, y) cell as well.
-                            Otherwise, return surrounding cells only.
-            radius: radius, in cells, of neighborhood to get.
-        Returns:
-            A list of coordinate tuples representing the neighborhood. For
-            example with radius 1, it will return list with number of elements
-            equals at most 9 (8) if Moore, 5 (4) if Von Neumann (if not
-            including the center).
         """
+        Return an iterator over cell coordinates that are in the
+        neighborhood of a certain point.
+
+        :param Coordinate pos: Coordinate tuple for the neighborhood to get.
+        :param bool moore: Whether to use Moore neighborhood or not. If True,
+            return Moore neighborhood (including diagonals). If False, return
+            Von Neumann neighborhood (exclude diagonals).
+        :param bool include_center: If True, return the (x, y) cell as well.
+            Otherwise, return surrounding cells only. Default is False.
+        :param int radius: Radius, in cells, of the neighborhood. Default is 1.
+        :return: An iterator over cell coordinates that are in the neighborhood.
+            For example with radius 1, it will return list with number of elements
+            equals at most 9 (8) if Moore, 5 (4) if Von Neumann (if not including
+            the center).
+        :rtype: Iterator[Coordinate]
+        """
+
         yield from self.get_neighborhood(pos, moore, include_center, radius)
 
     def iter_neighbors(
@@ -319,22 +410,21 @@ class RasterLayer(RasterBase):
         include_center: bool = False,
         radius: int = 1,
     ) -> Iterator[Cell]:
-        """Return an iterator over neighbors to a certain point.
-        Args:
-            pos: Coordinates for the neighborhood to get.
-            moore: If True, return Moore neighborhood
-                    (including diagonals)
-                   If False, return Von Neumann neighborhood
-                     (exclude diagonals)
-            include_center: If True, return the (x, y) cell as well.
-                            Otherwise,
-                            return surrounding cells only.
-            radius: radius, in cells, of neighborhood to get.
-        Returns:
-            An iterator of non-None objects in the given neighborhood;
-            at most 9 if Moore, 5 if Von-Neumann
-            (8 and 4 if not including the center).
         """
+        Return an iterator over neighbors to a certain point.
+
+        :param Coordinate pos: Coordinate tuple for the neighborhood to get.
+        :param bool moore: Whether to use Moore neighborhood or not. If True,
+            return Moore neighborhood (including diagonals). If False, return
+            Von Neumann neighborhood (exclude diagonals).
+        :param bool include_center: If True, return the (x, y) cell as well.
+            Otherwise, return surrounding cells only. Default is False.
+        :param int radius: Radius, in cells, of the neighborhood. Default is 1.
+        :return: An iterator of cells that are in the neighborhood; at most 9 (8)
+            if Moore, 5 (4) if Von Neumann (if not including the center).
+        :rtype: Iterator[Cell]
+        """
+
         neighborhood = self.get_neighborhood(pos, moore, include_center, radius)
         return self.iter_cell_list_contents(neighborhood)
 
@@ -342,13 +432,16 @@ class RasterLayer(RasterBase):
     def iter_cell_list_contents(
         self, cell_list: Iterable[Coordinate]
     ) -> Iterator[Cell]:
-        """Returns an iterator of the contents of the cells
-        identified in cell_list.
-        Args:
-            cell_list: Array-like of (x, y) tuples, or single tuple.
-        Returns:
-            An iterator of the contents of the cells identified in cell_list
         """
+        Returns an iterator of the contents of the cells
+        identified in cell_list.
+
+        :param Iterable[Coordinate] cell_list: Array-like of (x, y) tuples,
+            or single tuple.
+        :return: An iterator of the contents of the cells identified in cell_list.
+        :rtype: Iterator[Cell]
+        """
+
         # Note: filter(None, iterator) filters away an element of iterator that
         # is falsy. Hence, iter_cell_list_contents returns only non-empty
         # contents.
@@ -356,14 +449,18 @@ class RasterLayer(RasterBase):
 
     @accept_tuple_argument
     def get_cell_list_contents(self, cell_list: Iterable[Coordinate]) -> List[Cell]:
-        """Returns a list of the contents of the cells
-        identified in cell_list.
-        Note: this method returns a list of cells.
-        Args:
-            cell_list: Array-like of (x, y) tuples, or single tuple.
-        Returns:
-            A list of the contents of the cells identified in cell_list
         """
+        Returns a list of the contents of the cells
+        identified in cell_list.
+
+        Note: this method returns a list of cells.
+
+        :param Iterable[Coordinate] cell_list: Array-like of (x, y) tuples,
+            or single tuple.
+        :return: A list of the contents of the cells identified in cell_list.
+        :rtype: List[Cell]
+        """
+
         return list(self.iter_cell_list_contents(cell_list))
 
     def get_neighborhood(
@@ -436,6 +533,7 @@ class RasterLayer(RasterBase):
         """
         Returns an ImageLayer colored by the provided colormap.
         """
+
         values = np.empty(shape=(4, self.height, self.width))
         for cell in self:
             row, col = cell.indices
@@ -446,6 +544,15 @@ class RasterLayer(RasterBase):
     def from_file(
         cls, raster_file: str, cell_cls: Type[Cell] = Cell, attr_name: str | None = None
     ) -> RasterLayer:
+        """
+        Creates a RasterLayer from a raster file.
+
+        :param str raster_file: Path to the raster file.
+        :param Type[Cell] cell_cls: The class of the cells in the layer.
+        :param str | None attr_name: The name of the attribute to use for the cell values.
+            If None, a random name will be generated. Default is None.
+        """
+
         with rio.open(raster_file, "r") as dataset:
             values = dataset.read()
             _, height, width = values.shape
@@ -460,13 +567,19 @@ class RasterLayer(RasterBase):
             obj.apply_raster(values, attr_name=attr_name)
             return obj
 
-    def to_file(self, raster_file: str, attr_name: str | None = None, driver="GTiff"):
-        """Writes a raster layer to a file.
-        Args:
-            raster_file: Path to the raster file to write.
-            attr_name: Name of the attribute to write to the raster. If None, all attributes are written. Default is None.
-            driver: Driver to use for writing the raster. Default is "GTiff" (see GDAL docs at https://gdal.org/drivers/raster/index.html).
+    def to_file(
+        self, raster_file: str, attr_name: str | None = None, driver: str = "GTiff"
+    ) -> None:
         """
+        Writes a raster layer to a file.
+
+        :param str raster_file: The path to the raster file to write to.
+        :param str | None attr_name: The name of the attribute to write to the raster.
+            If None, all attributes are written. Default is None.
+        :param str driver: The GDAL driver to use for writing the raster file.
+            Default is 'GTiff'. See GDAL docs at https://gdal.org/drivers/raster/index.html.
+        """
+
         data = self.get_raster(attr_name)
         with rio.open(
             raster_file,
@@ -486,6 +599,14 @@ class ImageLayer(RasterBase):
     _values: np.ndarray
 
     def __init__(self, values, crs, total_bounds):
+        """
+        Initializes an ImageLayer.
+
+        :param values: The values of the image layer.
+        :param crs: The coordinate reference system of the image layer.
+        :param total_bounds: The bounds of the image layer in [min_x, min_y, max_x, max_y] format.
+        """
+
         super().__init__(
             width=values.shape[2],
             height=values.shape[1],
@@ -496,10 +617,23 @@ class ImageLayer(RasterBase):
 
     @property
     def values(self) -> np.ndarray:
+        """
+        Returns the values of the image layer.
+
+        :return: The values of the image layer.
+        :rtype: np.ndarray
+        """
+
         return self._values
 
     @values.setter
     def values(self, values: np.ndarray) -> None:
+        """
+        Sets the values of the image layer.
+
+        :param np.ndarray values: The values of the image layer.
+        """
+
         self._values = values
         self._width = values.shape[2]
         self._height = values.shape[1]
@@ -544,6 +678,14 @@ class ImageLayer(RasterBase):
 
     @classmethod
     def from_file(cls, image_file) -> ImageLayer:
+        """
+        Creates an ImageLayer from an image file.
+
+        :param image_file: The path to the image file.
+        :return: The ImageLayer.
+        :rtype: ImageLayer
+        """
+
         with rio.open(image_file, "r") as dataset:
             values = dataset.read()
             total_bounds = [
