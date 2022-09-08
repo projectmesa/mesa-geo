@@ -1,5 +1,14 @@
 # Mesa-Geo: GIS Extension for Mesa Agent-Based Modeling
 
+[![GitHub CI](https://github.com/projectmesa/mesa-geo/workflows/build/badge.svg)](https://github.com/projectmesa/mesa-geo/actions)
+[![Read the Docs](https://readthedocs.org/projects/mesa-geo/badge/?version=main)](https://mesa-geo.readthedocs.io/en/main)
+[![Codecov](https://codecov.io/gh/projectmesa/mesa-geo/branch/main/graph/badge.svg)](https://codecov.io/gh/projectmesa/mesa-geo)
+[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![PyPI](https://img.shields.io/pypi/v/mesa-geo.svg)](https://pypi.org/project/mesa-geo)
+[![PyPI - License](https://img.shields.io/pypi/l/mesa-geo)](https://pypi.org/project/mesa-geo/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dw/mesa-geo)](https://pypistats.org/packages/mesa-geo)
+[![Matrix Chat](https://img.shields.io/matrix/mesa-geo:matrix.org?label=chat&logo=Matrix)](https://matrix.to/#/#mesa-geo:matrix.org)
+
 Mesa-Geo implements a `GeoSpace` that can host GIS-based `GeoAgents`, which are like normal Agents, except they have a `geometry` attribute that is a [Shapely object](https://shapely.readthedocs.io/en/latest/manual.html) and a `crs` attribute for its Coordinate Reference System. You can use `Shapely` directly to create arbitrary geometries, but in most cases you will want to import your geometries from a file. Mesa-Geo allows you to create GeoAgents from any vector data file (e.g. shapefiles), valid GeoJSON objects or a GeoPandas GeoDataFrame.
 
 ## Using Mesa-Geo
@@ -36,7 +45,7 @@ For more help on using Mesa-Geo, check out the following resources:
 
 Want to join the team or just curious about what is happening with Mesa & Mesa-Geo? You can...
 
-  * Join our [Matrix chat room](https://matrix.to/#/#project-mesa:matrix.org) in which questions, issues, and ideas can be (informally) discussed.
+  * Join our [Matrix chat room](https://matrix.to/#/#mesa-geo:matrix.org) in which questions, issues, and ideas can be (informally) discussed.
   * Come to a monthly dev session (you can find dev session times, agendas and notes at [Mesa discussions](https://github.com/projectmesa/mesa/discussions).
   * Just check out the code at [GitHub](https://github.com/projectmesa/mesa-geo/).
 
