@@ -24,6 +24,7 @@ class UrbanCell(Cell):
     road_pixel: UrbanCell | None
 
     new_urbanized: bool | None
+    old_urbanized: bool | None
 
     def __init__(
         self,
@@ -43,6 +44,7 @@ class UrbanCell(Cell):
         self.road_found = None
         self.road_pixel = None
         self.new_urbanized = None
+        self.old_urbanized = None
 
     def step(self):
         self._new_spreading_center_growth()
@@ -102,6 +104,7 @@ class City(GeoSpace):
 
         for cell in self.raster_layer:
             cell.urban = True if cell.urban == 2 else False
+            cell.old_urbanized = cell.urban
 
     def check_road(self):
         for cell in self.raster_layer:
