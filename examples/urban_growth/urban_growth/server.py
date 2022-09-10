@@ -10,10 +10,10 @@ from .space import UrbanCell
 
 def cell_portrayal(cell: UrbanCell) -> Tuple[float, float, float, float]:
     if cell.urban:
-        if cell.new_urbanized:
-            return 255, 0, 0, 1
-        else:
+        if cell.old_urbanized:
             return 0, 0, 255, 1
+        else:
+            return 255, 0, 0, 1
     else:
         return 0, 0, 0, 0
 
@@ -58,6 +58,6 @@ urbanized_chart = mesa.visualization.ChartModule(
 server = ModularServer(
     UrbanGrowth,
     [map_module, urbanized_text, urbanized_chart],
-    "UrbanGrowth Model",
+    "Urban Growth Model",
     model_params,
 )
