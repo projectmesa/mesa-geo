@@ -1,16 +1,18 @@
-# GeoSchelling Segregation Model with Point Agents
+# GeoSchelling Model (Points & Polygons)
+
+![](../../docs/images/examples/geo_schelling_points.gif)
 
 ## Summary
 
 This is a geoversion of a simplified Schelling example.
 
-**GeoSpace**
+### GeoSpace
 
-The NUTS-2 regions are considered as a shared definition of neighborhood among all agents, instead of a locally defined neighborhood such as Moore or von Neumann.
+The NUTS-2 regions are considered as a shared definition of neighborhood among all people agents, instead of a locally defined neighborhood such as Moore or von Neumann.
 
-**GeoAgent**
+### GeoAgent
 
-Each agent resides in a randomly assigned region, and checks the color ratio of its region against a pre-defined "happiness" threshold at every step. If the ratio falls below the threshold, the agent is found to be "unhappy", and randomly moves to another region. In this example, agents are represented as points, with locations randomly chosen within their regions.
+There are two types of GeoAgents: people and regions. Each person resides in a randomly assigned region, and checks the color ratio of its region against a pre-defined "happiness" threshold at every time step. If the ratio falls below a certain threshold (e.g., 40%), the agent is found to be "unhappy", and randomly moves to another region. People are represented as points, with locations randomly chosen within their regions. The color of a region depends on the color of the majority population it contains (i.e., point in polygon calculations).
 
 ## How to run
 

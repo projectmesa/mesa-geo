@@ -1,5 +1,7 @@
 # GeoSIR Epidemics Model
 
+[![](https://img.youtube.com/vi/oZShtptaIg4/0.jpg)](https://www.youtube.com/watch?v=oZShtptaIg4)
+
 ## Summary
 
 This is a geoversion of a simple agent-based pandemic SIR model, as an example to show the capabilities of mesa-geo.

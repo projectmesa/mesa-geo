@@ -61,7 +61,9 @@ Don't forget to check out the [Contributors guide](https://github.com/projectmes
 maxdepth: 2
 hidden: true
 ---
-tutorials/intro_tutorial
+Introduction <self>
+Tutorial <tutorials/intro_tutorial>
+examples/overview
 API Documentation <apis/api_main>
 ```
 
