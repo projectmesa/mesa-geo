@@ -50,7 +50,7 @@ class Person(GeoAgent):
                 self.set_random_world_coord()
 
 
-class Uganda(mesa.Model):
+class Population(mesa.Model):
     def __init__(
         self,
         population_gzip_file="data/popu.asc.gz",

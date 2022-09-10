@@ -5,7 +5,7 @@ from mesa_geo.geoagent import GeoAgent
 from mesa_geo.visualization.ModularVisualization import ModularServer
 from mesa_geo.visualization.modules import MapModule
 
-from .model import Uganda
+from .model import Population
 from .space import UgandaCell
 
 
@@ -38,4 +38,6 @@ def agent_portrayal(agent):
 geospace_element = MapModule(agent_portrayal)
 num_agents_element = NumAgentsElement()
 
-server = ModularServer(Uganda, [geospace_element, num_agents_element], "Uganda Model")
+server = ModularServer(
+    Population, [geospace_element, num_agents_element], "Population Model"
+)

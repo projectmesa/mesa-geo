@@ -1,4 +1,4 @@
-Uganda Model
+Population Model
 ==============
 
 An implementation of the [Uganda Example](https://github.com/abmgis/abmgis/tree/master/Chapter05-GIS/Models/UgandaExample) in Python, using [Mesa](https://github.com/projectmesa/mesa) and [Mesa-Geo](https://github.com/projectmesa/mesa-geo).
