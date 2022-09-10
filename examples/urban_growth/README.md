@@ -1,7 +1,10 @@
-UrbanGrowth Model
-==============
+# Urban Growth Model
 
-An implementation of the [UrbanGrowth Model](https://github.com/abmgis/abmgis/tree/master/Chapter06-IntegratingABMandGIS/Models/UrbanGrowth) in Python, using [Mesa](https://github.com/projectmesa/mesa) and [mesa-geo](https://github.com/projectmesa/mesa-geo).
+[![](https://img.youtube.com/vi/UNtTJL5N83g/0.jpg)](https://www.youtube.com/watch?v=UNtTJL5N83g)
+
+## Summary
+
+This is an implementation of the [UrbanGrowth Model](https://github.com/abmgis/abmgis/tree/master/Chapter06-IntegratingABMandGIS/Models/UrbanGrowth) in Python, using [Mesa](https://github.com/projectmesa/mesa) and [Mesa-Geo](https://github.com/projectmesa/mesa-geo).
 
 ## How to run
 
