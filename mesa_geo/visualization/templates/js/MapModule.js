@@ -5,13 +5,17 @@ const MapModule = function (view, zoom, map_width, map_height) {
     map_tag.style.height = map_height + "px";
     map_tag.style.border = "1px dotted";
     map_tag.id = "mapid"
+    const customView = (view !== null && zoom !== null)
 
     // Append it to #elements
     const elements = document.getElementById("elements");
     elements.appendChild(map_tag);
 
     // Create Leaflet map and Agent layers
-    const Lmap = L.map('mapid', {zoomSnap: 0.1}).setView(view, zoom)
+    const Lmap = L.map('mapid', {zoomSnap: 0.1})
+    if (customView) {
+        Lmap.setView(view, zoom)
+    }
     let agentLayer = L.geoJSON().addTo(Lmap)
 
     // create the OSM tile layer with correct attribution
@@ -20,6 +24,7 @@ const MapModule = function (view, zoom, map_width, map_height) {
     const osm = new L.TileLayer(osmUrl, {minZoom: 0, maxZoom: 18, attribution: osmAttrib})
     Lmap.addLayer(osm)
 
+    let hasFitBounds = false
     this.renderLayers = function (layers) {
         layers.rasters.forEach(function (layer) {
             L.imageOverlay(layer, layers.total_bounds).addTo(Lmap)
@@ -27,9 +32,10 @@ const MapModule = function (view, zoom, map_width, map_height) {
         layers.vectors.forEach(function (layer) {
             L.geoJSON(layer).addTo(Lmap)
         })
-        // if (layers.total_bounds.length !== 0) {
-        //     Lmap.fitBounds(layers.total_bounds)
-        // }
+        if (!hasFitBounds && !customView && layers.total_bounds.length !== 0) {
+            Lmap.fitBounds(layers.total_bounds)
+            hasFitBounds = true
+        }
     }
 
     this.renderAgents = function (agents) {

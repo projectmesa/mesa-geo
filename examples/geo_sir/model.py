@@ -13,7 +13,6 @@ class GeoSir(Model):
     """Model class for a simplistic infection model."""
 
     # Geographical parameters for desired map
-    MAP_COORDS = [43.741667, -79.373333]  # Toronto
     geojson_regions = "data/TorontoNeighbourhoods.geojson"
     unique_id = "HOODNUM"
 

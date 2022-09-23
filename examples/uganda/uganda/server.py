@@ -35,13 +35,7 @@ def agent_portrayal(agent):
         return (agent.population, agent.population, agent.population, 1)
 
 
-geospace_element = MapModule(
-    agent_portrayal,
-    [0.18357442221655898, 32.877823549000034],
-    12.9,
-    map_height=500,
-    map_width=500,
-)
+geospace_element = MapModule(agent_portrayal)
 num_agents_element = NumAgentsElement()
 
 server = ModularServer(Uganda, [geospace_element, num_agents_element], "Uganda Model")

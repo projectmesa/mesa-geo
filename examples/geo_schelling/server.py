@@ -40,7 +40,7 @@ def schelling_draw(agent):
 
 
 happy_element = HappyElement()
-map_element = MapModule(schelling_draw, [52, 12], 4, 500, 500)
+map_element = MapModule(schelling_draw, [52, 12], 4)
 happy_chart = ChartModule([{"Label": "happy", "Color": "Black"}])
 server = ModularServer(
     GeoSchelling, [map_element, happy_element, happy_chart], "Schelling", model_params

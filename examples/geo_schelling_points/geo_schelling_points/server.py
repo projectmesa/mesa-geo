@@ -43,7 +43,7 @@ def schelling_draw(agent):
 
 happy_element = HappyElement()
 unhappy_element = UnhappyElement()
-map_element = MapModule(schelling_draw, [52, 12], 4, 500, 500)
+map_element = MapModule(schelling_draw, [52, 12], 4)
 happy_chart = ChartModule(
     [
         {"Label": "unhappy", "Color": "Orange"},
