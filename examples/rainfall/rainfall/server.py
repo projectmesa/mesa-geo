@@ -24,8 +24,6 @@ def cell_portrayal(cell: LakeCell) -> Tuple[float, float, float, float]:
 
 map_module = MapModule(
     portrayal_method=cell_portrayal,
-    view=[42.935329021940994, -122.10805555543601],
-    zoom=11.1,
     map_height=341,
     map_width=498,
 )

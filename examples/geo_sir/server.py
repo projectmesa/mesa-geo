@@ -49,7 +49,7 @@ def infected_draw(agent):
 
 
 infected_text = InfectedText()
-map_element = MapModule(infected_draw, GeoSir.MAP_COORDS, 10, 500, 500)
+map_element = MapModule(infected_draw)
 infected_chart = ChartModule(
     [
         {"Label": "infected", "Color": "Red"},

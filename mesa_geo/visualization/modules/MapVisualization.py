@@ -43,16 +43,35 @@ class MapModule(VisualizationElement):
     local_includes = []
 
     def __init__(
-        self, portrayal_method=None, view=[0, 0], zoom=10, map_height=500, map_width=500
+        self,
+        portrayal_method=None,
+        view=None,
+        zoom=None,
+        map_width=500,
+        map_height=500,
     ):
+        """
+        Create a new MapModule.
+
+        :param portrayal_method: A method that takes a GeoAgent (or a Cell) and returns
+            a dictionary of options (or a (r, g, b, a) tuple) for Leaflet.js.
+        :param view: The initial view of the map. Must be set together with zoom.
+            If both view and zoom are None, the map will be centered on the total bounds
+            of the space. Default is None.
+        :param zoom: The initial zoom level of the map. Must be set together with view.
+            If both view and zoom are None, the map will be centered on the total bounds
+            of the space. Default is None.
+        :param map_width: The width of the map in pixels. Default is 500.
+        :param map_height: The height of the map in pixels. Default is 500.
+        """
         self.portrayal_method = portrayal_method
-        self.map_height = map_height
-        self.map_width = map_width
-        self.view = view
-        new_element = "new MapModule({}, {}, {}, {})"
-        new_element = new_element.format(view, zoom, map_width, map_height)
-        self.js_code = "elements.push(" + new_element + ");"
         self._crs = "epsg:4326"
+
+        if view is None and zoom is None:
+            new_element = f"new MapModule(null, null, {map_width}, {map_height})"
+        else:
+            new_element = f"new MapModule({view}, {zoom}, {map_width}, {map_height})"
+        self.js_code = f"elements.push({new_element});"
 
     def render(self, model):
         return {
