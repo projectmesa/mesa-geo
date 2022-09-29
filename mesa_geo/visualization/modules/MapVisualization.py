@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
+import os
 from dataclasses import dataclass
 from typing import Union
 
@@ -39,8 +40,12 @@ class MapModule(VisualizationElement):
         In addition, the portrayal dictionary can contain a "description" key, which will be used as the popup text.
     """
 
-    package_includes = ["external/leaflet.js", "external/leaflet.css", "MapModule.js"]
-    local_includes = []
+    local_includes = [
+        "js/MapModule.js",
+        "css/external/leaflet.css",
+        "js/external/leaflet.js",
+    ]
+    local_dir = os.path.dirname(__file__) + "/../templates"
 
     def __init__(
         self,

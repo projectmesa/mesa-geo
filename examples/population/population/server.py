@@ -1,9 +1,8 @@
 import mesa
-from shapely.geometry import Point, Polygon
-
+from mesa.visualization.ModularVisualization import ModularServer
 from mesa_geo.geoagent import GeoAgent
-from mesa_geo.visualization.ModularVisualization import ModularServer
 from mesa_geo.visualization.modules import MapModule
+from shapely.geometry import Point, Polygon
 
 from .model import Population
 from .space import UgandaCell

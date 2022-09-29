@@ -2,10 +2,8 @@
 import base64
 import hashlib
 import os
-import pkgutil
 import re
 import shutil
-import sys
 import urllib.request
 
 from setuptools import setup
@@ -22,31 +20,8 @@ def get_version_from_package() -> str:
 
 class BuildPyCommand(build_py):
     def run(self):
-        get_mesa_viz_files()
         get_frontend_dep()
         build_py.run(self)
-
-
-def get_mesa_viz_files():
-    get_viz_server_file(
-        package="mesa", server_file="visualization/ModularVisualization.py"
-    )
-    get_mesa_templates(package="mesa", template_dir="visualization/templates")
-
-
-def get_viz_server_file(package, server_file):
-    viz_server_file = pkgutil.get_data(package, server_file)
-    with open(os.path.join("mesa_geo", server_file), "wb") as server_file:
-        server_file.write(viz_server_file)
-
-
-def get_mesa_templates(package, template_dir):
-    pkg_dir = sys.modules[package].__path__[0]
-    shutil.copytree(
-        os.path.join(pkg_dir, template_dir),
-        os.path.join("mesa_geo", template_dir),
-        dirs_exist_ok=True,
-    )
 
 
 def get_frontend_dep():

@@ -326,10 +326,6 @@ pip-log.txt
 .idea
 
 # Mesa file
-mesa_geo/visualization/ModularVisualization.py
-mesa_geo/visualization/templates/*.html
-mesa_geo/visualization/templates/fonts
-mesa_geo/visualization/templates/external
 mesa_geo/visualization/templates/css/*
 mesa_geo/visualization/templates/js/*
 !mesa_geo/visualization/templates/js/MapModule.js
