@@ -1,5 +1,5 @@
 import mesa
-from mesa_geo.visualization.ModularVisualization import ModularServer
+from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import ChartModule, TextElement
 from mesa_geo.visualization.modules import MapModule
 

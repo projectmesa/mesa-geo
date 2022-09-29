@@ -1,10 +1,10 @@
 import mesa
+from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import ChartModule, TextElement
-
-from mesa_geo.visualization.ModularVisualization import ModularServer
 from mesa_geo.visualization.modules import MapModule
-from .model import GeoSchellingPoints
+
 from .agents import PersonAgent, RegionAgent
+from .model import GeoSchellingPoints
 
 
 class HappyElement(TextElement):
