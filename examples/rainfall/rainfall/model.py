@@ -106,6 +106,12 @@ class Rainfall(mesa.Model):
         self.schedule.step()
         self.datacollector.collect(self)
 
+        current_water_level = self.space.raster_layer.get_raster("water_level")
+        self.space.raster_layer.apply_raster(
+            current_water_level / current_water_level.max(),
+            "water_level_normalized",
+        )
+
         self.num_steps -= 1
         if self.num_steps == 0:
             self.running = False

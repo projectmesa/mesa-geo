@@ -11,6 +11,7 @@ from mesa_geo.geospace import GeoSpace
 class LakeCell(Cell):
     elevation: int | None
     water_level: int | None
+    water_level_normalized: float | None
 
     def __init__(
         self,
@@ -20,6 +21,7 @@ class LakeCell(Cell):
         super().__init__(pos, indices)
         self.elevation = None
         self.water_level = None
+        self.water_level_normalized = None
 
     def step(self):
         pass
