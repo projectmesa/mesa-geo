@@ -1,9 +1,9 @@
 from typing import Tuple
 
 import mesa
-
 from mesa_geo.visualization.ModularVisualization import ModularServer
 from mesa_geo.visualization.modules import MapModule
+
 from .model import Rainfall
 from .space import LakeCell
 
@@ -19,7 +19,15 @@ def cell_portrayal(cell: LakeCell) -> Tuple[float, float, float, float]:
     if cell.water_level == 0:
         return cell.elevation, cell.elevation, cell.elevation, 1
     else:
-        return 0, 0, 255, 1
+        # return a blue color gradient based on the normalized water level
+        # from the lowest water level colored as RGBA: (74, 141, 255, 1)
+        # to the highest water level colored as RGBA: (0, 0, 255, 1)
+        return (
+            (1 - cell.water_level_normalized) * 74,
+            (1 - cell.water_level_normalized) * 141,
+            255,
+            1,
+        )
 
 
 map_module = MapModule(
