@@ -8,10 +8,9 @@ import re
 import shutil
 import sys
 import urllib.request
-from distutils.command.build import build
 
 from setuptools import setup
-from setuptools.command.develop import develop
+from setuptools.command.build_py import build_py
 
 
 def get_version_from_package() -> str:
@@ -22,22 +21,11 @@ def get_version_from_package() -> str:
     return version
 
 
-class DevelopCommand(develop):
-    """Installation for development mode."""
-
+class BuildPyCommand(build_py):
     def run(self):
         get_mesa_viz_files()
         get_frontend_dep()
-        develop.run(self)
-
-
-class BuildCommand(build):
-    """Command for build mode."""
-
-    def run(self):
-        get_mesa_viz_files()
-        get_frontend_dep()
-        build.run(self)
+        build_py.run(self)
 
 
 def get_mesa_viz_files():
@@ -112,7 +100,6 @@ if __name__ == "__main__":
         name="Mesa-Geo",
         version=get_version_from_package(),
         cmdclass={
-            "develop": DevelopCommand,
-            "build": BuildCommand,
+            "build_py": BuildPyCommand,
         },
     )
