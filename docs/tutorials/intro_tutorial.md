@@ -60,9 +60,9 @@ agent.geometry
 
 
 
-    
+
 ![svg](intro_tutorial_files/intro_tutorial_6_1.svg)
-    
+
 
 
 

@@ -73,7 +73,7 @@ class TestGeoSpace(unittest.TestCase):
         self.geo_space.add_agents(self.agents)
         agent_to_remove = random.choice(self.agents)
         self.geo_space.remove_agent(agent_to_remove)
-        remaining_agent_idx = set(agent.unique_id for agent in self.geo_space.agents)
+        remaining_agent_idx = {agent.unique_id for agent in self.geo_space.agents}
 
         self.assertEqual(len(self.geo_space.agents), len(self.agents) - 1)
         self.assertTrue(agent_to_remove.unique_id not in remaining_agent_idx)

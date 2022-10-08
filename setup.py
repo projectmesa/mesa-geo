@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import base64
 import hashlib
 import os
@@ -15,7 +14,7 @@ from setuptools.command.develop import develop
 
 
 def get_version_from_package() -> str:
-    with open("mesa_geo/__init__.py", "r") as fd:
+    with open("mesa_geo/__init__.py") as fd:
         version = re.search(
             r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', fd.read(), re.MULTILINE
         ).group(1)

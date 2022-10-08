@@ -83,7 +83,7 @@ class UrbanGrowth(mesa.Model):
         while i <= self.critical_slope:
             i += 1
             val = (self.critical_slope - i) / self.critical_slope
-            prob_to_build.append((val ** (self.slope_coefficient / 200)))
+            prob_to_build.append(val ** (self.slope_coefficient / 200))
 
         j = 1
         while j <= (max_slope - self.critical_slope):

@@ -6,7 +6,6 @@ GeoSpace
 from __future__ import annotations
 
 import warnings
-from typing import List
 
 import geopandas as gpd
 import numpy as np
@@ -81,7 +80,7 @@ class GeoSpace(GeoBase):
         return self._agent_layer.agents
 
     @property
-    def layers(self) -> List[ImageLayer | RasterLayer | gpd.GeoDataFrame]:
+    def layers(self) -> list[ImageLayer | RasterLayer | gpd.GeoDataFrame]:
         """
         Return a list of all layers in the Geospace.
         """
