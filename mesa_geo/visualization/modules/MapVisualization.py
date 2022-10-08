@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 from dataclasses import dataclass
-from typing import Dict, Union
+from typing import Union
 
 import geopandas as gpd
 from folium.utilities import image_to_url
@@ -22,9 +22,9 @@ class LeafletPortrayal:
     Leaflet.js: https://leafletjs.com/reference.html#geojson
     """
 
-    style: Dict[str, LeafletOption] | None = None
-    pointToLayer: Dict[str, LeafletOption] | None = None
-    popupProperties: Dict[str, LeafletOption] | None = None
+    style: dict[str, LeafletOption] | None = None
+    pointToLayer: dict[str, LeafletOption] | None = None
+    popupProperties: dict[str, LeafletOption] | None = None
 
 
 class MapModule(VisualizationElement):

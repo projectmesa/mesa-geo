@@ -10,17 +10,12 @@ import itertools
 import math
 import uuid
 from typing import (
-    Tuple,
-    List,
-    Dict,
     Any,
-    Set,
     cast,
     overload,
     Sequence,
     Iterator,
     Iterable,
-    Type,
 )
 
 import numpy as np
@@ -135,7 +130,7 @@ class RasterBase(GeoBase):
         return self._transform
 
     @property
-    def resolution(self) -> Tuple[float, float]:
+    def resolution(self) -> tuple[float, float]:
         """
         Returns the (width, height) of a cell in the units of CRS.
 
@@ -225,16 +220,16 @@ class RasterLayer(RasterBase):
     whereas it is `self.cells: List[List[Cell]]` here in `RasterLayer`.
     """
 
-    cells: List[List[Cell]]
-    _neighborhood_cache: Dict[Any, List[Coordinate]]
-    _attributes: Set[str]
+    cells: list[list[Cell]]
+    _neighborhood_cache: dict[Any, list[Coordinate]]
+    _attributes: set[str]
 
-    def __init__(self, width, height, crs, total_bounds, cell_cls: Type[Cell] = Cell):
+    def __init__(self, width, height, crs, total_bounds, cell_cls: type[Cell] = Cell):
         super().__init__(width, height, crs, total_bounds)
         self.cell_cls = cell_cls
         self.cells = []
         for x in range(self.width):
-            col: List[cell_cls] = []
+            col: list[cell_cls] = []
             for y in range(self.height):
                 row_idx, col_idx = self.height - y - 1, x
                 col.append(self.cell_cls(pos=(x, y), indices=(row_idx, col_idx)))
@@ -244,7 +239,7 @@ class RasterLayer(RasterBase):
         self._neighborhood_cache = {}
 
     @property
-    def attributes(self) -> Set[str]:
+    def attributes(self) -> set[str]:
         """
         Return the attributes of the cells in the raster layer.
 
@@ -254,20 +249,20 @@ class RasterLayer(RasterBase):
         return self._attributes
 
     @overload
-    def __getitem__(self, index: int) -> List[Cell]:
+    def __getitem__(self, index: int) -> list[Cell]:
         ...
 
     @overload
-    def __getitem__(self, index: Tuple[int | slice, int | slice]) -> Cell | List[Cell]:
+    def __getitem__(self, index: tuple[int | slice, int | slice]) -> Cell | list[Cell]:
         ...
 
     @overload
-    def __getitem__(self, index: Sequence[Coordinate]) -> List[Cell]:
+    def __getitem__(self, index: Sequence[Coordinate]) -> list[Cell]:
         ...
 
     def __getitem__(
-        self, index: int | Sequence[Coordinate] | Tuple[int | slice, int | slice]
-    ) -> Cell | List[Cell]:
+        self, index: int | Sequence[Coordinate] | tuple[int | slice, int | slice]
+    ) -> Cell | list[Cell]:
         """
         Access contents from the grid.
         """
@@ -317,7 +312,7 @@ class RasterLayer(RasterBase):
 
         return itertools.chain(*self.cells)
 
-    def coord_iter(self) -> Iterator[Tuple[Cell, int, int]]:
+    def coord_iter(self) -> Iterator[tuple[Cell, int, int]]:
         """
         An iterator that returns coordinates as well as cell contents.
         """
@@ -448,7 +443,7 @@ class RasterLayer(RasterBase):
         return filter(None, (self.cells[x][y] for x, y in cell_list))
 
     @accept_tuple_argument
-    def get_cell_list_contents(self, cell_list: Iterable[Coordinate]) -> List[Cell]:
+    def get_cell_list_contents(self, cell_list: Iterable[Coordinate]) -> list[Cell]:
         """
         Returns a list of the contents of the cells
         identified in cell_list.
@@ -469,12 +464,12 @@ class RasterLayer(RasterBase):
         moore: bool,
         include_center: bool = False,
         radius: int = 1,
-    ) -> List[Coordinate]:
+    ) -> list[Coordinate]:
         cache_key = (pos, moore, include_center, radius)
         neighborhood = self._neighborhood_cache.get(cache_key, None)
 
         if neighborhood is None:
-            coordinates: Set[Coordinate] = set()
+            coordinates: set[Coordinate] = set()
 
             x, y = pos
             for dy in range(-radius, radius + 1):
@@ -502,7 +497,7 @@ class RasterLayer(RasterBase):
         moore: bool,
         include_center: bool = False,
         radius: int = 1,
-    ) -> List[Cell]:
+    ) -> list[Cell]:
         neighboring_cell_idx = self.get_neighborhood(pos, moore, include_center, radius)
         return [self.cells[idx[0]][idx[1]] for idx in neighboring_cell_idx]
 
@@ -542,7 +537,7 @@ class RasterLayer(RasterBase):
 
     @classmethod
     def from_file(
-        cls, raster_file: str, cell_cls: Type[Cell] = Cell, attr_name: str | None = None
+        cls, raster_file: str, cell_cls: type[Cell] = Cell, attr_name: str | None = None
     ) -> RasterLayer:
         """
         Creates a RasterLayer from a raster file.
