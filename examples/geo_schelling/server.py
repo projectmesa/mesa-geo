@@ -1,12 +1,10 @@
 import mesa
-from mesa.visualization.ModularVisualization import ModularServer
-from mesa.visualization.modules import ChartModule, TextElement
 from mesa_geo.visualization.modules import MapModule
 
 from model import GeoSchelling
 
 
-class HappyElement(TextElement):
+class HappyElement(mesa.visualization.TextElement):
     """
     Display a text count of how many happy agents there are.
     """
@@ -41,7 +39,7 @@ def schelling_draw(agent):
 
 happy_element = HappyElement()
 map_element = MapModule(schelling_draw, [52, 12], 4)
-happy_chart = ChartModule([{"Label": "happy", "Color": "Black"}])
-server = ModularServer(
+happy_chart = mesa.visualization.ChartModule([{"Label": "happy", "Color": "Black"}])
+server = mesa.visualization.ModularServer(
     GeoSchelling, [map_element, happy_element, happy_chart], "Schelling", model_params
 )

@@ -1,6 +1,4 @@
-from mesa import Model
-from mesa.datacollection import DataCollector
-from mesa.time import BaseScheduler
+import mesa
 from shapely.geometry import Point
 
 from mesa_geo import GeoSpace
@@ -9,7 +7,7 @@ from mesa_geo.geoagent import AgentCreator
 from agents import PersonAgent, NeighbourhoodAgent
 
 
-class GeoSir(Model):
+class GeoSir(mesa.Model):
     """Model class for a simplistic infection model."""
 
     # Geographical parameters for desired map
@@ -26,7 +24,7 @@ class GeoSir(Model):
         :param exposure_distance:   Proximity distance between agents to be exposed to each other
         :param infection_risk:      Probability of agent to become infected, if it has been exposed to another infected
         """
-        self.schedule = BaseScheduler(self)
+        self.schedule = mesa.time.BaseScheduler(self)
         self.space = GeoSpace(warn_crs_conversion=False)
         self.steps = 0
         self.counts = None
@@ -39,7 +37,7 @@ class GeoSir(Model):
         self.infection_risk = infection_risk
 
         self.running = True
-        self.datacollector = DataCollector(
+        self.datacollector = mesa.DataCollector(
             {
                 "infected": get_infected_count,
                 "susceptible": get_susceptible_count,

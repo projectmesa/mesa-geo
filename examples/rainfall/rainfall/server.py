@@ -1,7 +1,6 @@
 from typing import Tuple
 
 import mesa
-from mesa.visualization.ModularVisualization import ModularServer
 from mesa_geo.visualization.modules import MapModule
 
 from .model import Rainfall
@@ -43,6 +42,6 @@ water_chart = mesa.visualization.ChartModule(
     ]
 )
 
-server = ModularServer(
+server = mesa.visualization.ModularServer(
     Rainfall, [map_module, water_chart], "Rainfall Model", model_params
 )

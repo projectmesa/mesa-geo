@@ -1,8 +1,6 @@
 import random
 
-from mesa import Model
-from mesa.datacollection import DataCollector
-from mesa.time import RandomActivation
+import mesa
 
 from mesa_geo import GeoSpace
 from mesa_geo.geoagent import AgentCreator
@@ -53,7 +51,7 @@ class SchellingAgent(GeoAgent):
         return "Agent " + str(self.unique_id)
 
 
-class GeoSchelling(Model):
+class GeoSchelling(mesa.Model):
     """Model class for the Schelling segregation model."""
 
     def __init__(self, density=0.6, minority_pc=0.2, export_data=False):
@@ -61,11 +59,11 @@ class GeoSchelling(Model):
         self.minority_pc = minority_pc
         self.export_data = export_data
 
-        self.schedule = RandomActivation(self)
+        self.schedule = mesa.time.RandomActivation(self)
         self.space = GeoSpace(warn_crs_conversion=False)
 
         self.happy = 0
-        self.datacollector = DataCollector({"happy": "happy"})
+        self.datacollector = mesa.DataCollector({"happy": "happy"})
 
         self.running = True
 

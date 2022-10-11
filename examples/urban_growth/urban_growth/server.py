@@ -1,7 +1,6 @@
 from typing import Tuple
 
 import mesa
-from mesa.visualization.ModularVisualization import ModularServer
 from mesa_geo.visualization.modules import MapModule
 
 from .model import UrbanGrowth
@@ -55,7 +54,7 @@ urbanized_chart = mesa.visualization.ChartModule(
     ]
 )
 
-server = ModularServer(
+server = mesa.visualization.ModularServer(
     UrbanGrowth,
     [map_module, urbanized_text, urbanized_chart],
     "Urban Growth Model",
