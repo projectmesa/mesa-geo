@@ -1,26 +1,26 @@
 import random
 import uuid
 
-from mesa import Model
-from mesa.datacollection import DataCollector
-from mesa.time import RandomActivation
+import mesa
 
 from mesa_geo.geoagent import AgentCreator
 from .agents import PersonAgent, RegionAgent
 from .space import Nuts2Eu
 
 
-class GeoSchellingPoints(Model):
+class GeoSchellingPoints(mesa.Model):
     def __init__(self, red_percentage=0.5, similarity_threshold=0.5):
         super().__init__()
 
         self.red_percentage = red_percentage
         PersonAgent.SIMILARITY_THRESHOLD = similarity_threshold
 
-        self.schedule = RandomActivation(self)
+        self.schedule = mesa.time.RandomActivation(self)
         self.space = Nuts2Eu()
 
-        self.datacollector = DataCollector({"unhappy": "unhappy", "happy": "happy"})
+        self.datacollector = mesa.DataCollector(
+            {"unhappy": "unhappy", "happy": "happy"}
+        )
 
         # Set up the grid with patches for every NUTS region
         ac = AgentCreator(RegionAgent, model=self)

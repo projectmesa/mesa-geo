@@ -1,13 +1,11 @@
 import mesa
-from mesa.visualization.ModularVisualization import ModularServer
-from mesa.visualization.modules import ChartModule, TextElement
 from mesa_geo.visualization.modules import MapModule
 
 from model import GeoSir
 from agents import PersonAgent
 
 
-class InfectedText(TextElement):
+class InfectedText(mesa.visualization.TextElement):
     """
     Display a text count of how many steps have been taken
     """
@@ -50,7 +48,7 @@ def infected_draw(agent):
 
 infected_text = InfectedText()
 map_element = MapModule(infected_draw)
-infected_chart = ChartModule(
+infected_chart = mesa.visualization.ChartModule(
     [
         {"Label": "infected", "Color": "Red"},
         {"Label": "susceptible", "Color": "Green"},
@@ -58,7 +56,7 @@ infected_chart = ChartModule(
         {"Label": "dead", "Color": "Black"},
     ]
 )
-server = ModularServer(
+server = mesa.visualization.ModularServer(
     GeoSir,
     [map_element, infected_text, infected_chart],
     "Basic agent-based SIR model",

@@ -1,18 +1,16 @@
 import mesa
-from mesa.visualization.ModularVisualization import ModularServer
-from mesa.visualization.modules import ChartModule, TextElement
 from mesa_geo.visualization.modules import MapModule
 
 from .agents import PersonAgent, RegionAgent
 from .model import GeoSchellingPoints
 
 
-class HappyElement(TextElement):
+class HappyElement(mesa.visualization.TextElement):
     def render(self, model):
         return f"Happy agents: {model.happy}"
 
 
-class UnhappyElement(TextElement):
+class UnhappyElement(mesa.visualization.TextElement):
     def render(self, model):
         return f"Unhappy agents: {model.unhappy}"
 
@@ -44,7 +42,7 @@ def schelling_draw(agent):
 happy_element = HappyElement()
 unhappy_element = UnhappyElement()
 map_element = MapModule(schelling_draw, [52, 12], 4)
-happy_chart = ChartModule(
+happy_chart = mesa.visualization.ChartModule(
     [
         {"Label": "unhappy", "Color": "Orange"},
         {
@@ -53,7 +51,7 @@ happy_chart = ChartModule(
         },
     ]
 )
-server = ModularServer(
+server = mesa.visualization.ModularServer(
     GeoSchellingPoints,
     [map_element, happy_element, unhappy_element, happy_chart],
     "Schelling",

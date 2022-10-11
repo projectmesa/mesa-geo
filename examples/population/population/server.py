@@ -1,5 +1,4 @@
 import mesa
-from mesa.visualization.ModularVisualization import ModularServer
 from mesa_geo.geoagent import GeoAgent
 from mesa_geo.visualization.modules import MapModule
 from shapely.geometry import Point, Polygon
@@ -37,6 +36,6 @@ def agent_portrayal(agent):
 geospace_element = MapModule(agent_portrayal)
 num_agents_element = NumAgentsElement()
 
-server = ModularServer(
+server = mesa.visualization.ModularServer(
     Population, [geospace_element, num_agents_element], "Population Model"
 )
