@@ -1,6 +1,6 @@
 # GeoSchelling Model (Points & Polygons)
 
-![](../../docs/images/examples/geo_schelling_points.gif)
+[![](https://img.youtube.com/vi/iLMU6jfmir8/0.jpg)](https://www.youtube.com/watch?v=iLMU6jfmir8)
 
 ## Summary
 

@@ -1,6 +1,6 @@
 # GeoSchelling Model (Polygons)
 
-![](../../docs/images/examples/geo_schelling.gif)
+[![](https://img.youtube.com/vi/ZnBk_eSw0_M/0.jpg)](https://www.youtube.com/watch?v=ZnBk_eSw0_M)
 
 ## Summary
 
