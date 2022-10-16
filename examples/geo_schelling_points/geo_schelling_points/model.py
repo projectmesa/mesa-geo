@@ -2,8 +2,8 @@ import random
 import uuid
 
 import mesa
+import mesa_geo as mg
 
-from mesa_geo.geoagent import AgentCreator
 from .agents import PersonAgent, RegionAgent
 from .space import Nuts2Eu
 
@@ -23,7 +23,7 @@ class GeoSchellingPoints(mesa.Model):
         )
 
         # Set up the grid with patches for every NUTS region
-        ac = AgentCreator(RegionAgent, model=self)
+        ac = mg.AgentCreator(RegionAgent, model=self)
         regions = ac.from_file(
             "data/nuts_rg_60M_2013_lvl_2.geojson", unique_id="NUTS_ID"
         )

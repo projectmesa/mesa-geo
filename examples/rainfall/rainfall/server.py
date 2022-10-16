@@ -1,7 +1,7 @@
 from typing import Tuple
 
 import mesa
-from mesa_geo.visualization.modules import MapModule
+import mesa_geo as mg
 
 from .model import Rainfall
 from .space import LakeCell
@@ -29,7 +29,7 @@ def cell_portrayal(cell: LakeCell) -> Tuple[float, float, float, float]:
         )
 
 
-map_module = MapModule(
+map_module = mg.visualization.MapModule(
     portrayal_method=cell_portrayal,
     map_height=341,
     map_width=498,

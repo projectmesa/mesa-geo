@@ -2,13 +2,13 @@ import uuid
 
 import numpy as np
 import mesa
+import mesa_geo as mg
 from shapely.geometry import Point
 
-from mesa_geo.geospace import GeoAgent
 from .space import CraterLake
 
 
-class RaindropAgent(GeoAgent):
+class RaindropAgent(mg.GeoAgent):
     def __init__(self, unique_id, model, pos):
         super().__init__(
             unique_id,
