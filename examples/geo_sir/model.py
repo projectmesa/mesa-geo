@@ -1,8 +1,6 @@
 import mesa
+import mesa_geo as mg
 from shapely.geometry import Point
-
-from mesa_geo import GeoSpace
-from mesa_geo.geoagent import AgentCreator
 
 from agents import PersonAgent, NeighbourhoodAgent
 
@@ -25,7 +23,7 @@ class GeoSir(mesa.Model):
         :param infection_risk:      Probability of agent to become infected, if it has been exposed to another infected
         """
         self.schedule = mesa.time.BaseScheduler(self)
-        self.space = GeoSpace(warn_crs_conversion=False)
+        self.space = mg.GeoSpace(warn_crs_conversion=False)
         self.steps = 0
         self.counts = None
         self.reset_counts()
@@ -47,14 +45,14 @@ class GeoSir(mesa.Model):
         )
 
         # Set up the Neighbourhood patches for every region in file (add to schedule later)
-        ac = AgentCreator(NeighbourhoodAgent, model=self)
+        ac = mg.AgentCreator(NeighbourhoodAgent, model=self)
         neighbourhood_agents = ac.from_file(
             self.geojson_regions, unique_id=self.unique_id
         )
         self.space.add_agents(neighbourhood_agents)
 
         # Generate PersonAgent population
-        ac_population = AgentCreator(
+        ac_population = mg.AgentCreator(
             PersonAgent,
             model=self,
             crs=self.space.crs,

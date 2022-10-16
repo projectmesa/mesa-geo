@@ -2,10 +2,10 @@ import random
 
 from shapely.geometry import Point
 
-from mesa_geo.geoagent import GeoAgent
+import mesa_geo as mg
 
 
-class PersonAgent(GeoAgent):
+class PersonAgent(mg.GeoAgent):
     SIMILARITY_THRESHOLD = 0.3
 
     def __init__(self, unique_id, model, geometry, crs, is_red, region_id):
@@ -32,7 +32,7 @@ class PersonAgent(GeoAgent):
             self.model.space.add_person_to_region(self, region_id=random_region_id)
 
 
-class RegionAgent(GeoAgent):
+class RegionAgent(mg.GeoAgent):
     init_num_people: int
     red_cnt: int
     blue_cnt: int

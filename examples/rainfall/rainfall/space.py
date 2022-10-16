@@ -2,13 +2,11 @@ from __future__ import annotations
 import gzip
 
 import mesa
+import mesa_geo as mg
 import numpy as np
 
-from mesa_geo import Cell, RasterLayer
-from mesa_geo.geospace import GeoSpace
 
-
-class LakeCell(Cell):
+class LakeCell(mg.Cell):
     elevation: int | None
     water_level: int | None
     water_level_normalized: float | None
@@ -27,7 +25,7 @@ class LakeCell(Cell):
         pass
 
 
-class CraterLake(GeoSpace):
+class CraterLake(mg.GeoSpace):
     def __init__(self, crs, water_height):
         super().__init__(crs=crs)
         self.water_height = water_height
@@ -35,7 +33,7 @@ class CraterLake(GeoSpace):
 
     def set_elevation_layer(self, elevation_gzip_file, crs):
         with gzip.open(elevation_gzip_file, "rb") as elevation_file:
-            raster_layer = RasterLayer.from_file(
+            raster_layer = mg.RasterLayer.from_file(
                 elevation_file, cell_cls=LakeCell, attr_name="elevation"
             )
             raster_layer.crs = crs

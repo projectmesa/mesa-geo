@@ -1,5 +1,5 @@
 import mesa
-from mesa_geo.visualization.modules import MapModule
+import mesa_geo as mg
 
 from .agents import PersonAgent, RegionAgent
 from .model import GeoSchellingPoints
@@ -41,7 +41,7 @@ def schelling_draw(agent):
 
 happy_element = HappyElement()
 unhappy_element = UnhappyElement()
-map_element = MapModule(schelling_draw, [52, 12], 4)
+map_element = mg.visualization.MapModule(schelling_draw, [52, 12], 4)
 happy_chart = mesa.visualization.ChartModule(
     [
         {"Label": "unhappy", "Color": "Orange"},

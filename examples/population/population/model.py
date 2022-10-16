@@ -3,15 +3,15 @@ import random
 import uuid
 
 import mesa
+import mesa_geo as mg
 import numpy as np
 from shapely.geometry import Point
 
-from mesa_geo.geoagent import GeoAgent
 
 from .space import UgandaArea
 
 
-class Person(GeoAgent):
+class Person(mg.GeoAgent):
     MOBILITY_RANGE_X = 0.0
     MOBILITY_RANGE_Y = 0.0
 

@@ -2,15 +2,13 @@ from __future__ import annotations
 import gzip
 
 import mesa
+import mesa_geo as mg
 import numpy as np
 import rasterio as rio
 import random
 
-from mesa_geo import Cell, RasterLayer
-from mesa_geo.geospace import GeoSpace
 
-
-class UrbanCell(Cell):
+class UrbanCell(mg.Cell):
     urban: bool | None
     slope: int | None
     road_1: int | None
@@ -79,11 +77,11 @@ class UrbanCell(Cell):
                         random_non_urban_neighbor.new_urbanized = True
 
 
-class City(GeoSpace):
+class City(mg.GeoSpace):
     def __init__(self, width, height, crs, total_bounds):
         super().__init__(crs=crs)
         self.add_layer(
-            RasterLayer(width, height, crs, total_bounds, cell_cls=UrbanCell)
+            mg.RasterLayer(width, height, crs, total_bounds, cell_cls=UrbanCell)
         )
 
     def load_datasets(

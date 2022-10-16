@@ -1,6 +1,5 @@
 import mesa
-from mesa_geo.geoagent import GeoAgent
-from mesa_geo.visualization.modules import MapModule
+import mesa_geo as mg
 from shapely.geometry import Point, Polygon
 
 from .model import Population
@@ -16,7 +15,7 @@ class NumAgentsElement(mesa.visualization.TextElement):
 
 
 def agent_portrayal(agent):
-    if isinstance(agent, GeoAgent):
+    if isinstance(agent, mg.GeoAgent):
         if isinstance(agent.geometry, Point):
             return {
                 "stroke": False,
@@ -33,7 +32,7 @@ def agent_portrayal(agent):
         return (agent.population, agent.population, agent.population, 1)
 
 
-geospace_element = MapModule(agent_portrayal)
+geospace_element = mg.visualization.MapModule(agent_portrayal)
 num_agents_element = NumAgentsElement()
 
 server = mesa.visualization.ModularServer(

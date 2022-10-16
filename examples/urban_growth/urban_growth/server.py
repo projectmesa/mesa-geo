@@ -1,7 +1,7 @@
 from typing import Tuple
 
 import mesa
-from mesa_geo.visualization.modules import MapModule
+import mesa_geo as mg
 
 from .model import UrbanGrowth
 from .space import UrbanCell
@@ -40,7 +40,7 @@ model_params = {
 }
 
 
-map_module = MapModule(
+map_module = mg.visualization.MapModule(
     portrayal_method=cell_portrayal,
     view=[12.904598815296707, -8.027435210420451],
     zoom=12.1,

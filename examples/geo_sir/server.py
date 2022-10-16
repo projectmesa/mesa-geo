@@ -1,5 +1,5 @@
 import mesa
-from mesa_geo.visualization.modules import MapModule
+import mesa_geo as mg
 
 from model import GeoSir
 from agents import PersonAgent
@@ -47,7 +47,7 @@ def infected_draw(agent):
 
 
 infected_text = InfectedText()
-map_element = MapModule(infected_draw)
+map_element = mg.visualization.MapModule(infected_draw)
 infected_chart = mesa.visualization.ChartModule(
     [
         {"Label": "infected", "Color": "Red"},

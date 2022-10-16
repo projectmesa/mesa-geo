@@ -1,9 +1,9 @@
 from shapely.geometry import Point
 
-from mesa_geo.geoagent import GeoAgent
+import mesa_geo as mg
 
 
-class PersonAgent(GeoAgent):
+class PersonAgent(mg.GeoAgent):
     """Person Agent."""
 
     def __init__(
@@ -81,7 +81,7 @@ class PersonAgent(GeoAgent):
         return "Person " + str(self.unique_id)
 
 
-class NeighbourhoodAgent(GeoAgent):
+class NeighbourhoodAgent(mg.GeoAgent):
     """Neighbourhood agent. Changes color according to number of infected inside it."""
 
     def __init__(
