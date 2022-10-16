@@ -8,13 +8,12 @@ import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
 
-from mesa_geo.geoagent import GeoAgent, AgentCreator
-from mesa_geo.geospace import GeoSpace, ImageLayer
+import mesa_geo as mg
 
 
 class TestGeoSpace(unittest.TestCase):
     def setUp(self) -> None:
-        self.agent_creator = AgentCreator(agent_class=GeoAgent, crs="epsg:3857")
+        self.agent_creator = mg.AgentCreator(agent_class=mg.GeoAgent, crs="epsg:3857")
         self.geometries = [Point(1, 1)] * 7
         self.agents = [
             self.agent_creator.create_agent(
@@ -22,7 +21,7 @@ class TestGeoSpace(unittest.TestCase):
             )
             for geometry in self.geometries
         ]
-        self.image_layer = ImageLayer(
+        self.image_layer = mg.ImageLayer(
             values=np.random.uniform(low=0, high=255, size=(3, 500, 500)),
             crs="epsg:4326",
             total_bounds=[
@@ -36,8 +35,8 @@ class TestGeoSpace(unittest.TestCase):
             {"name": ["point_1", "point_2"], "geometry": [Point(1, 2), Point(2, 1)]},
             crs="epsg:4326",
         )
-        self.geo_space = GeoSpace()
-        self.geo_space_with_different_crs = GeoSpace(crs="epsg:2283")
+        self.geo_space = mg.GeoSpace()
+        self.geo_space_with_different_crs = mg.GeoSpace(crs="epsg:2283")
 
     def tearDown(self) -> None:
         pass

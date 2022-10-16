@@ -1,19 +1,17 @@
 import unittest
 import uuid
 
-from mesa.model import Model
+import mesa
+import mesa_geo as mg
 from shapely.geometry import Point, LineString, Polygon
-
-from mesa_geo import AgentCreator, GeoAgent, GeoSpace
-from mesa_geo.visualization.modules import MapModule
 
 
 class TestMapModule(unittest.TestCase):
     def setUp(self) -> None:
-        self.model = Model()
-        self.model.space = GeoSpace(crs="epsg:4326")
-        self.agent_creator = AgentCreator(
-            agent_class=GeoAgent, model=self.model, crs="epsg:4326"
+        self.model = mesa.Model()
+        self.model.space = mg.GeoSpace(crs="epsg:4326")
+        self.agent_creator = mg.AgentCreator(
+            agent_class=mg.GeoAgent, model=self.model, crs="epsg:4326"
         )
         self.points = [Point(1, 1)] * 7
         self.point_agents = [
@@ -35,7 +33,9 @@ class TestMapModule(unittest.TestCase):
         pass
 
     def test_render_point_agents(self):
-        map_module = MapModule(portrayal_method=lambda x: {"color": "Red", "radius": 7})
+        map_module = mg.visualization.MapModule(
+            portrayal_method=lambda x: {"color": "Red", "radius": 7}
+        )
         self.model.space.add_agents(self.point_agents)
         self.assertDictEqual(
             map_module.render(self.model).get("agents"),
@@ -52,7 +52,7 @@ class TestMapModule(unittest.TestCase):
             },
         )
 
-        map_module = MapModule(
+        map_module = mg.visualization.MapModule(
             portrayal_method=lambda x: {
                 "color": "Red",
                 "radius": 7,
@@ -79,7 +79,7 @@ class TestMapModule(unittest.TestCase):
         )
 
     def test_render_line_agents(self):
-        map_module = MapModule(
+        map_module = mg.visualization.MapModule(
             portrayal_method=lambda x: {"color": "#3388ff", "weight": 7}
         )
         self.model.space.add_agents(self.line_agents)
@@ -101,7 +101,7 @@ class TestMapModule(unittest.TestCase):
             },
         )
 
-        map_module = MapModule(
+        map_module = mg.visualization.MapModule(
             portrayal_method=lambda x: {
                 "color": "#3388ff",
                 "weight": 7,
@@ -134,7 +134,7 @@ class TestMapModule(unittest.TestCase):
 
         self.maxDiff = None
 
-        map_module = MapModule(
+        map_module = mg.visualization.MapModule(
             portrayal_method=lambda x: {"fillColor": "#3388ff", "fillOpacity": 0.7}
         )
         self.model.space.add_agents(self.polygon_agents)
@@ -160,7 +160,7 @@ class TestMapModule(unittest.TestCase):
             },
         )
 
-        map_module = MapModule(
+        map_module = mg.visualization.MapModule(
             portrayal_method=lambda x: {
                 "fillColor": "#3388ff",
                 "fillOpacity": 0.7,

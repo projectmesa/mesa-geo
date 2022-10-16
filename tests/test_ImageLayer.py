@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import rasterio as rio
 
-from mesa_geo.raster_layers import ImageLayer
+import mesa_geo as mg
 
 
 class TestImageLayer(unittest.TestCase):
@@ -42,7 +42,7 @@ class TestImageLayer(unittest.TestCase):
         ]
         self.src_resolution = (0.0006333333333759583, 0.00031777777779916507)
         self.dst_resolution = (60.43686114587856, 60.43686114587856)
-        self.image_layer = ImageLayer(
+        self.image_layer = mg.ImageLayer(
             values=np.random.uniform(low=0, high=255, size=self.src_shape),
             crs=self.src_crs,
             total_bounds=self.src_bounds,

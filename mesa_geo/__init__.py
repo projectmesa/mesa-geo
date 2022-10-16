@@ -8,8 +8,17 @@ import datetime
 from mesa_geo.geoagent import GeoAgent, AgentCreator
 from mesa_geo.geospace import GeoSpace
 from mesa_geo.raster_layers import ImageLayer, Cell, RasterLayer
+from mesa_geo import visualization
 
-__all__ = ["GeoSpace", "GeoAgent", "AgentCreator", "ImageLayer", "Cell", "RasterLayer"]
+__all__ = [
+    "GeoSpace",
+    "GeoAgent",
+    "AgentCreator",
+    "ImageLayer",
+    "Cell",
+    "RasterLayer",
+    "visualization",
+]
 
 __title__ = "Mesa-Geo"
 __version__ = "0.3.0"

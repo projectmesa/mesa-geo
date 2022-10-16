@@ -2,12 +2,12 @@ import unittest
 
 import numpy as np
 
-from mesa_geo.raster_layers import RasterLayer
+import mesa_geo as mg
 
 
 class TestRasterLayer(unittest.TestCase):
     def setUp(self) -> None:
-        self.raster_layer = RasterLayer(
+        self.raster_layer = mg.RasterLayer(
             width=2,
             height=3,
             crs="epsg:4326",
