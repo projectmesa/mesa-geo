@@ -4,14 +4,14 @@ import geopandas as gpd
 import pandas as pd
 from shapely.geometry import Point
 
-from mesa_geo.geoagent import GeoAgent, AgentCreator
+import mesa_geo as mg
 
 
 class TestAgentCreator(unittest.TestCase):
     def setUp(self) -> None:
-        self.agent_creator_without_crs = AgentCreator(agent_class=GeoAgent)
-        self.agent_creator_with_crs = AgentCreator(
-            agent_class=GeoAgent,
+        self.agent_creator_without_crs = mg.AgentCreator(agent_class=mg.GeoAgent)
+        self.agent_creator_with_crs = mg.AgentCreator(
+            agent_class=mg.GeoAgent,
             crs="epsg:3857",
         )
         self.df = pd.DataFrame(
@@ -51,7 +51,7 @@ class TestAgentCreator(unittest.TestCase):
         agent = self.agent_creator_with_crs.create_agent(
             geometry=Point(1, 1), unique_id=0
         )
-        self.assertIsInstance(agent, GeoAgent)
+        self.assertIsInstance(agent, mg.GeoAgent)
         self.assertEqual(agent.geometry, Point(1, 1))
         self.assertIsNone(agent.model)
         self.assertEqual(agent.crs, self.agent_creator_with_crs.crs)
