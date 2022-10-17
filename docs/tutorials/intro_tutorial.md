@@ -12,8 +12,8 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-from mesa_geo import GeoSpace, GeoAgent, AgentCreator
-from mesa import Model
+import mesa
+import mesa_geo as mg
 import requests
 
 
@@ -26,16 +26,16 @@ First we create a `State` Agent and a `GeoModel`. Both should look familiar if y
 
 
 ```python
-class State(GeoAgent):
+class State(mg.GeoAgent):
     def __init__(self, unique_id, model, geometry, crs):
         super().__init__(unique_id, model, geometry, crs)
 
 
-class GeoModel(Model):
+class GeoModel(mesa.Model):
     def __init__(self):
-        self.space = GeoSpace()
+        self.space = mg.GeoSpace()
 
-        ac = AgentCreator(agent_class=State, model=self)
+        ac = mg.AgentCreator(agent_class=State, model=self)
         agents = ac.from_GeoJSON(GeoJSON=geojson_states, unique_id="NAME")
         self.space.add_agents(agents)
 ```
