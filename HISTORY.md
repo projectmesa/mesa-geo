@@ -1,6 +1,33 @@
 Release History
 ---------------
 
+## 0.4.0 (2022-10-18)
+
+### Improvements
+
+- export geoagents and raster cells [#98](https://github.com/projectmesa/mesa-geo/pull/98)
+- use ModularServer from Mesa [#109](https://github.com/projectmesa/mesa-geo/pull/109)
+- implement simpler Mesa-Geo namespace [#115](https://github.com/projectmesa/mesa-geo/pull/115)
+
+- ***Docs updates***
+  - create Read the Docs [#99](https://github.com/projectmesa/mesa-geo/pull/99)
+  - update README with badges and matrix chat link [#100](https://github.com/projectmesa/mesa-geo/pull/100)
+
+- ***Front-end updates***
+  - auto zoom to geospace when view & zoom are missing [#103](https://github.com/projectmesa/mesa-geo/pull/103)
+
+- ***CI updates***
+  - add pre-commit config and run it on all files [#107](https://github.com/projectmesa/mesa-geo/pull/107)
+
+- ***Example updates***
+  - link example models to readthedocs [#101](https://github.com/projectmesa/mesa-geo/pull/101)
+  - fix spatial variation of water level in rainfall example [#108](https://github.com/projectmesa/mesa-geo/pull/108)
+  - fix youtube links in geo_schelling examples [#113](https://github.com/projectmesa/mesa-geo/pull/113)
+
+### Fixes
+
+- replace BuildCommand & DevelopCommand with BuildPyCommand during setup [#106](https://github.com/projectmesa/mesa-geo/pull/106)
+
 ## 0.3.0 (2022-07-27)
 
 ### Special Notes
