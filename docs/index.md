@@ -8,6 +8,7 @@
 [![PyPI - License](https://img.shields.io/pypi/l/mesa-geo)](https://pypi.org/project/mesa-geo/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dw/mesa-geo)](https://pypistats.org/packages/mesa-geo)
 [![Matrix Chat](https://img.shields.io/matrix/mesa-geo:matrix.org?label=chat&logo=Matrix)](https://matrix.to/#/#mesa-geo:matrix.org)
+[![DOI](https://zenodo.org/badge/DOI/10.1145/3557989.3566157.svg)](https://doi.org/10.1145/3557989.3566157)
 
 Mesa-Geo implements a `GeoSpace` that can host GIS-based `GeoAgents`, which are like normal Agents, except they have a `geometry` attribute that is a [Shapely object](https://shapely.readthedocs.io/en/latest/manual.html) and a `crs` attribute for its Coordinate Reference System. You can use `Shapely` directly to create arbitrary geometries, but in most cases you will want to import your geometries from a file. Mesa-Geo allows you to create GeoAgents from any vector data file (e.g. shapefiles), valid GeoJSON objects or a GeoPandas GeoDataFrame.
 
@@ -55,6 +56,11 @@ If you would like to add a feature, please reach out via [ticket](https://github
 A feature is most likely to be added if you build it!
 
 Don't forget to check out the [Contributors guide](https://github.com/projectmesa/mesa-geo/blob/main/CONTRIBUTING.md).
+
+## Citing Mesa-Geo
+
+To cite Mesa-Geo in your publication, you can use the [CITATION.bib](https://github.com/projectmesa/mesa-geo/blob/main/CITATION.bib).
+
 
 ```{toctree}
 ---
