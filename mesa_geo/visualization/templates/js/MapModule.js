@@ -1,4 +1,4 @@
-const MapModule = function (view, zoom, map_width, map_height) {
+const MapModule = function (view, zoom, map_width, map_height, scale_options) {
     // Create the map tag
     const map_tag = document.createElement("div");
     map_tag.style.width = map_width + "px";
@@ -15,6 +15,9 @@ const MapModule = function (view, zoom, map_width, map_height) {
     const Lmap = L.map('mapid', {zoomSnap: 0.1})
     if (customView) {
         Lmap.setView(view, zoom)
+    }
+    if (scale_options !== null) {
+        L.control.scale(scale_options).addTo(Lmap)
     }
     let agentLayer = L.geoJSON().addTo(Lmap)
 

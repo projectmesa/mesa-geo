@@ -54,6 +54,7 @@ class MapModule(VisualizationElement):
         zoom=None,
         map_width=500,
         map_height=500,
+        scale_options=None,
     ):
         """
         Create a new MapModule.
@@ -68,14 +69,21 @@ class MapModule(VisualizationElement):
             of the space. Default is None.
         :param map_width: The width of the map in pixels. Default is 500.
         :param map_height: The height of the map in pixels. Default is 500.
+        :param scale_options: A dictionary of options for the map scale. Default is None (no map scale).
+            The available options can be found at: https://leafletjs.com/reference.html#control-scale-option
         """
         self.portrayal_method = portrayal_method
         self._crs = "epsg:4326"
 
-        if view is None and zoom is None:
-            new_element = f"new MapModule(null, null, {map_width}, {map_height})"
-        else:
-            new_element = f"new MapModule({view}, {zoom}, {map_width}, {map_height})"
+        view_js = "null" if view is None else view
+        zoom_js = "null" if zoom is None else zoom
+        scale_options_js = (
+            "null"
+            if scale_options is None
+            else str(scale_options).replace("True", "true").replace("False", "false")
+        )
+
+        new_element = f"new MapModule({view_js}, {zoom_js}, {map_width}, {map_height}, {scale_options_js})"
         self.js_code = f"elements.push({new_element});"
 
     def render(self, model):
