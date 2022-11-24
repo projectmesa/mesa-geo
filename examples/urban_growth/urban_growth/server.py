@@ -46,6 +46,7 @@ map_module = mg.visualization.MapModule(
     zoom=12.1,
     map_height=394,
     map_width=531,
+    scale_options={"imperial": False},
 )
 urbanized_text = UrbanizedText()
 urbanized_chart = mesa.visualization.ChartModule(
