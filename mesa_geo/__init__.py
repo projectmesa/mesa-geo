@@ -8,6 +8,7 @@ import datetime
 from mesa_geo.geoagent import GeoAgent, AgentCreator
 from mesa_geo.geospace import GeoSpace
 from mesa_geo.raster_layers import ImageLayer, Cell, RasterLayer
+from mesa_geo.tile_layers import RasterWebTile, WMSWebTile
 from mesa_geo import visualization
 
 __all__ = [
@@ -18,6 +19,8 @@ __all__ = [
     "Cell",
     "RasterLayer",
     "visualization",
+    "RasterWebTile",
+    "WMSWebTile",
 ]
 
 __title__ = "Mesa-Geo"
