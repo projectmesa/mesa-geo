@@ -3,16 +3,16 @@ from __future__ import annotations
 import dataclasses
 import os
 from dataclasses import dataclass
-from typing import Union
 
 import geopandas as gpd
 from folium.utilities import image_to_url
 from mesa.visualization.ModularVisualization import VisualizationElement
 from shapely.geometry import mapping, Point
+import xyzservices
+import xyzservices.providers as xyz
 
 from mesa_geo.raster_layers import RasterLayer, RasterBase
-
-LeafletOption = Union[str, bool, int, float]
+from mesa_geo.tile_layers import LeafletOption, RasterWebTile
 
 
 @dataclass
@@ -54,6 +54,7 @@ class MapModule(VisualizationElement):
         zoom=None,
         map_width=500,
         map_height=500,
+        tiles=xyz.OpenStreetMap.Mapnik,
         scale_options=None,
     ):
         """
@@ -69,22 +70,25 @@ class MapModule(VisualizationElement):
             of the space. Default is None.
         :param map_width: The width of the map in pixels. Default is 500.
         :param map_height: The height of the map in pixels. Default is 500.
-        :param scale_options: A dictionary of options for the map scale. Default is None (no map scale).
-            The available options can be found at: https://leafletjs.com/reference.html#control-scale-option
+        :param tiles: An optional tile layer to use. Can be a :class:`RasterWebTile` or
+            a :class:`xyzservices.TileProvider`. Default is `xyzservices.providers.OpenStreetMap.Mapnik`.
+        :param scale_options: A dictionary of options for the map scale. Default is None
+            (no map scale). The available options can be found at: https://leafletjs.com/reference.html#control-scale-option
         """
         self.portrayal_method = portrayal_method
         self._crs = "epsg:4326"
 
-        view_js = "null" if view is None else view
-        zoom_js = "null" if zoom is None else zoom
-        scale_options_js = (
-            "null"
-            if scale_options is None
-            else str(scale_options).replace("True", "true").replace("False", "false")
-        )
-
-        new_element = f"new MapModule({view_js}, {zoom_js}, {map_width}, {map_height}, {scale_options_js})"
+        if isinstance(tiles, xyzservices.TileProvider):
+            tiles = RasterWebTile.from_xyzservices(tiles)
+        tiles_js = tiles.to_dict() if tiles is not None else None
+        new_element = f"new MapModule({view}, {zoom}, {map_width}, {map_height}, {tiles_js}, {scale_options})"
         self.js_code = f"elements.push({new_element});"
+        for py_str, js_str in {
+            "None": "null",
+            "True": "true",
+            "False": "false",
+        }.items():
+            self.js_code = self.js_code.replace(py_str, js_str)
 
     def render(self, model):
         return {

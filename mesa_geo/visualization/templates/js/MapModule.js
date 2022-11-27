@@ -1,4 +1,4 @@
-const MapModule = function (view, zoom, map_width, map_height, scale_options) {
+const MapModule = function (view, zoom, map_width, map_height, tiles, scale_options) {
     // Create the map tag
     const map_tag = document.createElement("div");
     map_tag.style.width = map_width + "px";
@@ -21,11 +21,16 @@ const MapModule = function (view, zoom, map_width, map_height, scale_options) {
     }
     let agentLayer = L.geoJSON().addTo(Lmap)
 
-    // create the OSM tile layer with correct attribution
-    const osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-    const osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-    const osm = new L.TileLayer(osmUrl, {minZoom: 0, maxZoom: 18, attribution: osmAttrib})
-    Lmap.addLayer(osm)
+    // create tile layer
+    if (tiles !== null) {
+        if (tiles.kind === "raster_web_tile") {
+            L.tileLayer(tiles.url, tiles.options).addTo(Lmap)
+        } else if (tiles.kind === "wms_web_tile") {
+            L.tileLayer.wms(tiles.url, tiles.options).addTo(Lmap)
+        } else {
+            throw new Error("Unknown tile type: " + tiles.kind)
+        }
+    }
 
     let hasFitBounds = false
     this.renderLayers = function (layers) {

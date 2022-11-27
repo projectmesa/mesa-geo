@@ -4,6 +4,7 @@ import uuid
 import mesa
 import mesa_geo as mg
 from shapely.geometry import Point, LineString, Polygon
+import xyzservices.providers as xyz
 
 
 class TestMapModule(unittest.TestCase):
@@ -189,4 +190,29 @@ class TestMapModule(unittest.TestCase):
                 ]
                 * len(self.polygon_agents),
             },
+        )
+
+    def test_js_code(self):
+        map_module = mg.visualization.MapModule(
+            map_width=500,
+            map_height=500,
+            tiles=xyz.OpenStreetMap.Mapnik,
+            scale_options={"position": "bottomleft", "imperial": False},
+        )
+        self.assertEqual(
+            map_module.js_code,
+            "elements.push(new MapModule(null, null, 500, 500, {'url': 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', 'options': {'max_zoom': 19, 'attribution': '&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors', 'name': 'OpenStreetMap.Mapnik'}, 'kind': 'raster_web_tile'}, {'position': 'bottomleft', 'imperial': false}));",
+        )
+
+        map_module = mg.visualization.MapModule(
+            view=(11.1, 22.2),
+            zoom=20,
+            map_width=500,
+            map_height=500,
+            tiles=None,
+            scale_options={"position": "bottomleft", "imperial": True},
+        )
+        self.assertEqual(
+            map_module.js_code,
+            "elements.push(new MapModule((11.1, 22.2), 20, 500, 500, null, {'position': 'bottomleft', 'imperial': true}));",
         )
