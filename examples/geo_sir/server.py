@@ -32,7 +32,7 @@ def infected_draw(agent):
     """
     Portrayal Method for canvas
     """
-    portrayal = dict()
+    portrayal = {}
     if isinstance(agent, PersonAgent):
         portrayal["radius"] = "2"
     if agent.atype in ["hotspot", "infected"]:

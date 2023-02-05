@@ -49,9 +49,8 @@ class GeoSchellingPoints(mesa.Model):
     def unhappy(self):
         num_unhappy = 0
         for agent in self.space.agents:
-            if isinstance(agent, PersonAgent):
-                if agent.is_unhappy:
-                    num_unhappy += 1
+            if isinstance(agent, PersonAgent) and agent.is_unhappy:
+                num_unhappy += 1
         return num_unhappy
 
     @property
