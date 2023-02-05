@@ -5,3 +5,17 @@ requires = [
     "mesa~=1.1.0",
 ]
 build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+# Ignore list taken from https://github.com/psf/black/blob/master/.flake8
+# E203	Whitespace before ':'
+# E266	Too many leading '#' for block comment
+# E501	Line too long (82 > 79 characters)
+# W503	Line break occurred before a binary operator
+# But we don't specify them because ruff's Black already
+# checks for it.
+# See https://github.com/charliermarsh/ruff/issues/1842#issuecomment-1381210185
+extend-ignore = ["E501"]
+extend-exclude = ["docs", "build"]
+# Hardcode to Python 3.8.
+target-version = "py38"
