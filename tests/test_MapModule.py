@@ -2,9 +2,10 @@ import unittest
 import uuid
 
 import mesa
-import mesa_geo as mg
-from shapely.geometry import Point, LineString, Polygon
 import xyzservices.providers as xyz
+from shapely.geometry import LineString, Point, Polygon
+
+import mesa_geo as mg
 
 
 class TestMapModule(unittest.TestCase):

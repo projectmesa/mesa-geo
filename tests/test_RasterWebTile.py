@@ -1,7 +1,8 @@
 import unittest
 
-import mesa_geo as mg
 import xyzservices.providers as xyz
+
+import mesa_geo as mg
 
 
 class TestRasterWebTile(unittest.TestCase):

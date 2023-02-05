@@ -3,9 +3,9 @@ import unittest
 import uuid
 import warnings
 
+import geopandas as gpd
 import numpy as np
 import pandas as pd
-import geopandas as gpd
 from shapely.geometry import Point
 
 import mesa_geo as mg
