@@ -5,13 +5,13 @@ import os
 from dataclasses import dataclass
 
 import geopandas as gpd
-from folium.utilities import image_to_url
-from mesa.visualization.ModularVisualization import VisualizationElement
-from shapely.geometry import mapping, Point
 import xyzservices
 import xyzservices.providers as xyz
+from folium.utilities import image_to_url
+from mesa.visualization.ModularVisualization import VisualizationElement
+from shapely.geometry import Point, mapping
 
-from mesa_geo.raster_layers import RasterLayer, RasterBase
+from mesa_geo.raster_layers import RasterBase, RasterLayer
 from mesa_geo.tile_layers import LeafletOption, RasterWebTile
 
 

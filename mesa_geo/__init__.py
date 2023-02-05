@@ -5,11 +5,11 @@ Core Objects: GeoSpace, GeoAgent
 """
 import datetime
 
-from mesa_geo.geoagent import GeoAgent, AgentCreator
-from mesa_geo.geospace import GeoSpace
-from mesa_geo.raster_layers import ImageLayer, Cell, RasterLayer
-from mesa_geo.tile_layers import RasterWebTile, WMSWebTile
 from mesa_geo import visualization
+from mesa_geo.geoagent import AgentCreator, GeoAgent
+from mesa_geo.geospace import GeoSpace
+from mesa_geo.raster_layers import Cell, ImageLayer, RasterLayer
+from mesa_geo.tile_layers import RasterWebTile, WMSWebTile
 
 __all__ = [
     "GeoSpace",

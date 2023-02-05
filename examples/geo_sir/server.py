@@ -1,8 +1,8 @@
 import mesa
-import mesa_geo as mg
-
-from model import GeoSir
 from agents import PersonAgent
+from model import GeoSir
+
+import mesa_geo as mg
 
 
 class InfectedText(mesa.visualization.TextElement):

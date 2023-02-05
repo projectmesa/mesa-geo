@@ -1,9 +1,11 @@
 from __future__ import annotations
+
 import gzip
 
 import mesa
-import mesa_geo as mg
 import numpy as np
+
+import mesa_geo as mg
 
 
 class LakeCell(mg.Cell):

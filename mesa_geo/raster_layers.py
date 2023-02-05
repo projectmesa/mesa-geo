@@ -11,11 +11,11 @@ import math
 import uuid
 from typing import (
     Any,
+    Iterable,
+    Iterator,
+    Sequence,
     cast,
     overload,
-    Sequence,
-    Iterator,
-    Iterable,
 )
 
 import numpy as np
@@ -24,10 +24,10 @@ from affine import Affine
 from mesa.agent import Agent
 from mesa.space import Coordinate, accept_tuple_argument
 from rasterio.warp import (
-    calculate_default_transform,
-    transform_bounds,
-    reproject,
     Resampling,
+    calculate_default_transform,
+    reproject,
+    transform_bounds,
 )
 
 from mesa_geo.geo_base import GeoBase
