@@ -28,7 +28,7 @@ def schelling_draw(agent):
     """
     Portrayal Method for canvas
     """
-    portrayal = dict()
+    portrayal = {}
     if agent.atype is None:
         portrayal["color"] = "Grey"
     elif agent.atype == 0:

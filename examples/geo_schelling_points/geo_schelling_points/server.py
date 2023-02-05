@@ -25,7 +25,7 @@ model_params = {
 
 
 def schelling_draw(agent):
-    portrayal = dict()
+    portrayal = {}
     if isinstance(agent, RegionAgent):
         if agent.red_cnt > agent.blue_cnt:
             portrayal["color"] = "Red"

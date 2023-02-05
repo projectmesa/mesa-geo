@@ -73,8 +73,6 @@ class GeoAgent(Agent, GeoBase):
         Advance one step.
         """
 
-        pass
-
     def __geo_interface__(self):
         """
         Return a GeoJSON Feature. Removes geometry from attributes.
@@ -191,14 +189,14 @@ class AgentCreator:
                     f"{self.__class__.__name__} and {gdf.__class__.__name__}."
                 )
 
-        agents = list()
+        agents = []
         for index, row in gdf.iterrows():
             geometry = row[gdf.geometry.name]
             new_agent = self.create_agent(geometry=geometry, unique_id=index)
 
             if set_attributes:
                 for col in row.index:
-                    if not col == gdf.geometry.name:
+                    if col != gdf.geometry.name:
                         setattr(new_agent, col, row[col])
             agents.append(new_agent)
 
@@ -230,10 +228,7 @@ class AgentCreator:
         :param set_attributes: Set agent attributes from GeoDataFrame columns. Default True.
         """
 
-        if type(GeoJSON) is str:
-            gj = json.loads(GeoJSON)
-        else:
-            gj = GeoJSON
+        gj = json.loads(GeoJSON) if type(GeoJSON) is str else GeoJSON
 
         gdf = gpd.GeoDataFrame.from_features(gj)
         # epsg:4326 is the CRS for all GeoJSON: https://datatracker.ietf.org/doc/html/rfc7946#section-4

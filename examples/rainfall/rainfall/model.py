@@ -52,7 +52,7 @@ class RaindropAgent(mg.GeoAgent):
                 ),
                 key=lambda cell: cell.elevation + cell.water_level,
             ).pos
-            if not lowest_pos == self.pos:
+            if lowest_pos != self.pos:
                 self.model.space.move_raindrop(self, lowest_pos)
 
 

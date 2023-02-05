@@ -97,18 +97,17 @@ class City(mg.GeoSpace):
             "land_use": land_use_data,
         }
         for attribute_name, data_file in data.items():
-            with gzip.open(data_file, "rb") as f:
-                with rio.open(f, "r") as dataset:
-                    values = dataset.read()
+            with gzip.open(data_file, "rb") as f, rio.open(f, "r") as dataset:
+                values = dataset.read()
             self.raster_layer.apply_raster(values, attr_name=attribute_name)
 
         for cell in self.raster_layer:
-            cell.urban = True if cell.urban == 2 else False
+            cell.urban = cell.urban == 2
             cell.old_urbanized = cell.urban
 
     def check_road(self):
         for cell in self.raster_layer:
-            cell.road = True if cell.road_1 > 0 else False
+            cell.road = cell.road_1 > 0
 
     @property
     def raster_layer(self):
