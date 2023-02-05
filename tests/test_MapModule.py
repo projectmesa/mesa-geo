@@ -133,7 +133,6 @@ class TestMapModule(unittest.TestCase):
         )
 
     def test_render_polygon_agents(self):
-
         self.maxDiff = None
 
         map_module = mg.visualization.MapModule(
