@@ -218,7 +218,9 @@ class AgentCreator:
         )
         return agents
 
-    def from_GeoJSON(self, GeoJSON, unique_id="index", set_attributes=True):
+    def from_GeoJSON(
+        self, GeoJSON, unique_id="index", set_attributes=True  # noqa: N803
+    ):
         """
         Create agents from a GeoJSON object or string. CRS is set to epsg:4326.
 

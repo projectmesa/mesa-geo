@@ -24,8 +24,8 @@ class LeafletPortrayal:
     """
 
     style: dict[str, LeafletOption] | None = None
-    pointToLayer: dict[str, LeafletOption] | None = None
-    popupProperties: dict[str, LeafletOption] | None = None
+    pointToLayer: dict[str, LeafletOption] | None = None  # noqa: N815
+    popupProperties: dict[str, LeafletOption] | None = None  # noqa: N815
 
 
 class MapModule(VisualizationElement):
