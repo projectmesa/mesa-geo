@@ -54,4 +54,4 @@ class WMSWebTile(RasterWebTile):
     The available options can be found at: https://leafletjs.com/reference.html#tilelayer-wms
     """
 
-    kind = "wms_web_tile"
+    kind: str = "wms_web_tile"
