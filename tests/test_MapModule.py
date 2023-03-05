@@ -2,6 +2,7 @@ import unittest
 import uuid
 
 import mesa
+import numpy as np
 import xyzservices.providers as xyz
 from shapely.geometry import LineString, Point, Polygon
 
@@ -30,6 +31,10 @@ class TestMapModule(unittest.TestCase):
             self.agent_creator.create_agent(polygon, unique_id=uuid.uuid4().int)
             for polygon in self.polygons
         ]
+        self.raster_layer = mg.RasterLayer(
+            1, 1, crs="epsg:4326", total_bounds=[0, 0, 1, 1]
+        )
+        self.raster_layer.apply_raster(np.array([[[0]]]))
 
     def tearDown(self) -> None:
         pass
@@ -215,4 +220,24 @@ class TestMapModule(unittest.TestCase):
         self.assertEqual(
             map_module.js_code,
             "elements.push(new MapModule((11.1, 22.2), 20, 500, 500, null, {'position': 'bottomleft', 'imperial': true}));",
+        )
+
+    def test_render_raster_layers(self):
+        map_module = mg.visualization.MapModule(
+            portrayal_method=lambda x: (255, 255, 255, 0.5)
+        )
+        self.model.space.add_layer(self.raster_layer)
+        self.model.space.add_layer(
+            self.raster_layer.to_image(colormap=lambda x: (0, 0, 0, 1))
+        )
+        self.assertDictEqual(
+            map_module.render(self.model).get("layers"),
+            {
+                "rasters": [
+                    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mP4DwQACfsD/Wj6HMwAAAAASUVORK5CYII=",
+                    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYGD4DwABBAEAgLvRWwAAAABJRU5ErkJggg==",
+                ],
+                "total_bounds": [[0.0, 0.0], [1.0, 1.0]],
+                "vectors": [],
+            },
         )

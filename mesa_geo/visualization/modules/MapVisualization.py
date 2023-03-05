@@ -101,9 +101,13 @@ class MapModule(VisualizationElement):
         for layer in model.space.layers:
             if isinstance(layer, RasterBase):
                 if isinstance(layer, RasterLayer):
-                    layer = layer.to_image(colormap=self.portrayal_method)
+                    layer_to_render = layer.to_image(
+                        colormap=self.portrayal_method
+                    ).to_crs(self._crs)
+                else:
+                    layer_to_render = layer.to_crs(self._crs)
                 layers["rasters"].append(
-                    image_to_url(layer.to_crs(self._crs).values.transpose([1, 2, 0]))
+                    image_to_url(layer_to_render.values.transpose([1, 2, 0]))
                 )
             elif isinstance(layer, gpd.GeoDataFrame):
                 layers["vectors"].append(
