@@ -35,9 +35,9 @@ class MapModule(VisualizationElement):
     For a raster Cell, the portrayal method should return a (r, g, b, a) tuple.
 
     For a GeoAgent, the portrayal method should return a dictionary.
-        For a Line or a Polygon, the available options can be found at: https://leafletjs.com/reference.html#path-option
-        For a Point, the available options can be found at: https://leafletjs.com/reference.html#circlemarker-option
-        In addition, the portrayal dictionary can contain a "description" key, which will be used as the popup text.
+        - For a Line or a Polygon, the available options can be found at: https://leafletjs.com/reference.html#path-option
+        - For a Point, the available options can be found at: https://leafletjs.com/reference.html#circlemarker-option
+        - In addition, the portrayal dictionary can contain a "description" key, which will be used as the popup text.
     """
 
     local_includes = [
@@ -72,6 +72,39 @@ class MapModule(VisualizationElement):
         :param map_height: The height of the map in pixels. Default is 500.
         :param tiles: An optional tile layer to use. Can be a :class:`RasterWebTile` or
             a :class:`xyzservices.TileProvider`. Default is `xyzservices.providers.OpenStreetMap.Mapnik`.
+
+            If the tile provider requires registration, you can pass the API key inside
+            the `options` parameter of the :class:`RasterWebTile` constructor.
+
+            For example, to use the `Mapbox` raster tile provider, you can use:
+
+            .. code-block:: python
+
+                import mesa_geo as mg
+
+                mg.RasterWebTile(
+                    url="https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token={access_token}",
+                    options={
+                        "access_token": "my-private-ACCESS_TOKEN",
+                        "attribution": '&copy; <a href="https://www.mapbox.com/about/maps/" target="_blank">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors <a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a>',
+                    },
+                )
+
+            Note that `access_token` can have different names depending on the provider,
+            e.g., `api_key` or `key`. You can check the documentation of the provider
+            for more details.
+
+            `xyzservices` provides a list of providers requiring registration as well:
+            https://xyzservices.readthedocs.io/en/stable/registration.html
+
+            For example, you may use the following code to use the `Mapbox` provider:
+
+            .. code-block:: python
+
+                import xyzservices.providers as xyz
+
+                xyz.MapBox(id="<insert map_ID here>", accessToken="my-private-ACCESS_TOKEN")
+
         :param scale_options: A dictionary of options for the map scale. Default is None
             (no map scale). The available options can be found at: https://leafletjs.com/reference.html#control-scale-option
         """
