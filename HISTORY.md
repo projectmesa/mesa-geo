@@ -1,6 +1,29 @@
 Release History
 ---------------
 
+## 0.5.0 (2023-03-09)
+
+### Improvements
+
+- ***Docs updates***
+  - add citation information about mesa-geo [#117](https://github.com/projectmesa/mesa-geo/pull/117)
+  - add citation info to readthedocs [#118](https://github.com/projectmesa/mesa-geo/pull/118)
+  - docs: update docstrings on how to use providers requiring registration [#141](https://github.com/projectmesa/mesa-geo/pull/141)
+
+- ***Front-end updates***
+  - add scale to Leaflet map [#123](https://github.com/projectmesa/mesa-geo/pull/123)
+  - allow basemap tiles configuration [#127](https://github.com/projectmesa/mesa-geo/pull/127)
+
+- ***CI updates***
+  - add testing for python 3.11 [#122](https://github.com/projectmesa/mesa-geo/pull/122)
+  - ci: replace flake8 with ruff [#132](https://github.com/projectmesa/mesa-geo/pull/132)
+  - ci: update os, python versions, and dependabot configurations [#142](https://github.com/projectmesa/mesa-geo/pull/142)
+  - ci: pin ruff version to v0.0.254 [#144](https://github.com/projectmesa/mesa-geo/pull/144)
+
+### Fixes
+
+- fix WMSWebTile.to_dict() method [#140](https://github.com/projectmesa/mesa-geo/pull/140)
+
 ## 0.4.0 (2022-10-18)
 
 ### Improvements
