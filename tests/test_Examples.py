@@ -1,8 +1,9 @@
 import contextlib
 import importlib
-import os.path
+import os
 import sys
 import unittest
+from pathlib import Path
 
 
 def classcase(name):
@@ -16,17 +17,17 @@ class TestExamples(unittest.TestCase):
     details of each example's model.
     """
 
-    EXAMPLES = os.path.abspath(os.path.join(os.path.dirname(__file__), "../examples"))
+    EXAMPLES = (Path(__file__).parent / "../examples").resolve()
 
     @contextlib.contextmanager
     def active_example_dir(self, example):
         "save and restore sys.path and sys.modules"
         old_sys_path = sys.path[:]
         old_sys_modules = sys.modules.copy()
-        old_cwd = os.getcwd()
-        example_path = os.path.abspath(os.path.join(self.EXAMPLES, example))
+        old_cwd = Path.cwd()
+        example_path = self.EXAMPLES / example
         try:
-            sys.path.insert(0, example_path)
+            sys.path.insert(0, str(example_path))
             os.chdir(example_path)
             yield
         finally:
