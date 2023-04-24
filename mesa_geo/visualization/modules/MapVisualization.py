@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import dataclasses
-import os
 from dataclasses import dataclass
+from pathlib import Path
 
 import geopandas as gpd
 import xyzservices
@@ -45,7 +45,7 @@ class MapModule(VisualizationElement):
         "css/external/leaflet.css",
         "js/external/leaflet.js",
     ]
-    local_dir = os.path.dirname(__file__) + "/../templates"
+    local_dir = (Path(__file__).parent / "../templates").resolve()
 
     def __init__(
         self,
