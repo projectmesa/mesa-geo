@@ -41,25 +41,44 @@ def get_frontend_dep():
     )
 
 
+def make_hash(filepath):
+    with open(filepath, "rb") as f:
+        file_as_bytes = f.read()
+    file_hash = base64.b64encode(hashlib.sha512(file_as_bytes).digest())
+    return "sha512-" + file_hash.decode()
+
+
 def ensure_frontend_dep_single(
     url, external_dir_single, out_name=None, integrity_hash=None
 ):
-    def _hash(filepath):
-        with open(filepath, "rb") as f:
-            file_as_bytes = f.read()
-        file_hash = base64.b64encode(hashlib.sha512(file_as_bytes).digest())
-        return "sha512-" + file_hash.decode()
-
-    external_dir_single.mkdir(exist_ok=True)
+    external_dir_single.mkdir(parents=True, exist_ok=True)
     # Used for downloading e.g. Leaflet single file
     if out_name is None:
         out_name = url.split("/")[-1]
     dst_path = external_dir_single / out_name
-    if dst_path.is_file():
+    print(f"Checking for presence of {dst_path=} {dst_path.is_file()=}")
+
+    if not dst_path.is_file():
+        download_frontend_dep_single(url, dst_path, out_name, integrity_hash)
         return
+
+    if integrity_hash is None:
+        # File is present and assumed to be valid
+        print(f"{out_name} is present and assumed to be valid; not downloading")
+        return
+
+    if make_hash(dst_path) == integrity_hash:
+        # File is present and confirmed valid
+        print("{out_name} is present and confirmed valid; not downloading")
+        return
+
+    download_frontend_dep_single(url, dst_path, out_name, integrity_hash)
+
+
+def download_frontend_dep_single(url, dst_path, out_name, integrity_hash):
     print(f"Downloading the {out_name} dependency from the internet...")
     urllib.request.urlretrieve(url, out_name)
-    if integrity_hash and ((actual_hash := _hash(out_name)) != integrity_hash):
+    if integrity_hash and ((actual_hash := make_hash(out_name)) != integrity_hash):
         os.remove(out_name)
         raise ValueError(
             f"Integrity check failed for {out_name}. Expected {integrity_hash}, "
