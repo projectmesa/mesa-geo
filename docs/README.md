@@ -17,14 +17,6 @@ From the project root, install the dependencies for building the docs:
 pip install -e ".[docs]"
 ```
 
-### Create the markdown files from ipynb files
-
-1. Change to the appropriate directory (usually docs/tutorials)
-    * `cd tutorials`
-2. Create markdown files using nbconvert
-    * `jupyter nbconvert --to markdown *.ipynb`
-    * **Requires** [pandoc](http://pandoc.org/installing.html)
-
 ### Submit a pull request with updates
 
 1. Create branch (either via branching or fork of repo) -- try to use a descriptive name.

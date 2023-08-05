@@ -42,7 +42,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
-    "myst_parser",
+    "myst_nb",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -114,6 +114,8 @@ pygments_style = "sphinx"
 # If true, keep warnings as "system message" paragraphs in the built documents.
 # keep_warnings = False
 
+nb_execution_timeout = 60
+nb_execution_mode = "cache"
 
 # -- Options for HTML output ----------------------------------------------
 
