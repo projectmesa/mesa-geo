@@ -180,8 +180,8 @@ class GeoSpace(GeoBase):
         """
         yield from self._agent_layer.get_relation(agent, relation)
 
-    def get_intersecting_agents(self, agent, other_agents=None):
-        return self._agent_layer.get_intersecting_agents(agent, other_agents)
+    def get_intersecting_agents(self, agent):
+        return self._agent_layer.get_intersecting_agents(agent)
 
     def get_neighbors_within_distance(
         self, agent, distance, center=False, relation="intersects"
@@ -329,10 +329,13 @@ class _AgentLayer:
 
         possible_agents = self._get_rtree_intersections(agent.geometry)
         for other_agent in possible_agents:
-            if getattr(agent.geometry, relation)(other_agent.geometry):
+            if (
+                getattr(agent.geometry, relation)(other_agent.geometry)
+                and other_agent.unique_id != agent.unique_id
+            ):
                 yield other_agent
 
-    def get_intersecting_agents(self, agent, other_agents=None):
+    def get_intersecting_agents(self, agent):
         intersecting_agents = self.get_relation(agent, "intersects")
         return intersecting_agents
 
@@ -357,12 +360,16 @@ class _AgentLayer:
 
     def agents_at(self, pos):
         """
-        Return a list of agents at given pos.
+        Return a generator of agents at given pos.
         """
 
         if not isinstance(pos, Point):
             pos = Point(pos)
-        return self.get_relation(pos, "within")
+
+        possible_agents = self._get_rtree_intersections(pos)
+        for other_agent in possible_agents:
+            if pos.within(other_agent.geometry):
+                yield other_agent
 
     def distance(self, agent_a, agent_b):
         """

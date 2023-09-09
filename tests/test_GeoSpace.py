@@ -6,7 +6,7 @@ import warnings
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-from shapely.geometry import Point
+from shapely.geometry import Point, Polygon
 
 import mesa_geo as mg
 
@@ -21,6 +21,24 @@ class TestGeoSpace(unittest.TestCase):
             )
             for geometry in self.geometries
         ]
+        self.polygon_agent = mg.GeoAgent(
+            unique_id=uuid.uuid4().int,
+            model=None,
+            geometry=Polygon([(0, 0), (0, 2), (2, 2), (2, 0)]),
+            crs="epsg:3857",
+        )
+        self.touching_agent = mg.GeoAgent(
+            unique_id=uuid.uuid4().int,
+            model=None,
+            geometry=Polygon([(2, 0), (2, 2), (4, 2), (4, 0)]),
+            crs="epsg:3857",
+        )
+        self.disjoint_agent = mg.GeoAgent(
+            unique_id=uuid.uuid4().int,
+            model=None,
+            geometry=Polygon([(10, 10), (10, 12), (12, 12), (12, 10)]),
+            crs="epsg:3857",
+        )
         self.image_layer = mg.ImageLayer(
             values=np.random.uniform(low=0, high=255, size=(3, 500, 500)),
             crs="epsg:4326",
@@ -133,3 +151,117 @@ class TestGeoSpace(unittest.TestCase):
         self.assertEqual(
             self.geo_space.get_agents_as_GeoDataFrame().crs, agents_gdf.crs
         )
+
+    def test_get_relation_contains(self):
+        self.geo_space.add_agents(self.polygon_agent)
+        self.assertEqual(
+            list(self.geo_space.get_relation(self.polygon_agent, relation="contains")),
+            [],
+        )
+
+        self.geo_space.add_agents(self.agents)
+        agents_id = {agent.unique_id for agent in self.agents}
+        contained_agents_id = {
+            agent.unique_id
+            for agent in self.geo_space.get_relation(
+                self.polygon_agent, relation="contains"
+            )
+        }
+        self.assertEqual(contained_agents_id, agents_id)
+
+    def test_get_relation_within(self):
+        self.geo_space.add_agents(self.agents[0])
+        self.assertEqual(
+            list(self.geo_space.get_relation(self.agents[0], relation="within")), []
+        )
+        self.geo_space.add_agents(self.polygon_agent)
+        within_agent = list(
+            self.geo_space.get_relation(self.agents[0], relation="within")
+        )[0]
+        self.assertEqual(within_agent.unique_id, self.polygon_agent.unique_id)
+
+    def test_get_relation_touches(self):
+        self.geo_space.add_agents(self.polygon_agent)
+        self.assertEqual(
+            list(self.geo_space.get_relation(self.polygon_agent, relation="touches")),
+            [],
+        )
+        self.geo_space.add_agents(self.touching_agent)
+        self.assertEqual(
+            len(
+                list(
+                    self.geo_space.get_relation(self.polygon_agent, relation="touches")
+                )
+            ),
+            1,
+        )
+        self.assertEqual(
+            list(self.geo_space.get_relation(self.polygon_agent, relation="touches"))[
+                0
+            ].unique_id,
+            self.touching_agent.unique_id,
+        )
+
+    def test_get_relation_intersects(self):
+        self.geo_space.add_agents(self.polygon_agent)
+        self.assertEqual(
+            list(
+                self.geo_space.get_relation(self.polygon_agent, relation="intersects")
+            ),
+            [],
+        )
+
+        self.geo_space.add_agents(self.agents)
+        agents_id = {agent.unique_id for agent in self.agents}
+        intersecting_agents_id = {
+            agent.unique_id
+            for agent in self.geo_space.get_relation(
+                self.polygon_agent, relation="intersects"
+            )
+        }
+        self.assertEqual(intersecting_agents_id, agents_id)
+
+        # disjoint agent should not be returned since it is not intersecting
+        self.geo_space.add_agents(self.disjoint_agent)
+        intersecting_agents_id = {
+            agent.unique_id
+            for agent in self.geo_space.get_relation(
+                self.polygon_agent, relation="intersects"
+            )
+        }
+        self.assertEqual(intersecting_agents_id, agents_id)
+
+    def test_get_intersecting_agents(self):
+        self.geo_space.add_agents(self.polygon_agent)
+        self.assertEqual(
+            list(self.geo_space.get_intersecting_agents(self.polygon_agent)),
+            [],
+        )
+
+        self.geo_space.add_agents(self.agents)
+        agents_id = {agent.unique_id for agent in self.agents}
+        intersecting_agents_id = {
+            agent.unique_id
+            for agent in self.geo_space.get_intersecting_agents(self.polygon_agent)
+        }
+        self.assertEqual(intersecting_agents_id, agents_id)
+
+        # disjoint agent should not be returned since it is not intersecting
+        self.geo_space.add_agents(self.disjoint_agent)
+        intersecting_agents_id = {
+            agent.unique_id
+            for agent in self.geo_space.get_intersecting_agents(self.polygon_agent)
+        }
+        self.assertEqual(intersecting_agents_id, agents_id)
+
+    def test_agents_at(self):
+        self.geo_space.add_agents(self.agents)
+        self.assertEqual(
+            len(list(self.geo_space.agents_at(self.agents[0].geometry))),
+            len(self.agents),
+        )
+        agents_id = {agent.unique_id for agent in self.agents}
+        agents_id_found = {
+            agent.unique_id for agent in self.geo_space.agents_at((1, 1))
+        }
+        self.assertEqual(agents_id_found, agents_id)
