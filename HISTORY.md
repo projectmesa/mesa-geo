@@ -1,6 +1,27 @@
 Release History
 ---------------
 
+## 0.6.0 (2023-09-13)
+
+### Special Notes
+
+- update mesa dependency to v2.1
+
+### Improvements
+
+- use Pathlib [#149](https://github.com/projectmesa/mesa-geo/pull/149) (thanks @catherinedevlin for contributing)
+
+- ***Docs updates***
+  - docs: use pydata theme [#152](https://github.com/projectmesa/mesa-geo/pull/152)
+  - docs: use myst-nb to compile notebooks at build time [#159](https://github.com/projectmesa/mesa-geo/pull/159)
+
+- ***Example updates***
+  - remove examples and their tests [#163](https://github.com/projectmesa/mesa-geo/pull/163)
+
+### Fixes
+
+- fix AttributeError in GeoSpace.agents_at() [#165](https://github.com/projectmesa/mesa-geo/pull/165) (thanks @SongshGeo for reporting)
+
 ## 0.5.0 (2023-03-09)
 
 ### Improvements

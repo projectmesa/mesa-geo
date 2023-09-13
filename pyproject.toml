@@ -2,7 +2,7 @@
 requires = [
     "setuptools",
     "wheel",
-    "mesa~=1.1.0",
+    "mesa~=2.1.0",
 ]
 build-backend = "setuptools.build_meta"
 
