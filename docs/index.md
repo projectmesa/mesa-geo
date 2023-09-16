@@ -33,7 +33,7 @@ Since Mesa-Geo is in early development you could also install the latest version
 pip install -e git+https://github.com/projectmesa/mesa-geo.git#egg=mesa-geo
 ```
 
-Take a look at the [examples](https://github.com/projectmesa/mesa-geo/tree/main/examples) folder for sample models demonstrating Mesa-Geo features.
+Take a look at the [examples](https://github.com/projectmesa/mesa-examples/tree/main/gis) folder for sample models demonstrating Mesa-Geo features.
 
 For more help on using Mesa-Geo, check out the following resources:
 
