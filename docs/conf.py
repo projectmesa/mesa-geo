@@ -59,7 +59,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "Mesa-Geo"
-copyright = "2017-2022, Project Mesa-Geo Team"
+copyright = "2017-2023, Project Mesa-Geo Team"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
