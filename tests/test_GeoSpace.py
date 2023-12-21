@@ -265,3 +265,13 @@ class TestGeoSpace(unittest.TestCase):
             agent.unique_id for agent in self.geo_space.agents_at((1, 1))
         }
         self.assertEqual(agents_id_found, agents_id)
+
+    def test_get_neighbors(self):
+        self.geo_space.add_agents(self.polygon_agent)
+        self.assertEqual(len(self.geo_space.get_neighbors(self.polygon_agent)), 0)
+        self.geo_space.add_agents(self.touching_agent)
+        self.assertEqual(len(self.geo_space.get_neighbors(self.polygon_agent)), 1)
+        self.assertEqual(
+            self.geo_space.get_neighbors(self.polygon_agent)[0].unique_id,
+            self.touching_agent.unique_id,
+        )
