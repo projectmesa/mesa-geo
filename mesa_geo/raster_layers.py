@@ -694,4 +694,4 @@ class ImageLayer(RasterBase):
             return obj
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(crs={self.crs}, total_bounds={self.total_bounds}, values={repr(self.values)})"
+        return f"{self.__class__.__name__}(crs={self.crs}, total_bounds={self.total_bounds}, values={self.values!r})"

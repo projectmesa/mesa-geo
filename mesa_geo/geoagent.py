@@ -110,7 +110,9 @@ class AgentCreator:
 
         if agent_kwargs and "unique_id" in agent_kwargs:
             agent_kwargs.remove("unique_id")
-            warnings.warn("Unique_id should not be in the agent_kwargs")
+            warnings.warn(
+                "Unique_id should not be in the agent_kwargs", UserWarning, stacklevel=2
+            )
 
         self.agent_class = agent_class
         self.model = model
@@ -219,7 +221,10 @@ class AgentCreator:
         return agents
 
     def from_GeoJSON(
-        self, GeoJSON, unique_id="index", set_attributes=True  # noqa: N803
+        self,
+        GeoJSON,  # noqa: N803
+        unique_id="index",
+        set_attributes=True,
     ):
         """
         Create agents from a GeoJSON object or string. CRS is set to epsg:4326.
@@ -230,7 +235,7 @@ class AgentCreator:
         :param set_attributes: Set agent attributes from GeoDataFrame columns. Default True.
         """
 
-        gj = json.loads(GeoJSON) if type(GeoJSON) is str else GeoJSON
+        gj = json.loads(GeoJSON) if isinstance(GeoJSON, str) else GeoJSON
 
         gdf = gpd.GeoDataFrame.from_features(gj)
         # epsg:4326 is the CRS for all GeoJSON: https://datatracker.ietf.org/doc/html/rfc7946#section-4

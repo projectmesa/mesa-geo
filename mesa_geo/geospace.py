@@ -131,7 +131,9 @@ class GeoSpace(GeoBase):
                     f"Converting {layer.__class__.__name__} from crs {layer.crs.to_string()} "
                     f"to the crs of {self.__class__.__name__} - {self.crs.to_string()}. "
                     "Please check your crs settings if this is unintended, or set `GeoSpace.warn_crs_conversion` "
-                    "to `False` to suppress this warning message."
+                    "to `False` to suppress this warning message.",
+                    UserWarning,
+                    stacklevel=2,
                 )
             layer.to_crs(self.crs, inplace=True)
         self._total_bounds = None
@@ -145,7 +147,9 @@ class GeoSpace(GeoBase):
                         f"Converting {agent.__class__.__name__} from crs {agent.crs.to_string()} "
                         f"to the crs of {self.__class__.__name__} - {self.crs.to_string()}. "
                         "Please check your crs settings if this is unintended, or set `GeoSpace.warn_crs_conversion` "
-                        "to `False` to suppress this warning message."
+                        "to `False` to suppress this warning message.",
+                        UserWarning,
+                        stacklevel=2,
                     )
                 agent.to_crs(self.crs, inplace=True)
         else:
