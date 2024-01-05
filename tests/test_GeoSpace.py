@@ -88,7 +88,7 @@ class TestGeoSpace(unittest.TestCase):
 
     def test_remove_agent(self):
         self.geo_space.add_agents(self.agents)
-        agent_to_remove = random.choice(self.agents)
+        agent_to_remove = random.choice(self.agents)  # noqa: S311
         self.geo_space.remove_agent(agent_to_remove)
         remaining_agent_idx = {agent.unique_id for agent in self.geo_space.agents}
 
@@ -121,7 +121,7 @@ class TestGeoSpace(unittest.TestCase):
 
     def test_get_neighbors_within_distance(self):
         self.geo_space.add_agents(self.agents)
-        agent_to_check = random.choice(self.agents)
+        agent_to_check = random.choice(self.agents)  # noqa: S311
 
         neighbors = list(
             self.geo_space.get_neighbors_within_distance(
@@ -175,9 +175,9 @@ class TestGeoSpace(unittest.TestCase):
             list(self.geo_space.get_relation(self.agents[0], relation="within")), []
         )
         self.geo_space.add_agents(self.polygon_agent)
-        within_agent = list(
+        within_agent = next(
             self.geo_space.get_relation(self.agents[0], relation="within")
-        )[0]
+        )
         self.assertEqual(within_agent.unique_id, self.polygon_agent.unique_id)
 
     def test_get_relation_touches(self):
@@ -196,9 +196,9 @@ class TestGeoSpace(unittest.TestCase):
             1,
         )
         self.assertEqual(
-            list(self.geo_space.get_relation(self.polygon_agent, relation="touches"))[
-                0
-            ].unique_id,
+            next(
+                self.geo_space.get_relation(self.polygon_agent, relation="touches")
+            ).unique_id,
             self.touching_agent.unique_id,
         )
 
