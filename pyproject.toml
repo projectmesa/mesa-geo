@@ -2,7 +2,7 @@
 requires = [
     "setuptools",
     "wheel",
-    "mesa~=2.1.0",
+    "mesa~=2.2",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -54,5 +54,5 @@ extend-ignore = [
     "ISC001",  # ruff format asks to disable this feature
 ]
 extend-exclude = ["docs", "build"]
-# Hardcode to Python 3.8.
-target-version = "py38"
+# Hardcode to Python 3.9.
+target-version = "py39"

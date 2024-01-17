@@ -1,6 +1,32 @@
 Release History
 ---------------
 
+## 0.7.0 (2024-01-17)
+
+### Special Notes
+
+- Update Mesa dependency to v2.2
+- The pinning of Mesa is now on the major version, instead of the minor version. This means that Mesa-Geo v0.7.0 will work with Mesa v2.2, v2.3, v2.4, etc. but not with Mesa v3.0 or later.
+
+### 🛠 Enhancements made
+
+* create and update rtree spatial index only when needed by @wang-boyu in https://github.com/projectmesa/mesa-geo/pull/179
+
+### 🔧 Maintenance
+
+* fix link to examples by @wang-boyu in https://github.com/projectmesa/mesa-geo/pull/167
+* Correct link to GeoSchelling example and update copyright string by @Holzhauer in https://github.com/projectmesa/mesa-geo/pull/175
+* fix rtd build error and upgrade to python 3.9 by @wang-boyu in https://github.com/projectmesa/mesa-geo/pull/176
+* update pre-commit and ga workflows to be consistent with mesa by @wang-boyu in https://github.com/projectmesa/mesa-geo/pull/181
+* add config file to automatically generate release notes by @wang-boyu in https://github.com/projectmesa/mesa-geo/pull/184
+* update ga workflows to be consistent with mesa by @wang-boyu in https://github.com/projectmesa/mesa-geo/pull/185
+
+## New Contributors
+
+* @Holzhauer made their first contribution in https://github.com/projectmesa/mesa-geo/pull/175
+
+**Full Changelog**: https://github.com/projectmesa/mesa-geo/compare/v0.6.0...v0.7.0
+
 ## 0.6.0 (2023-09-13)
 
 ### Special Notes
