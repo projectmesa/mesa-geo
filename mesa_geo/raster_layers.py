@@ -9,14 +9,8 @@ import copy
 import itertools
 import math
 import uuid
-from typing import (
-    Any,
-    Iterable,
-    Iterator,
-    Sequence,
-    cast,
-    overload,
-)
+from collections.abc import Iterable, Iterator, Sequence
+from typing import Any, cast, overload
 
 import numpy as np
 import rasterio as rio
