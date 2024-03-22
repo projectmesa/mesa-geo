@@ -32,13 +32,19 @@ const MapModule = function (view, zoom, map_width, map_height, tiles, scale_opti
         }
     }
 
+    let mapLayers = []
     let hasFitBounds = false
     this.renderLayers = function (layers) {
+        mapLayers.forEach(layer => {layer.remove()})
+        mapLayers = []
+
         layers.rasters.forEach(function (layer) {
-            L.imageOverlay(layer, layers.total_bounds).addTo(Lmap)
+            const rasterLayer = L.imageOverlay(layer, layers.total_bounds).addTo(Lmap)
+            mapLayers.push(rasterLayer)
         })
         layers.vectors.forEach(function (layer) {
-            L.geoJSON(layer).addTo(Lmap)
+            const vectorLayer = L.geoJSON(layer).addTo(Lmap)
+            mapLayers.push(vectorLayer)
         })
         if (!hasFitBounds && !customView && layers.total_bounds.length !== 0) {
             Lmap.fitBounds(layers.total_bounds)
@@ -66,6 +72,8 @@ const MapModule = function (view, zoom, map_width, map_height, tiles, scale_opti
 
     this.reset = function () {
         agentLayer.remove()
+        mapLayers.forEach(layer => {layer.remove()})
+        mapLayers = []
     }
 }
 
