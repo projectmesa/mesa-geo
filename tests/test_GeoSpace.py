@@ -143,6 +143,10 @@ class TestGeoSpace(unittest.TestCase):
             for agent in self.agents
         ]
         agents_gdf = gpd.GeoDataFrame.from_records(agents_list, index="unique_id")
+        # workaround for geometry column not being set in `from_records`
+        # see https://github.com/geopandas/geopandas/issues/3152
+        # may be removed when the issue is resolved
+        agents_gdf.set_geometry("geometry", inplace=True)
         agents_gdf.crs = self.geo_space.crs
 
         pd.testing.assert_frame_equal(
