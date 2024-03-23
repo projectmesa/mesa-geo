@@ -458,5 +458,9 @@ class _AgentLayer:
                 }
                 agents_list.append(agent_dict)
         agents_gdf = gpd.GeoDataFrame.from_records(agents_list, index="unique_id")
+        # workaround for geometry column not being set in `from_records`
+        # see https://github.com/geopandas/geopandas/issues/3152
+        # may be removed when the issue is resolved
+        agents_gdf.set_geometry("geometry", inplace=True)
         agents_gdf.crs = crs
         return agents_gdf
