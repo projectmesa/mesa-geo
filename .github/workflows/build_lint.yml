@@ -12,6 +12,7 @@ on:
     paths-ignore:
       - '**.md'
       - '**.rst'
+  workflow_dispatch:
 
 jobs:
   build:
