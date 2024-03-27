@@ -1,6 +1,14 @@
 Release History
 ---------------
 
+## 0.7.1 (2024-03-27)
+
+### 🐛 Bugs fixed
+
+* fix: remove old map layers before rendering new layers by @wang-boyu in https://github.com/projectmesa/mesa-geo/pull/194 (thanks @rw73mg for reporting)
+
+**Full Changelog**: https://github.com/projectmesa/mesa-geo/compare/v0.7.0...v0.7.1
+
 ## 0.7.0 (2024-01-17)
 
 ### Special Notes
