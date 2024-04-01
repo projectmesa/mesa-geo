@@ -3,6 +3,7 @@
 Core Objects: GeoSpace, GeoAgent
 
 """
+
 import datetime
 
 from mesa_geo import visualization
