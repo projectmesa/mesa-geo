@@ -243,16 +243,15 @@ class RasterLayer(RasterBase):
         return self._attributes
 
     @overload
-    def __getitem__(self, index: int) -> list[Cell]:
-        ...
+    def __getitem__(self, index: int) -> list[Cell]: ...
 
     @overload
-    def __getitem__(self, index: tuple[int | slice, int | slice]) -> Cell | list[Cell]:
-        ...
+    def __getitem__(
+        self, index: tuple[int | slice, int | slice]
+    ) -> Cell | list[Cell]: ...
 
     @overload
-    def __getitem__(self, index: Sequence[Coordinate]) -> list[Cell]:
-        ...
+    def __getitem__(self, index: Sequence[Coordinate]) -> list[Cell]: ...
 
     def __getitem__(
         self, index: int | Sequence[Coordinate] | tuple[int | slice, int | slice]
