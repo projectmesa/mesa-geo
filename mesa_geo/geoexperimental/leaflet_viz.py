@@ -1,17 +1,61 @@
-from __future__ import annotations
+"""
+# ipyleaflet
+Map visualization using [ipyleaflet](https://ipyleaflet.readthedocs.io/), a ipywidgets wrapper for [leaflet.js](https://leafletjs.com/)
+"""
 
 import dataclasses
 from dataclasses import dataclass
 
 import geopandas as gpd
+import ipyleaflet
+import solara
 import xyzservices
-import xyzservices.providers as xyz
 from folium.utilities import image_to_url
-from mesa.visualization.ModularVisualization import VisualizationElement
 from shapely.geometry import Point, mapping
 
 from mesa_geo.raster_layers import RasterBase, RasterLayer
 from mesa_geo.tile_layers import LeafletOption, RasterWebTile
+
+
+@solara.component
+def map(model, map_drawer, zoom, center_default):
+    # render map in browser
+    zoom_map = solara.reactive(zoom)
+    center = solara.reactive(center_default)
+
+    base_map = map_drawer.tiles
+    layers = map_drawer.render(model)
+
+    ipyleaflet.Map.element(
+        zoom=zoom_map.value,
+        center=center.value,
+        scroll_wheel_zoom=True,
+        layers=[
+            ipyleaflet.TileLayer.element(url=base_map["url"]),
+            ipyleaflet.GeoJSON.element(data=layers["agents"]),
+        ],
+    )
+
+
+@solara.component
+def map_jupyter(model, map_drawer, zoom, center_default):
+    zoom_map = solara.reactive(zoom)
+    center = solara.reactive(center_default)
+
+    base_map = map_drawer.tiles
+    layers = map_drawer.render(model)
+
+    # prevents overlap of map with measures
+    with solara.Column(style={"isolation": "isolate"}):
+        ipyleaflet.Map.element(
+            zoom=zoom_map.value,
+            center=center.value,
+            scroll_wheel_zoom=True,
+            layers=[
+                ipyleaflet.TileLayer.element(url=base_map["url"]),
+                ipyleaflet.GeoJSON.element(data=layers["agents"]),
+            ],
+        )
 
 
 @dataclass
@@ -27,7 +71,7 @@ class LeafletPortrayal:
     popupProperties: dict[str, LeafletOption] | None = None  # noqa: N815
 
 
-class MapModule(VisualizationElement):
+class MapModule:
     """A MapModule for Leaflet maps that uses a user-defined portrayal method
     to generate a portrayal of a raster Cell or a GeoAgent.
 
@@ -39,24 +83,12 @@ class MapModule(VisualizationElement):
         - In addition, the portrayal dictionary can contain a "description" key, which will be used as the popup text.
     """
 
-    """
-    local_includes = [
-        "js/MapModule.js",
-        "css/external/leaflet.css",
-        "js/external/leaflet.js",
-    ]
-    local_dir = (Path(__file__).parent / "../templates").resolve()
-    """
-
     def __init__(
         self,
-        portrayal_method=None,
-        view=None,
-        zoom=None,
-        map_width=500,
-        map_height=500,
-        tiles=xyz.OpenStreetMap.Mapnik,
-        scale_options=None,
+        portrayal_method,
+        view,
+        zoom,
+        tiles,
     ):
         """
         Create a new MapModule.
@@ -113,16 +145,8 @@ class MapModule(VisualizationElement):
         self._crs = "epsg:4326"
 
         if isinstance(tiles, xyzservices.TileProvider):
-            tiles = RasterWebTile.from_xyzservices(tiles)
-        tiles_js = tiles.to_dict() if tiles is not None else None
-        new_element = f"new MapModule({view}, {zoom}, {map_width}, {map_height}, {tiles_js}, {scale_options})"
-        self.js_code = f"elements.push({new_element});"
-        for py_str, js_str in {
-            "None": "null",
-            "True": "true",
-            "False": "false",
-        }.items():
-            self.js_code = self.js_code.replace(py_str, js_str)
+            tiles = RasterWebTile.from_xyzservices(tiles).to_dict()
+        self.tiles = tiles
 
     def render(self, model):
         return {
