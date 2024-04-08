@@ -147,7 +147,7 @@ def JupyterViz(
         # Builds Solara component of map
         leaflet_viz.map_jupyter(model, map_drawer, zoom, center_default)
 
-        # Place measurement in seperate row
+        # Place measurement in separate row
         with solara.Row(
             justify="space-between",
             style={"flex-grow": "1"},

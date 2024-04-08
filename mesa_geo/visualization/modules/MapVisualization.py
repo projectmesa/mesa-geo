@@ -39,15 +39,6 @@ class MapModule(VisualizationElement):
         - In addition, the portrayal dictionary can contain a "description" key, which will be used as the popup text.
     """
 
-    """
-    local_includes = [
-        "js/MapModule.js",
-        "css/external/leaflet.css",
-        "js/external/leaflet.js",
-    ]
-    local_dir = (Path(__file__).parent / "../templates").resolve()
-    """
-
     def __init__(
         self,
         portrayal_method=None,
