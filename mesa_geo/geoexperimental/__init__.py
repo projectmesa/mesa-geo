@@ -1,4 +1,5 @@
-from .jupyter_viz import JupyterViz, make_text, Slider  # noqa
+from .geojupyter_viz import GeoJupyterViz  # noqa
+# from mesa.experimental.jupyter_viz import make_text, Slider
 
 
-__all__ = ["JupyterViz", "make_text", "Slider"]
+__all__ = ["GeoJupyterViz"]  # , "make_text", "Slider"]
