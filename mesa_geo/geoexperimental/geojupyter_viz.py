@@ -135,6 +135,7 @@ def GeoJupyterViz(
     def render_in_jupyter():
         # TODO: Build API to allow users to set rows and columns
         # call in property of model layers geospace line; use 1 column to prevent map overlap
+
         with solara.Row(
             justify="space-between", style={"flex-grow": "1"}
         ) and solara.GridFixed(columns=2):
