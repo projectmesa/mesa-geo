@@ -2,9 +2,74 @@
 requires = [
     "setuptools",
     "wheel",
-    "mesa~=2.2",
 ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "Mesa-Geo"
+description = "GIS extension for the Mesa agent-based modeling framework in Python"
+readme = "README.md"
+license = { text = "Apache 2.0" }
+authors = [{name = "Project Mesa-Geo Team"}]
+keywords = ["agent-based modeling", "geographic information system", "python", "complex system"]
+classifiers = [
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Life",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3 :: Only",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha",
+    "Natural Language :: English",
+]
+urls = {
+    "Homepage" = "https://github.com/projectmesa/mesa-geo",
+    "Documentation" = "https://mesa-geo.readthedocs.io/en/main",
+    "CI" = "https://github.com/projectmesa/mesa-geo/actions",
+    "GitHub Issues" = "https://github.com/projectmesa/mesa-geo/issues",
+    "GitHub Repository" = "https://github.com/projectmesa/mesa-geo",
+}
+dynamic = ["version"]
+
+[project.dependencies]
+requires = [
+    "mesa~=2.2.0",
+    "geopandas",
+    "libpysal",
+    "rtree",
+    "rasterio",
+    "shapely",
+    "numpy",
+    "pyproj",
+    "folium",
+    "xyzservices>=2022.9.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "coverage",
+    "pytest",
+    "pytest-cov",
+    "ruff==0.0.254"
+]
+docs = [
+    "sphinx",
+    "sphinx_rtd_theme",
+    "pydata_sphinx_theme",
+    "myst-nb"
+]
+
+[project.data-files]
+mesa_geo = [
+    "visualization/templates/*.html",
+    "visualization/templates/css/*",
+    "visualization/templates/css/external/*",
+    "visualization/templates/js/*",
+    "visualization/templates/js/external/*",
+    "visualization/templates/external/**/**/*",
+]
 
 [tool.ruff]
 select = [
