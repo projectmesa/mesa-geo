@@ -59,7 +59,7 @@ def map_jupyter(model, map_drawer, zoom, center_default):
 
 
 @dataclass
-class LeafletPortrayal:
+class LeafletViz:
     """A dataclass defining the portrayal of a GeoAgent in Leaflet map.
 
     The fields are defined to be consistent with GeoJSON options in
@@ -192,7 +192,7 @@ class MapModule:
             agent_portrayal = {}
             if self.portrayal_method:
                 properties = self.portrayal_method(agent)
-                agent_portrayal = LeafletPortrayal(
+                agent_portrayal = LeafletViz(
                     popupProperties=properties.pop("description", None)
                 )
                 if isinstance(agent.geometry, Point):

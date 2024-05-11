@@ -7,7 +7,6 @@ import geopandas as gpd
 import xyzservices
 import xyzservices.providers as xyz
 from folium.utilities import image_to_url
-from mesa.visualization.ModularVisualization import VisualizationElement
 from shapely.geometry import Point, mapping
 
 from mesa_geo.raster_layers import RasterBase, RasterLayer
@@ -27,7 +26,7 @@ class LeafletPortrayal:
     popupProperties: dict[str, LeafletOption] | None = None  # noqa: N815
 
 
-class MapModule(VisualizationElement):
+class MapModule:
     """A MapModule for Leaflet maps that uses a user-defined portrayal method
     to generate a portrayal of a raster Cell or a GeoAgent.
 

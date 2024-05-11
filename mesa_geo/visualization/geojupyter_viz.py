@@ -1,13 +1,13 @@
 import sys
 
 import matplotlib.pyplot as plt
-import mesa.experimental.components.matplotlib as components_matplotlib
+import mesa.visualization.components.matplotlib as components_matplotlib
 import solara
 import xyzservices.providers as xyz
-from mesa.experimental import jupyter_viz as jv
+from mesa.visualization import jupyter_viz as jv
 from solara.alias import rv
 
-import mesa_geo.geoexperimental.leaflet_viz as leaflet_viz
+import mesa_geo.visualization.leaflet_viz as leaflet_viz
 
 # TODO FIX for MESA GEO
 
