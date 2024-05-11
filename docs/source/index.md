@@ -33,13 +33,13 @@ Since Mesa-Geo is in early development you could also install the latest version
 pip install -e git+https://github.com/projectmesa/mesa-geo.git#egg=mesa-geo
 ```
 
-Take a look at the [examples](https://github.com/projectmesa/mesa-examples/tree/main/gis) folder for sample models demonstrating Mesa-Geo features.
-
 For more help on using Mesa-Geo, check out the following resources:
 
-- [Introductory Tutorial](http://mesa-geo.readthedocs.org/en/main/tutorials/intro_tutorial.html)
-- [Docs](http://mesa-geo.readthedocs.org/en/main/)
-- [Mesa-Geo Discussions](https://github.com/projectmesa/mesa-geo/discussions)
+- [Introductory Tutorial](tutorials/overview.md)
+- [Examples](examples/overview.md)
+- [API Documentation](apis/api_main.md)
+- [Discussions](https://github.com/projectmesa/mesa/discussions)
+- [Issues](https://github.com/projectmesa/mesa-geo/issues)
 - [PyPI](https://pypi.org/project/mesa-geo/)
 
 ## Contributing to Mesa-Geo
@@ -67,10 +67,12 @@ To cite Mesa-Geo in your publication, you can use the [CITATION.bib](https://git
 maxdepth: 2
 hidden: true
 ---
+
 Introduction <self>
-Tutorial <tutorials/intro_tutorial>
-examples/overview
-API Documentation <apis/api_main>
+Introductory Tutorial <tutorials/overview.md>
+Examples <examples/overview.md>
+API Documentation <apis/api_main.md>
+
 ```
 
 ## Indices and tables

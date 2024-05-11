@@ -208,6 +208,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
+docs/build
 develop-eggs/
 dist/
 downloads/
@@ -329,3 +330,8 @@ pip-log.txt
 mesa_geo/visualization/templates/css/*
 mesa_geo/visualization/templates/js/*
 !mesa_geo/visualization/templates/js/MapModule.js
+
+# Jupyter Lite files
+.jupyterlite.doit.db
+*.jupyterlite.doit.db
+.virtual_documents
