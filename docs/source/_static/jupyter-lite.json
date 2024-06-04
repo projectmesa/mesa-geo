@@ -1,0 +1,7 @@
+{
+    "jupyterConfigData": {
+        "litePlugins": [
+            "@jupyterlite/xeus-python-kernel"
+        ]
+    }
+}
