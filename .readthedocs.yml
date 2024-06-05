@@ -4,6 +4,9 @@
 # Required
 version: 2
 
+conda:
+  file: environment.yml
+
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
   configuration: docs/source/conf.py
