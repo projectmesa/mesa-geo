@@ -160,12 +160,12 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 #intersphinx_mapping = {"http://docs.python.org/": None}
 
+'''
 def setup(app):
-    app.add_js_file('open_new_tab.js')
-
-    kernel_name = 'mesageodev'
-    display_name = 'Python (Mesa Geo)'
+    kernel_name = 'python3'
+    display_name = 'Python'
     subprocess.run([
         'python', '-m', 'ipykernel', 'install', '--user',
         '--name', kernel_name, '--display-name', display_name
     ])
+'''
