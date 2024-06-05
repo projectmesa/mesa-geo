@@ -17,9 +17,17 @@ formats:
 build:
   os: "ubuntu-22.04"
   tools:
-    python: "mambaforge-22.9"
+    python: "3.10"
 
 # Optionally set the version of Python and requirements required to build your docs
+
+python:
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs
+
 conda:
   file: environment.yml
 
