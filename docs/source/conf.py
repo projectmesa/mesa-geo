@@ -79,6 +79,9 @@ html_theme = "alabaster"
 # -- Options for JupyterLite ----------------------------------------------
 jupyterlite_contents = ["source/tutorials/intro_tutorial.ipynb"]
 
+jupyterlite_build_command_options = {
+    "XeusAddon.environment_file": "environment.yml",
+    }
 
 
 latex_elements = {
