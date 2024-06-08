@@ -1,9 +1,7 @@
 name: mesa_geo
-channels:
   - conda-forge
 dependencies:
   - python=3.10
-  - jupyterlite_sphinx
   - xeus-python
   - geopandas
   - numpy
@@ -20,6 +18,7 @@ dependencies:
   - pip>=20.1
   - pip:
       - mesa~=2.3.0
+      - jupyterlite_sphinx
       - xyzservices>=2022.9.0
       - jupyter_bridge
 

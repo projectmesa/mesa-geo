@@ -61,11 +61,16 @@ docs = [
     "jupyterlite-xeus>=0.1.8,<0.2.0",
 ]
 
+[tool.hatch.build.targets.sdist]
+include = [
+    "/mesa_geo",
+]
+
 [tool.hatch.envs.docs]
 features = ["docs"]
 [tool.hatch.envs.docs.scripts]
-build = "sphinx-build -b html docs/source docs/build/html"
-serve = "python -m http.server --directory docs/build/html"
+build = "sphinx-build -M html docs/dource/ docs/build/"
+serve = "python -m http.server --directory docs/build/"
 #extend-exclude = ["docs", "build"]
 
 # Hardcode to Python 3.10.
