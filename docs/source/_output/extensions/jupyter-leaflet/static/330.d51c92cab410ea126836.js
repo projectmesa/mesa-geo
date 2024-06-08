@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkjupyter_leaflet=self.webpackChunkjupyter_leaflet||[]).push([[330],{8330:e=>{e.exports={version:"0.19.1"}}}]);
