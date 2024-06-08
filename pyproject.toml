@@ -54,6 +54,9 @@ extend-ignore = [
     "ISC001",  # ruff format asks to disable this feature
 ]
 
+#ruff ignores build and docs
+extend-exclude = ["docs", "build"]
+
 [project.optional-dependencies]
 docs = [
     "myst_parser",
@@ -71,7 +74,8 @@ features = ["docs"]
 [tool.hatch.envs.docs.scripts]
 build = "sphinx-build -M html docs/dource/ docs/build/"
 serve = "python -m http.server --directory docs/build/"
-#extend-exclude = ["docs", "build"]
+
+
 
 # Hardcode to Python 3.10.
 target-version = "py310"

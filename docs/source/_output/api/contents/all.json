@@ -1,0 +1,57 @@
+{
+  "content": [
+    {
+      "content": null,
+      "created": "2024-06-08T20:05:21.613117Z",
+      "format": null,
+      "hash": null,
+      "hash_algorithm": null,
+      "last_modified": "2024-06-08T20:05:21.613117Z",
+      "mimetype": null,
+      "name": "data",
+      "path": "data",
+      "size": null,
+      "type": "directory",
+      "writable": true
+    },
+    {
+      "content": null,
+      "created": "2024-06-08T20:05:21.660358Z",
+      "format": null,
+      "hash": null,
+      "hash_algorithm": null,
+      "last_modified": "2024-06-05T11:08:14.341755Z",
+      "mimetype": null,
+      "name": "intro_tutorial.ipynb",
+      "path": "intro_tutorial.ipynb",
+      "size": 16806,
+      "type": "notebook",
+      "writable": true
+    },
+    {
+      "content": null,
+      "created": "2024-06-08T20:05:21.660358Z",
+      "format": null,
+      "hash": null,
+      "hash_algorithm": null,
+      "last_modified": "2024-06-04T23:37:27.794057Z",
+      "mimetype": "text/markdown",
+      "name": "overview.md",
+      "path": "overview.md",
+      "size": 1318,
+      "type": "file",
+      "writable": true
+    }
+  ],
+  "created": "2024-06-08T20:05:21.613117Z",
+  "format": "json",
+  "hash": null,
+  "hash_algorithm": null,
+  "last_modified": "2024-06-08T20:05:21.660358Z",
+  "mimetype": null,
+  "name": "",
+  "path": "",
+  "size": null,
+  "type": "directory",
+  "writable": true
+}

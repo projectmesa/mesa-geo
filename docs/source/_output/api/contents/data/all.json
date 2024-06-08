@@ -1,0 +1,29 @@
+{
+  "content": [
+    {
+      "content": null,
+      "created": "2024-06-08T20:05:21.613117Z",
+      "format": null,
+      "hash": null,
+      "hash_algorithm": null,
+      "last_modified": "2024-05-27T12:03:04.558105Z",
+      "mimetype": null,
+      "name": "nuts_rg_60M_2013_lvl_2.geojson",
+      "path": "data/nuts_rg_60M_2013_lvl_2.geojson",
+      "size": 327461,
+      "type": "file",
+      "writable": true
+    }
+  ],
+  "created": "2024-06-08T20:05:21.613117Z",
+  "format": "json",
+  "hash": null,
+  "hash_algorithm": null,
+  "last_modified": "2024-06-08T20:05:21.613117Z",
+  "mimetype": null,
+  "name": "data",
+  "path": "data",
+  "size": null,
+  "type": "directory",
+  "writable": true
+}
