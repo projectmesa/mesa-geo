@@ -1,0 +1,25 @@
+name: mesa_geo
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - jupyterlite_sphinx
+  - xeus-python
+  - geopandas
+  - numpy
+  - sphinx
+  - sphinx_rtd_theme
+  - myst-nb
+  - libpysal
+  - rtree
+  - rasterio
+  - shapely
+  - pyproj
+  - folium
+  - ipyleaflet
+  - pip>=20.1
+  - pip:
+      - mesa~=2.3.0
+      - xyzservices>=2022.9.0
+      - jupyter_bridge
+
