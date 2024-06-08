@@ -9,19 +9,15 @@ build:
   tools:
     python: "3.10"
 
-# Build documentation in the docs/ directory with Sphinx
-sphinx:
-  configuration: docs/source/conf.py
-  fail_on_warning: false
-
 python:
   install:
     - method: pip
       path: .
-      extra_requirements:
-        - docs
 
 conda:
   environment: docs/source/environment.yml
 
-
+# Build documentation in the docs/ directory with Sphinx
+sphinx:
+  configuration: docs/source/conf.py
+  fail_on_warning: false

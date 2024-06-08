@@ -54,8 +54,19 @@ extend-ignore = [
     "ISC001",  # ruff format asks to disable this feature
 ]
 
+[project.optional-dependencies]
+docs = [
+    "myst_parser",
+    "pydata-sphinx-theme",
+    "jupyterlite-xeus>=0.1.8,<0.2.0",
+]
 
-extend-exclude = ["docs", "build"]
+[tool.hatch.envs.docs]
+features = ["docs"]
+[tool.hatch.envs.docs.scripts]
+build = "sphinx-build -b html docs/source docs/build/html"
+serve = "python -m http.server --directory docs/build/html"
+#extend-exclude = ["docs", "build"]
 
 # Hardcode to Python 3.10.
 target-version = "py310"
