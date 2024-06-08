@@ -1,10 +1,7 @@
 [build-system]
-requires = [
-    "setuptools",
-    "wheel",
-    "mesa~=2.3",
-]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+#build-backend = "setuptools.build_meta"
 
 [tool.ruff]
 select = [
@@ -60,19 +57,14 @@ extend-exclude = ["docs", "build"]
 [project.optional-dependencies]
 docs = [
     "myst_parser",
-    "pydata-sphinx-theme",
     "jupyterlite-xeus>=0.1.8,<0.2.0",
 ]
 
-[tool.hatch.build.targets.sdist]
-include = [
-    "/mesa_geo",
-]
 
 [tool.hatch.envs.docs]
 features = ["docs"]
 [tool.hatch.envs.docs.scripts]
-build = "sphinx-build -M html docs/dource/ docs/build/"
+build = "sphinx-build -M html docs/source/ docs/build/"
 serve = "python -m http.server --directory docs/build/"
 
 
