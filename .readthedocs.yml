@@ -16,12 +16,12 @@ sphinx:
 
 python:
   install:
-    - method: pip
+    - method: setuptools
       path: .
       extra_requirements:
         - docs
 
 conda:
-  file: ./environment.yml
+  file: docs/source/environment.yml
 
 
