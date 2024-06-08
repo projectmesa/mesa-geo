@@ -2,7 +2,7 @@
 requires = [
     "setuptools",
     "wheel",
-    "mesa~=2.2",
+    "mesa~=2.3",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -53,6 +53,22 @@ extend-ignore = [
     "S603",  # `subprocess` call: check for execution of untrusted input
     "ISC001",  # ruff format asks to disable this feature
 ]
-extend-exclude = ["docs", "build"]
-# Hardcode to Python 3.9.
-target-version = "py39"
+
+[project.optional-dependencies]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+    "myst_parser",
+    "jupyterlite-xeus>=0.1.8,<0.2.0"
+
+]
+
+[tool.hatch.envs.docs]
+features = ["docs"]
+[tool.hatch.envs.docs.scripts]
+build = "sphinx-build docs/source docs/build"
+serve = "python -m http.server --directory docs/build"
+#extend-exclude = ["docs", "build"]
+
+# Hardcode to Python 3.10.
+target-version = "py310"
