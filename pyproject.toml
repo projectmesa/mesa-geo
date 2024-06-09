@@ -1,7 +1,10 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-#build-backend = "setuptools.build_meta"
+requires = [
+    "setuptools",
+    "wheel",
+    "mesa~=2.3",
+]
+build-backend = "setuptools.build_meta"
 
 [tool.ruff]
 select = [
@@ -61,9 +64,9 @@ docs = [
 ]
 
 
-[tool.hatch.envs.docs]
+[tool.setuptools.envs.docs]
 features = ["docs"]
-[tool.hatch.envs.docs.scripts]
+[tool.setup.envs.docs.scripts]
 build = "sphinx-build -M html docs/source/ docs/build/"
 serve = "python -m http.server --directory docs/build/"
 
