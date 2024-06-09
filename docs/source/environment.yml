@@ -3,12 +3,10 @@ name: mesa_geo
   - defaults
 dependencies:
   - python=3.10
-  - xeus-python
   - geopandas
   - numpy
   - sphinx
   - sphinx_rtd_theme
-  - myst-nb
   - libpysal
   - rtree
   - rasterio
@@ -19,6 +17,8 @@ dependencies:
   - pip>=20.1
   - pip:
       - mesa~=2.3.0
+      - xeus-python
+      - myst-nb
       - jupyterlite_sphinx
       - xyzservices>=2022.9.0
       - jupyter_bridge
