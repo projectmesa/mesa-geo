@@ -7,17 +7,7 @@ version: 2
 build:
   os: "ubuntu-22.04"
   tools:
-    python: "3.10"
-  jobs:
-    #build an environment
-    pre_build:
-      - "export CUSTOM_ENV_DIR= /docs/build/"
-      - "mkdir -p $CUSTOM_ENV_DIR"
-      - "conda env create -p $CUSTOM_ENV_DIR -f docs/source/environment.yml"
-      - "export READTHEDOCS_VIRTUALENV_PATH=$CUSTOM_ENV_DIR"
-    post_build:
-      # Run the build commands within the specified environment
-      - "conda run -p $READTHEDOCS_VIRTUALENV_PATH sphinx-build -M html docs/source/ docs/build/"
+    python: "miniconda3-4.7"
 
 python:
   install:
