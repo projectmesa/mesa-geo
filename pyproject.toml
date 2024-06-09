@@ -73,14 +73,5 @@ docs = [
     "jupyterlite-xeus>=0.1.8,<0.2.0",
 ]
 
-
-[tool.envs.docs]
-features = ["docs"]
-[tool.envs.docs.scripts]
-build = "sphinx-build -M html docs/source/ docs/build/"
-serve = "python -m http.server --directory docs/build/"
-
-
-
 # Hardcode to Python 3.10.
 target-version = "py310"
