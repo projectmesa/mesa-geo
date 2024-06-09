@@ -10,7 +10,7 @@ build:
     python: "3.10"
   jobs:
     #build an environment
-    pre-build:
+    pre_build:
       - "export CUSTOM_ENV_DIR= /docs/build/"
       - "mkdir -p $CUSTOM_ENV_DIR"
       - "conda env create -p $CUSTOM_ENV_DIR -f docs/source/environment.yml"
