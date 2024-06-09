@@ -74,9 +74,9 @@ docs = [
 ]
 
 
-[tool.setuptools.envs.docs]
+[tool.envs.docs]
 features = ["docs"]
-[tool.setuptools.envs.docs.scripts]
+[tool.envs.docs.scripts]
 build = "sphinx-build -M html docs/source/ docs/build/"
 serve = "python -m http.server --directory docs/build/"
 
