@@ -67,11 +67,5 @@ extend-ignore = [
 #ruff ignores build and docs
 extend-exclude = ["docs", "build"]
 
-[project.optional-dependencies]
-docs = [
-    "myst_parser",
-    "jupyterlite-xeus>=0.1.8,<0.2.0",
-]
-
 # Hardcode to Python 3.10.
 target-version = "py310"
