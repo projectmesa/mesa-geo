@@ -6,6 +6,16 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "mesa_geo"
+version = "1.0"
+description = "ABMs Mesa-Geo"
+authors = [
+    { name="Mesa_Geo", email="coolabms@decisionadvantage.ai" }
+]
+license = { text="MIT" }
+readme = "README.md"
+
 [tool.ruff]
 select = [
     # "ANN", # annotations TODO
@@ -66,7 +76,7 @@ docs = [
 
 [tool.setuptools.envs.docs]
 features = ["docs"]
-[tool.setup.envs.docs.scripts]
+[tool.setuptools.envs.docs.scripts]
 build = "sphinx-build -M html docs/source/ docs/build/"
 serve = "python -m http.server --directory docs/build/"
 
