@@ -43,7 +43,7 @@ extensions = [
 templates_path = ["_templates"]
 
 # The suffix of source filenames.
-source_suffix = [".rst", ".md", ".ipynb"]
+source_suffix = [".md", ".ipynb"]
 
 # The master toctree document.
 master_doc = "index"
