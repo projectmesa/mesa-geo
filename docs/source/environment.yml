@@ -17,8 +17,6 @@ dependencies:
   - pip>=20.1
   - pip:
       - mesa~=2.3.0
-      - xeus-python
-      - myst-nb
       - jupyterlite_sphinx
       - xyzservices>=2022.9.0
       - jupyter_bridge
