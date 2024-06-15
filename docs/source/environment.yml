@@ -3,6 +3,7 @@ name: mesa_geo
   - conda-forge
 dependencies:
   - python==3.10
+  - jupyterlite-xeus-python
   - pip>=20.1
   - pip:
       - mesa~=2.3.0
@@ -11,4 +12,3 @@ dependencies:
       - jupyterlite_sphinx==0.15.0
       - myst_nb==1.1.0
       - geopandas==0.14.4
-      - xeus-python==0.15.12
