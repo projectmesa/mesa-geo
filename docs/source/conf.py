@@ -83,6 +83,8 @@ jupyterlite_build_command_options = {
     "XeusAddon.environment_file": "environment.yml",
     }
 
+jupyterlite_bind_ipynb_suffix = False
+
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #'papersize': 'letterpaper',
