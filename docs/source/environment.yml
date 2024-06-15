@@ -10,7 +10,5 @@ dependencies:
       - jupyter_bridge==0.3.5
       - jupyterlite_sphinx==0.15.0
       - myst_nb==1.1.0
-      - myst_parser==3.0.1
       - geopandas==0.14.4
-      - ipyleaflet==0.19.1
       - xeus-python==0.15.12
