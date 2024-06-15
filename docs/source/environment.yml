@@ -3,7 +3,6 @@ name: mesa_geo
   - conda-forge
 dependencies:
   - python==3.10
-  - xeus-python
   - pip>=20.1
   - pip:
       - mesa~=2.3.0
@@ -14,3 +13,4 @@ dependencies:
       - myst_parser==3.0.1
       - geopandas==0.14.4
       - ipyleaflet==0.19.1
+      - xeus-python==1.0.0
