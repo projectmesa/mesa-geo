@@ -1,8 +1,9 @@
 name: mesa_geo
+  - https://repo.mamba.pm/emscripten-forge
   - conda-forge
-  - defaults
 dependencies:
   - python==3.10
+  - xeus-python
   - pip>=20.1
   - pip:
       - mesa~=2.3.0

@@ -83,10 +83,6 @@ jupyterlite_build_command_options = {
     "XeusAddon.environment_file": "environment.yml",
     }
 
-# Configuration for nbsphinx
-nbsphinx_allow_errors = True
-nbsphinx_execute = 'never'
-
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #'papersize': 'letterpaper',
