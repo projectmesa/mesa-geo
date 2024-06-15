@@ -37,7 +37,9 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
-    "myst_nb"
+    "jupyterlite_sphinx",
+    "myst_nb",
+
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -81,6 +83,9 @@ jupyterlite_build_command_options = {
     "XeusAddon.environment_file": "environment.yml",
     }
 
+# Configuration for nbsphinx
+nbsphinx_allow_errors = True
+nbsphinx_execute = 'never'
 
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
