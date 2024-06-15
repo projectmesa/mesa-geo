@@ -36,14 +36,15 @@ extensions = [
     "sphinx.ext.coverage",
     "sphinx.ext.mathjax",
     "sphinx.ext.ifconfig",
-    "sphinx.ext.viewcode"
+    "sphinx.ext.viewcode",
+    "myst_nb"
 ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
 # The suffix of source filenames.
-source_suffix = [".md", ".ipynb"]
+source_suffix = [".md",".rst", ".ipynb"]
 
 # The master toctree document.
 master_doc = "index"
