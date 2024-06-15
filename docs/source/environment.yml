@@ -13,4 +13,4 @@ dependencies:
       - myst_parser==3.0.1
       - geopandas==0.14.4
       - ipyleaflet==0.19.1
-      - xeus-python==1.0.0
+      - xeus-python==0.15.12
