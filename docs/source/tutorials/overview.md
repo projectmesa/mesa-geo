@@ -25,13 +25,10 @@ clicking the book icon.
    :height: 600px
    :prompt: Do The Geo-Schelling Tutorial!
    :prompt_color: #00aa42
-```
-
-```
+`
 .. jupyterlite:: intro_tutorial.ipynb
     :new_tab: True
     :prompt: Open in a new tab!
-
 ```
 
 ```{toctree}
