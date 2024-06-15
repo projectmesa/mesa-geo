@@ -10,4 +10,6 @@ dependencies:
       - jupyterlite_sphinx==0.15.0
       - myst_nb==1.1.0
       - geopandas==0.14.4
+      - jupyterlite==0.3.0
+      - jupyterlite_sphinx==0.15.0
       - jupyterlite-xeus-python==1.0.0
