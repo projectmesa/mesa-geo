@@ -10,6 +10,5 @@ dependencies:
       - jupyterlite_sphinx~=0.15.0
       - geopandas==0.14.4
       - myst_nb>1 #required for build
-      - xeus-python
-      - jupyterlite-xeus-python>0.9 #provides kernel???
+      - jupyterlite-xeus>0.9 #provides kernel???
 
