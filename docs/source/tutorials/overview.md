@@ -10,7 +10,7 @@ preference similar to the Schelling Model.
 
 Users can use Google Colab or Jupyter Lite to use this tutorial.
 
-[![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/tpike3/mesa-geo/blob/newsphinx/docs/source/tutorials/intro_tutorial_colab.ipynb)
+[![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/tpike3/mesa-geo/blob/newsphinx/docs/source/tutorials/intro_tutorial.ipynb)
 
 This tutorial uses JupyterLite to allow users to immediately access and adjust
 code.
