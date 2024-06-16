@@ -9,4 +9,5 @@ dependencies:
       - jupyter_bridge==0.3.5
       - jupyterlite_sphinx~=0.15.0
       - geopandas==0.14.4
+      - myst_nb>1
 
