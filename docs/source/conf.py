@@ -30,7 +30,6 @@ sys.path.insert(0, os.path.abspath('.'))
 # ones.
 extensions = [
     "myst_nb",
-    "jupyterlite_sphinx",
     "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
@@ -39,6 +38,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
+    "jupyterlite_sphinx"
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -77,6 +77,7 @@ html_theme = "alabaster"
 
 # -- Options for JupyterLite ----------------------------------------------
 jupyterlite_contents = ["tutorials/intro_tutorial.ipynb"]
+jupyterlite_bind_ipynb_suffix = False
 
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
