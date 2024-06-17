@@ -19,6 +19,25 @@ def get_version_from_package() -> str:
     return version
 
 
+class CustomBuildDocsCommand(build_py):
+    """Custom command to build Sphinx documentation."""
+
+    def run(self):
+        build_py.subprocess.check_call(
+            ["sphinx-build", "-W", "-b", "html", "docs", "docs/build/html"]
+        )
+        super().run()
+
+
+class CustomServeDocsCommand(build_py):
+    """Custom command to serve Sphinx documentation."""
+
+    def run(self):
+        os.chdir("docs/build/html")
+        build_py.subprocess.check_call(["python", "-m", "http.server"])
+        super().run()
+
+
 class BuildPyCommand(build_py):
     def run(self):
         get_frontend_dep()
