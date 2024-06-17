@@ -78,8 +78,6 @@ html_theme = "alabaster"
 # -- Options for JupyterLite ----------------------------------------------
 jupyterlite_contents = ["tutorials/intro_tutorial.ipynb"]
 
-jupyterlite_dir = os.path.abspath('../../build/jupyterlite')
-
 jupyterlite_bind_ipynb_suffix = False
 
 jupyterlite_build_command_options = {
