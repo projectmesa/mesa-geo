@@ -12,17 +12,17 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-#import sys
-#import os
-#from pathlib import Path
+import sys
+import os
+from pathlib import Path
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use Path.resolve() to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
-#docs_dir = Path(__file__).parent
-#project_root = (docs_dir / "..").resolve()
-#print(docs_dir, project_root)
+docs_dir = Path(__file__).parent
+project_root = (docs_dir / "..").resolve()
+print(docs_dir, project_root)
 
 # -- General configuration ------------------------------------------------
 
@@ -82,7 +82,7 @@ html_theme = "alabaster"
 # -- Options for JupyterLite ----------------------------------------------
 jupyterlite_contents = ["tutorials/intro_tutorial.ipynb"]
 
-#jupyterlite_dir = str(project_root)+"\\build\\_contents"
+jupyterlite_dir = str(project_root)+"\\build\\_contents"
 
 jupyterlite_build_command_options = {
     "XeusAddon.environment_file": "environment.yml",
