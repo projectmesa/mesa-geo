@@ -78,7 +78,7 @@ html_theme = "alabaster"
 # -- Options for JupyterLite ----------------------------------------------
 jupyterlite_contents = ["tutorials/intro_tutorial.ipynb"]
 
-jupyterlite_bind_ipynb_suffix = False
+jupyterlite_dir = os.path.join(os.path.dirname(__file__), 'build')
 
 jupyterlite_build_command_options = {
     "XeusAddon.environment_file": "environment.yml",
