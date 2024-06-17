@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>GeoAgent and AgentCreator classes &#8212; Mesa-Geo 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Vibur" />
+    <link rel="stylesheet" type="text/css" href="../_static/jupyterlite_sphinx.css?v=ca70e7f1" />
+    <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/jupyterlite_sphinx.js?v=d6bdf5f8"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="GeoSpace" href="geospace.html" />
+    <link rel="prev" title="GeoBase" href="geo_base.html" />
+
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+
+
+
+
+
+  </head><body>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+
+
+          <div class="body" role="main">
+
+  <section id="geoagent-and-agentcreator-classes">
+<span id="module-mesa_geo.geoagent"></span><h1>GeoAgent and AgentCreator classes<a class="headerlink" href="#geoagent-and-agentcreator-classes" title="Link to this heading">¶</a></h1>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="mesa_geo.geoagent.AgentCreator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mesa_geo.geoagent.</span></span><span class="sig-name descname"><span class="pre">AgentCreator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agent_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mesa_geo/geoagent.html#AgentCreator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mesa_geo.geoagent.AgentCreator" title="Link to this definition">¶</a></dt>
+<dd><p>Create GeoAgents from files, GeoDataFrames, GeoJSON or Shapely objects.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mesa_geo.geoagent.AgentCreator.create_agent">
+<span class="sig-name descname"><span class="pre">create_agent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unique_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mesa_geo/geoagent.html#AgentCreator.create_agent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mesa_geo.geoagent.AgentCreator.create_agent" title="Link to this definition">¶</a></dt>
+<dd><p>Create a single agent from a geometry and a unique_id. Shape must be a valid Shapely object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>geometry</strong> – The geometry of the agent.</p></li>
+<li><p><strong>unique_id</strong> – The unique_id of the agent.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The created agent.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>self.agent_class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mesa_geo.geoagent.AgentCreator.crs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">crs</span></span><a class="headerlink" href="#mesa_geo.geoagent.AgentCreator.crs" title="Link to this definition">¶</a></dt>
+<dd><p>Return the coordinate reference system of the GeoAgents.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mesa_geo.geoagent.AgentCreator.from_GeoDataFrame">
+<span class="sig-name descname"><span class="pre">from_GeoDataFrame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gdf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unique_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'index'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mesa_geo/geoagent.html#AgentCreator.from_GeoDataFrame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mesa_geo.geoagent.AgentCreator.from_GeoDataFrame" title="Link to this definition">¶</a></dt>
+<dd><p>Create a list of agents from a GeoDataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gdf</strong> – The GeoDataFrame to create agents from.</p></li>
+<li><p><strong>unique_id</strong> – The column name of the data to use as the agents unique_id.
+If “index”, the index of the GeoDataFrame is used. Default to “index”.</p></li>
+<li><p><strong>set_attributes</strong> – Set agent attributes from GeoDataFrame columns.
+Default True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mesa_geo.geoagent.AgentCreator.from_GeoJSON">
+<span class="sig-name descname"><span class="pre">from_GeoJSON</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">GeoJSON</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unique_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'index'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mesa_geo/geoagent.html#AgentCreator.from_GeoJSON"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mesa_geo.geoagent.AgentCreator.from_GeoJSON" title="Link to this definition">¶</a></dt>
+<dd><p>Create agents from a GeoJSON object or string. CRS is set to epsg:4326.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>GeoJSON</strong> – The GeoJSON object or string to create agents from.</p></li>
+<li><p><strong>unique_id</strong> – The column name of the data to use as the agents unique_id.
+If “index”, the index of the GeoDataFrame is used. Default to “index”.</p></li>
+<li><p><strong>set_attributes</strong> – Set agent attributes from GeoDataFrame columns. Default True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mesa_geo.geoagent.AgentCreator.from_file">
+<span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unique_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'index'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mesa_geo/geoagent.html#AgentCreator.from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mesa_geo.geoagent.AgentCreator.from_file" title="Link to this definition">¶</a></dt>
+<dd><p>Create agents from vector data files (e.g. Shapefiles).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – The vector data file to create agents from.</p></li>
+<li><p><strong>unique_id</strong> – The column name of the data to use as the agents unique_id.
+If “index”, the index of the GeoDataFrame is used. Default to “index”.</p></li>
+<li><p><strong>set_attributes</strong> – Set agent attributes from GeoDataFrame columns. Default True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mesa_geo.geoagent.GeoAgent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mesa_geo.geoagent.</span></span><span class="sig-name descname"><span class="pre">GeoAgent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unique_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mesa_geo/geoagent.html#GeoAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mesa_geo.geoagent.GeoAgent" title="Link to this definition">¶</a></dt>
+<dd><p>Base class for a geo model agent.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mesa_geo.geoagent.GeoAgent.advance">
+<span class="sig-name descname"><span class="pre">advance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#mesa_geo.geoagent.GeoAgent.advance" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mesa_geo.geoagent.GeoAgent.crs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">crs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">CRS</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#mesa_geo.geoagent.GeoAgent.crs" title="Link to this definition">¶</a></dt>
+<dd><p>Return the coordinate reference system of the object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mesa_geo.geoagent.GeoAgent.get_transformed_geometry">
+<span class="sig-name descname"><span class="pre">get_transformed_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mesa_geo/geoagent.html#GeoAgent.get_transformed_geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mesa_geo.geoagent.GeoAgent.get_transformed_geometry" title="Link to this definition">¶</a></dt>
+<dd><p>Return the transformed geometry given a transformer.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mesa_geo.geoagent.GeoAgent.random">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">random</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Random</span></em><a class="headerlink" href="#mesa_geo.geoagent.GeoAgent.random" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mesa_geo.geoagent.GeoAgent.remove">
+<span class="sig-name descname"><span class="pre">remove</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#mesa_geo.geoagent.GeoAgent.remove" title="Link to this definition">¶</a></dt>
+<dd><p>Remove and delete the agent from the model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mesa_geo.geoagent.GeoAgent.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mesa_geo/geoagent.html#GeoAgent.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mesa_geo.geoagent.GeoAgent.step" title="Link to this definition">¶</a></dt>
+<dd><p>Advance one step.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mesa_geo.geoagent.GeoAgent.to_crs">
+<span class="sig-name descname"><span class="pre">to_crs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mesa_geo.geoagent.GeoAgent" title="mesa_geo.geoagent.GeoAgent"><span class="pre">GeoAgent</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/mesa_geo/geoagent.html#GeoAgent.to_crs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mesa_geo.geoagent.GeoAgent.to_crs" title="Link to this definition">¶</a></dt>
+<dd><p>Transform the object to a new coordinate reference system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>crs</strong> – The coordinate reference system to transform to.</p></li>
+<li><p><strong>inplace</strong> – Whether to transform the object in place or
+return a new object. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The transformed object if not inplace.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="geo_base.html#mesa_geo.geo_base.GeoBase" title="mesa_geo.geo_base.GeoBase">GeoBase</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mesa_geo.geoagent.GeoAgent.total_bounds">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_bounds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#mesa_geo.geoagent.GeoAgent.total_bounds" title="Link to this definition">¶</a></dt>
+<dd><p>Return the bounds of the object in [min_x, min_y, max_x, max_y] format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The bounds of the object in [min_x, min_y, max_x, max_y] format.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+
+
+          </div>
+
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Mesa-Geo</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/overview.html">Introductory Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/overview.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api_main.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="geo_base.html">GeoBase</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geo_base.html#mesa_geo.geo_base.GeoBase"><code class="docutils literal notranslate"><span class="pre">GeoBase</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">GeoAgent and AgentCreator classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mesa_geo.geoagent.AgentCreator"><code class="docutils literal notranslate"><span class="pre">AgentCreator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mesa_geo.geoagent.GeoAgent"><code class="docutils literal notranslate"><span class="pre">GeoAgent</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geospace.html">GeoSpace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geospace.html#mesa_geo.geospace.GeoSpace"><code class="docutils literal notranslate"><span class="pre">GeoSpace</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="raster_layers.html">Raster Layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="raster_layers.html#mesa_geo.raster_layers.Cell"><code class="docutils literal notranslate"><span class="pre">Cell</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="raster_layers.html#mesa_geo.raster_layers.ImageLayer"><code class="docutils literal notranslate"><span class="pre">ImageLayer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="raster_layers.html#mesa_geo.raster_layers.RasterBase"><code class="docutils literal notranslate"><span class="pre">RasterBase</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="raster_layers.html#mesa_geo.raster_layers.RasterLayer"><code class="docutils literal notranslate"><span class="pre">RasterLayer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tile_layers.html">Tile Layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tile_layers.html#mesa_geo.tile_layers.RasterWebTile"><code class="docutils literal notranslate"><span class="pre">RasterWebTile</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tile_layers.html#mesa_geo.tile_layers.WMSWebTile"><code class="docutils literal notranslate"><span class="pre">WMSWebTile</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualization.html"><code class="docutils literal notranslate"><span class="pre">Card()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualization.html#mesa_geo.visualization.leaflet_viz.LeafletViz"><code class="docutils literal notranslate"><span class="pre">LeafletViz</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualization.html#mesa_geo.visualization.leaflet_viz.MapModule"><code class="docutils literal notranslate"><span class="pre">MapModule</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="api_main.html">APIs</a><ul>
+      <li>Previous: <a href="geo_base.html" title="previous chapter">GeoBase</a></li>
+      <li>Next: <a href="geospace.html" title="next chapter">GeoSpace</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2017-2024, Project Mesa-Geo Team.
+
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+
+      |
+      <a href="../_sources/apis/geoagent.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+
+
+
+  </body>
+</html>
