@@ -1,4 +1,5 @@
 name: mesa_geo
+  - https://repo.mamba.pm/emscripten-forge
   - conda-forge
 dependencies:
   - python==3.10
