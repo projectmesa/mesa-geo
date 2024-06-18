@@ -7,11 +7,10 @@ from __future__ import annotations
 
 import dataclasses
 from dataclasses import dataclass
-from typing import Union
 
 import xyzservices
 
-LeafletOption = Union[str, bool, int, float]
+LeafletOption = str | bool | int | float
 
 
 @dataclass

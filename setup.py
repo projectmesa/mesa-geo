@@ -4,10 +4,11 @@ import hashlib
 import os
 import re
 import shutil
+import subprocess
 import urllib.request
 from pathlib import Path
 
-from setuptools import setup
+from setuptools import Command, setup
 from setuptools.command.build_py import build_py
 
 
@@ -19,29 +20,30 @@ def get_version_from_package() -> str:
     return version
 
 
-class CustomBuildDocsCommand(build_py):
-    """Custom command to build Sphinx documentation."""
-
-    def run(self):
-        build_py.subprocess.check_call(
-            ["sphinx-build", "-W", "-b", "html", "docs", "docs/build/html"]
-        )
-        super().run()
-
-
-class CustomServeDocsCommand(build_py):
-    """Custom command to serve Sphinx documentation."""
-
-    def run(self):
-        os.chdir("docs/build/html")
-        build_py.subprocess.check_call(["python", "-m", "http.server"])
-        super().run()
-
-
 class BuildPyCommand(build_py):
     def run(self):
         get_frontend_dep()
         build_py.run(self)
+
+
+class BuildDocsCommand(Command):
+    description = "Build the documentation using Sphinx"
+    user_options = []
+
+    def build_docs(self):
+        return ["sphinx-build", "-W", "-b", "html", "docs/source", "docs/build/html"]
+
+    def run(self):
+        subprocess.check_call(self.build_docs())
+
+
+class ServeDocsCommand(Command):
+    description = "Serve the documentation using http.server"
+    user_options = []
+
+    def run(self):
+        os.chdir("docs/build/html")
+        subprocess.check_call(["python", "-m", "http.server"])  # noqa: S607
 
 
 def get_frontend_dep():
@@ -112,5 +114,7 @@ if __name__ == "__main__":
         version=get_version_from_package(),
         cmdclass={
             "build_py": BuildPyCommand,
+            "build_docs": BuildDocsCommand,
+            "serve_docs": ServeDocsCommand,
         },
     )
