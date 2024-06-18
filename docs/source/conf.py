@@ -82,13 +82,12 @@ html_theme = "alabaster"
 # -- Options for JupyterLite ----------------------------------------------
 jupyterlite_contents = ["tutorials/intro_tutorial.ipynb"]
 
-#jupyterlite_dir = str(project_root)+"\\build\\_contents"
+#jupyterlite_dir = "./build/contents"
 
-'''
 jupyterlite_build_command_options = {
     "XeusAddon.environment_file": "environment.yml",
     }
-'''
+
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #'papersize': 'letterpaper',
