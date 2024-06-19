@@ -9,7 +9,6 @@ dependencies:
       - jupyter_bridge==0.3.5
       - geopandas==0.14.4
       - myst_nb>1 #required for build
-      - xeus-python~=0.15.0
       - jupyterlite-xeus>0.1.5 #provides kernel???
       - jupyterlite_sphinx~=0.15.0
 
