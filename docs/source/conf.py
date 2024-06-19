@@ -22,15 +22,12 @@ from pathlib import Path
 #sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('.'))
 
-print("TOM DID THIS")
-print("Current directory:", os.getcwd())
-print("Source directory:", os.path.abspath('.'))
-
+'''
 import logging
 import sys
 
 logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
-
+'''
 
 # -- General configuration ------------------------------------------------
 
@@ -97,6 +94,8 @@ jupyterlite_bind_ipynb_suffix = False
 jupyterlite_build_command_options = {
     "XeusAddon.environment_file": "environment.yml",
     }
+
+jupyterlite_silence=False
 
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
