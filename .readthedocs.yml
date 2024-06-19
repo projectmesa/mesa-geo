@@ -8,6 +8,7 @@ build:
   os: "ubuntu-22.04"
   tools:
        python: "3"
+       miniconda: "2"
 
 python:
   install:
