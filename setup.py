@@ -31,6 +31,7 @@ class BuildDocsCommand(Command):
     user_options = []
 
     def build_docs(self):
+        print("build_docs called")
         return ["sphinx-build", "-W", "-b", "html", "docs/source", "docs/build/html"]
 
     def run(self):
@@ -42,6 +43,7 @@ class ServeDocsCommand(Command):
     user_options = []
 
     def serve_docs(self):
+        print("SERVE DOCS called)")
         return ["python", "-m", "http.server", "--directory docs/build/html"]
 
     def run(self):

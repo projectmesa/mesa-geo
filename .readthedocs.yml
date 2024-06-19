@@ -21,5 +21,6 @@ conda:
 sphinx:
   configuration: docs/source/conf.py
   fail_on_warning: true
+  command: sphinx-build -b html -d _build/doctrees -v docs/source _build/html
 
 
