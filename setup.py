@@ -34,16 +34,19 @@ class BuildDocsCommand(Command):
         return ["sphinx-build", "-W", "-b", "html", "docs/source", "docs/build/html"]
 
     def run(self):
-        subprocess.check_call(self.build_docs())
+        subprocess.check_call(self.build_docs())  # necessary to pass ruff
 
 
 class ServeDocsCommand(Command):
     description = "Serve the documentation using http.server"
     user_options = []
 
+    def serve_docs(self):
+        return ["python", "-m", "http.server", "--directory docs/build/html"]
+
     def run(self):
         os.chdir("docs/build/html")
-        subprocess.check_call(["python", "-m", "http.server"])  # noqa: S607
+        subprocess.check_call(self.serve_docs())  # necessary to pass ruff
 
 
 def get_frontend_dep():
