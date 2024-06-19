@@ -20,9 +20,7 @@ from pathlib import Path
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use Path.resolve() to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
-docs_dir = Path(__file__).parent
-project_root = (docs_dir / "..").resolve()
-print(docs_dir, project_root)
+sys.path.insert(0, os.path.abspath('.'))
 
 # -- General configuration ------------------------------------------------
 
@@ -82,7 +80,7 @@ html_theme = "alabaster"
 # -- Options for JupyterLite ----------------------------------------------
 jupyterlite_contents = ["tutorials/intro_tutorial.ipynb"]
 
-#jupyterlite_dir = "./build/contents"
+jupyterlite_dir = str(Path(__file__).parent.parent / 'build')
 
 jupyterlite_build_command_options = {
     "XeusAddon.environment_file": "environment.yml",
