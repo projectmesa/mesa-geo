@@ -3,13 +3,12 @@ name: mesa_geo
   - conda
 dependencies:
   - python==3.10
+  - micromamba
   - pip>=20.1
   - pip:
       - mesa~=2.3.0
       - xyzservices>=2022.9.0
       - jupyter_bridge==0.3.5
       - geopandas==0.14.4
-      - myst_nb>1 #required for build
-      - jupyterlite-xeus>=0.2.0a0
-      - jupyterlite_sphinx~=0.15.0
+
 

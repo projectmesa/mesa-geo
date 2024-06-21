@@ -3,6 +3,7 @@ requires = [
     "setuptools",
     "wheel",
     "mesa~=2.3",
+    "jupyter_core"
 ]
 build-backend = "setuptools.build_meta"
 
