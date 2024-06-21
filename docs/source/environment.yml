@@ -11,7 +11,6 @@ dependencies:
       - geopandas==0.14.4
       - myst_nb>1 #required for build
       - jupyterlite_sphinx~=0.15.0
-      - jupyter_server >=1.11,<3
-      - jupyterlab_server >=2.27.1,<3
+      - jupyterlite-xeus>=0.2.0a0
 
 
