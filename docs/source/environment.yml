@@ -9,5 +9,6 @@ dependencies:
       - xyzservices>=2022.9.0
       - jupyter_bridge==0.3.5
       - geopandas==0.14.4
+      - myst_nb>1 #required for build
 
 
