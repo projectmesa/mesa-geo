@@ -8,6 +8,8 @@ build:
   os: "ubuntu-22.04"
   tools:
        python: "mambaforge-4.10"
+  jobs:
+        conda: True
 
 python:
   install:

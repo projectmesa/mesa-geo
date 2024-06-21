@@ -1,6 +1,8 @@
 name: mesa_geo
+channels:
   - conda-forge
   - conda
+  - https://repo.mamba.pm/emscripten-forge
 dependencies:
   - python==3.10
   - micromamba
