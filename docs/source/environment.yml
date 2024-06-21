@@ -3,6 +3,7 @@ name: mesa_geo
   - conda
 dependencies:
   - python==3.10
+  - micromamba
   - pip>=20.1
   - pip:
       - mesa~=2.3.0
