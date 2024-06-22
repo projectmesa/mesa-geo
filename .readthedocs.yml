@@ -13,6 +13,8 @@ python:
   install:
     - method: pip
       path: .
+      extre_requirements:
+          - docs
 
 conda:
   environment: docs/source/environment.yml
