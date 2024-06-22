@@ -1,3 +1,6 @@
+GeoSpace
+========
+
 .. automodule:: mesa_geo.geospace
     :members:
     :inherited-members:
