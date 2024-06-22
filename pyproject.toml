@@ -1,12 +1,96 @@
 [build-system]
-requires = [
-    "setuptools",
-    "wheel",
-    "mesa~=2.2",
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "Mesa-Geo"
+description = "GIS Agent-based modeling (ABM) in Python"
+license = { text = "Apache 2.0" }
+requires-python = ">=3.10"
+authors = [
+  { name = "Project Mesa Team", email = "projectmesa@googlegroups.com" },
 ]
-build-backend = "setuptools.build_meta"
+keywords = [
+  "agent",
+  "based",
+  "modeling",
+  "model",
+  "ABM",
+  "simulation",
+  "multi-agent",
+  "GIS",
+  "geographic",
+  "information",
+  "systems"
+]
+classifiers = [
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Artificial Life",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Development Status :: 3 - Alpha",
+  "Natural Language :: English",
+]
+readme = "README.md"
+dependencies = [
+  "mesa",
+  "geopandas",
+  "libpysal",
+  "rtree",
+  "rasterio",
+  "shapely",
+  "pyproj",
+  "folium",
+  "xyzservices>=2022.9.0",
+  "ipyleaflet"
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = [
+  "ruff~=0.1.1",   # Update periodically
+  "coverage",
+  "pytest >= 4.6",
+  "pytest-cov",
+  "sphinx",
+  "pytest-mock",
+]
+docs = [
+  "sphinx",
+  "ipython",
+  "pydata_sphinx_theme",
+  "seaborn",
+  "myst-nb",
+  "myst-parser",         # Markdown in Sphinx
+]
+
+[project.urls]
+homepage = "https://github.com/projectmesa/mesa-geo"
+repository = "https://github.com/projectmesa/mesa-geo"
+
+[project.scripts]
+mesa = "mesa.main:cli"
+
+[tool.hatch.build.targets.wheel]
+packages = ["mesa-geo"]
+
+[tool.hatch.version]
+path = "mesa_geo/__init__.py"
 
 [tool.ruff]
+# See https://github.com/charliermarsh/ruff#rules for error code definitions.
+# Hardcode to Python 3.10.
+# Reminder to update mesa-examples if the value below is changed.
+target-version = "py310"
+extend-exclude = ["docs", "build"]
+
+[tool.ruff.lint]
 select = [
     # "ANN", # annotations TODO
     "B", # bugbear
@@ -42,17 +126,15 @@ select = [
 # See https://github.com/charliermarsh/ruff/issues/1842#issuecomment-1381210185
 extend-ignore = [
     "E501",
-    "S101", # Use of `assert` detected
-    "B017", # `assertRaises(Exception)` should be considered evil TODO
+    "S101",   # Use of `assert` detected
+    "B017",   # `assertRaises(Exception)` should be considered evil TODO
     "PGH004", # Use specific rule codes when using `noqa` TODO
-    "B905", # `zip()` without an explicit `strict=` parameter
-    "N802", # Function name should be lowercase
-    "N999",  # Invalid module name. We should revisit this in the future, TODO
-    "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar` TODO
-    "S310",  # Audit URL open for permitted schemes. Allowing use of `file:` or custom schemes is often unexpected.
-    "S603",  # `subprocess` call: check for execution of untrusted input
-    "ISC001",  # ruff format asks to disable this feature
+    "B905",   # `zip()` without an explicit `strict=` parameter
+    "N802",   # Function name should be lowercase
+    "N999",   # Invalid module name. We should revisit this in the future, TODO
+    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar` TODO
+    "S310",   # Audit URL open for permitted schemes. Allowing use of `file:` or custom schemes is often unexpected.
+    "S603",   # `subprocess` call: check for execution of untrusted input
+    "ISC001", # ruff format asks to disable this feature
+    "S311",   # Standard pseudo-random generators are not suitable for cryptographic purposes
 ]
-extend-exclude = ["docs", "build"]
-# Hardcode to Python 3.9.
-target-version = "py39"

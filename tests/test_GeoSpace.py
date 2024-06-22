@@ -4,6 +4,7 @@ import uuid
 import warnings
 
 import geopandas as gpd
+import mesa
 import numpy as np
 import pandas as pd
 from shapely.geometry import Point, Polygon
@@ -13,7 +14,10 @@ import mesa_geo as mg
 
 class TestGeoSpace(unittest.TestCase):
     def setUp(self) -> None:
-        self.agent_creator = mg.AgentCreator(agent_class=mg.GeoAgent, crs="epsg:3857")
+        self.model = mesa.Model()  # Prevent Mesa attribute error for agents_
+        self.agent_creator = mg.AgentCreator(
+            model=self.model, agent_class=mg.GeoAgent, crs="epsg:3857"
+        )
         self.geometries = [Point(1, 1)] * 7
         self.agents = [
             self.agent_creator.create_agent(
@@ -23,19 +27,19 @@ class TestGeoSpace(unittest.TestCase):
         ]
         self.polygon_agent = mg.GeoAgent(
             unique_id=uuid.uuid4().int,
-            model=None,
+            model=self.model,
             geometry=Polygon([(0, 0), (0, 2), (2, 2), (2, 0)]),
             crs="epsg:3857",
         )
         self.touching_agent = mg.GeoAgent(
             unique_id=uuid.uuid4().int,
-            model=None,
+            model=self.model,
             geometry=Polygon([(2, 0), (2, 2), (4, 2), (4, 0)]),
             crs="epsg:3857",
         )
         self.disjoint_agent = mg.GeoAgent(
             unique_id=uuid.uuid4().int,
-            model=None,
+            model=self.model,
             geometry=Polygon([(10, 10), (10, 12), (12, 12), (12, 10)]),
             crs="epsg:3857",
         )
@@ -88,7 +92,7 @@ class TestGeoSpace(unittest.TestCase):
 
     def test_remove_agent(self):
         self.geo_space.add_agents(self.agents)
-        agent_to_remove = random.choice(self.agents)  # noqa: S311
+        agent_to_remove = random.choice(self.agents)
         self.geo_space.remove_agent(agent_to_remove)
         remaining_agent_idx = {agent.unique_id for agent in self.geo_space.agents}
 
@@ -121,7 +125,7 @@ class TestGeoSpace(unittest.TestCase):
 
     def test_get_neighbors_within_distance(self):
         self.geo_space.add_agents(self.agents)
-        agent_to_check = random.choice(self.agents)  # noqa: S311
+        agent_to_check = random.choice(self.agents)
 
         neighbors = list(
             self.geo_space.get_neighbors_within_distance(
