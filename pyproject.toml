@@ -65,7 +65,7 @@ docs = [
   "myst-nb",
   "myst-parser",         # Markdown in Sphinx
   "jupyterlite_sphinx",
-  "jupyterlite-pyodide-kernel>=0.3.2",
+  "jupyterlite-xeus>=0.2.0a0",
   "jupyter_bridge"
 ]
 

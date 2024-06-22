@@ -13,8 +13,6 @@ python:
   install:
     - method: pip
       path: .
-      extra_requirements:
-          - docs
 
 conda:
   environment: docs/source/environment.yml
@@ -23,6 +21,3 @@ conda:
 sphinx:
   configuration: docs/source/conf.py
   fail_on_warning: false
-
-
-
