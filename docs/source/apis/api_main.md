@@ -4,10 +4,10 @@
 ---
 maxdepth: 3
 ---
-GeoBase <geo_base>
-GeoAgent <geoagent>
-GeoSpace <geospace>
-Raster Layers <raster_layers>
-Tile Layers <tile_layers>
-Visualization <visualization>
+GeoBase <geo_base.rst>
+GeoAgent <geoagent.rst>
+GeoSpace <geospace.rst>
+Raster Layers <raster_layers.rst>
+Tile Layers <tile_layers.rst>
+Visualization <visualization.rst>
 ```
