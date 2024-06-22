@@ -1,11 +1,8 @@
 [build-system]
 requires = [
-    "setuptools",
-    "wheel",
-    "mesa~=2.3",
-    "jupyter_core"
+    "hatchling"
 ]
-build-backend = "setuptools.build_meta"
+build-backend = "hatchling.build"
 
 [tool.ruff]
 select = [
