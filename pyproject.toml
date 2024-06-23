@@ -7,7 +7,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.ruff]
-select = [
+lint.select = [
     # "ANN", # annotations TODO
     "B", # bugbear
     "C4", # comprehensions
@@ -40,7 +40,7 @@ select = [
 # But we don't specify them because ruff's Black already
 # checks for it.
 # See https://github.com/charliermarsh/ruff/issues/1842#issuecomment-1381210185
-extend-ignore = [
+lint.extend-ignore = [
     "E501",
     "S101", # Use of `assert` detected
     "B017", # `assertRaises(Exception)` should be considered evil TODO

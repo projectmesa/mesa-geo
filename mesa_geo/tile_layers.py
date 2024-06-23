@@ -7,11 +7,10 @@ from __future__ import annotations
 
 import dataclasses
 from dataclasses import dataclass
-from typing import Union
 
 import xyzservices
 
-LeafletOption = Union[str, bool, int, float]
+LeafletOption = str | bool | int | float
 
 
 @dataclass
@@ -28,7 +27,7 @@ class RasterWebTile:
     kind: str = "raster_web_tile"
 
     @classmethod
-    def from_xyzservices(cls, provider: xyzservices.TileProvider) -> RasterWebTile:
+    def from_xyzservices(cls, provider=xyzservices.TileProvider) -> RasterWebTile:
         """
         Create a RasterWebTile from an xyzservices TileProvider.
 

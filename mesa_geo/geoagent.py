@@ -12,7 +12,7 @@ import warnings
 import geopandas as gpd
 import numpy as np
 import pyproj
-from mesa import Agent
+from mesa import Agent, Model
 from shapely.geometry import mapping
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import transform
@@ -152,6 +152,9 @@ class AgentCreator:
             raise TypeError(
                 f"Unable to set CRS for {self.agent_class.__name__} due to empty CRS in {self.__class__.__name__}"
             )
+
+        if not isinstance(self.model, Model):
+            raise ValueError("Model must be a valid Mesa model object")
 
         new_agent = self.agent_class(
             unique_id=unique_id,

@@ -1,5 +1,6 @@
 import unittest
 
+import mesa
 import numpy as np
 
 import mesa_geo as mg
@@ -7,6 +8,7 @@ import mesa_geo as mg
 
 class TestRasterLayer(unittest.TestCase):
     def setUp(self) -> None:
+        self.model = mesa.Model
         self.raster_layer = mg.RasterLayer(
             width=2,
             height=3,
@@ -17,6 +19,7 @@ class TestRasterLayer(unittest.TestCase):
                 -121.94972222209202,
                 43.01472222189958,
             ],
+            model=self.model,
         )
 
     def tearDown(self) -> None:

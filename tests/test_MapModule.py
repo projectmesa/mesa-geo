@@ -7,6 +7,7 @@ import xyzservices.providers as xyz
 from shapely.geometry import LineString, Point, Polygon
 
 import mesa_geo as mg
+import mesa_geo.visualization as mgv
 
 
 class TestMapModule(unittest.TestCase):
@@ -32,7 +33,7 @@ class TestMapModule(unittest.TestCase):
             for polygon in self.polygons
         ]
         self.raster_layer = mg.RasterLayer(
-            1, 1, crs="epsg:4326", total_bounds=[0, 0, 1, 1]
+            1, 1, crs="epsg:4326", total_bounds=[0, 0, 1, 1], model=self.model
         )
         self.raster_layer.apply_raster(np.array([[[0]]]))
 
@@ -40,8 +41,11 @@ class TestMapModule(unittest.TestCase):
         pass
 
     def test_render_point_agents(self):
-        map_module = mg.visualization.MapModule(
-            portrayal_method=lambda x: {"color": "Red", "radius": 7}
+        map_module = mgv.leaflet_viz.MapModule(
+            portrayal_method=lambda x: {"color": "Red", "radius": 7},
+            view=None,
+            zoom=3,
+            tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.point_agents)
         self.assertDictEqual(
@@ -59,12 +63,15 @@ class TestMapModule(unittest.TestCase):
             },
         )
 
-        map_module = mg.visualization.MapModule(
+        map_module = mgv.leaflet_viz.MapModule(
             portrayal_method=lambda x: {
                 "color": "Red",
                 "radius": 7,
                 "description": "popupMsg",
-            }
+            },
+            view=None,
+            zoom=3,
+            tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.point_agents)
         self.assertDictEqual(
@@ -86,8 +93,11 @@ class TestMapModule(unittest.TestCase):
         )
 
     def test_render_line_agents(self):
-        map_module = mg.visualization.MapModule(
-            portrayal_method=lambda x: {"color": "#3388ff", "weight": 7}
+        map_module = mgv.leaflet_viz.MapModule(
+            portrayal_method=lambda x: {"color": "#3388ff", "weight": 7},
+            view=None,
+            zoom=3,
+            tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.line_agents)
         self.assertDictEqual(
@@ -108,12 +118,15 @@ class TestMapModule(unittest.TestCase):
             },
         )
 
-        map_module = mg.visualization.MapModule(
+        map_module = mgv.leaflet_viz.MapModule(
             portrayal_method=lambda x: {
                 "color": "#3388ff",
                 "weight": 7,
                 "description": "popupMsg",
-            }
+            },
+            view=None,
+            zoom=3,
+            tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.line_agents)
         self.assertDictEqual(
@@ -140,8 +153,11 @@ class TestMapModule(unittest.TestCase):
     def test_render_polygon_agents(self):
         self.maxDiff = None
 
-        map_module = mg.visualization.MapModule(
-            portrayal_method=lambda x: {"fillColor": "#3388ff", "fillOpacity": 0.7}
+        map_module = mgv.leaflet_viz.MapModule(
+            portrayal_method=lambda x: {"fillColor": "#3388ff", "fillOpacity": 0.7},
+            view=None,
+            zoom=3,
+            tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.polygon_agents)
         self.assertDictEqual(
@@ -166,12 +182,15 @@ class TestMapModule(unittest.TestCase):
             },
         )
 
-        map_module = mg.visualization.MapModule(
+        map_module = mgv.leaflet_viz.MapModule(
             portrayal_method=lambda x: {
                 "fillColor": "#3388ff",
                 "fillOpacity": 0.7,
                 "description": "popupMsg",
-            }
+            },
+            view=None,
+            zoom=3,
+            tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.polygon_agents)
         self.assertDictEqual(
@@ -197,34 +216,12 @@ class TestMapModule(unittest.TestCase):
             },
         )
 
-    def test_js_code(self):
-        map_module = mg.visualization.MapModule(
-            map_width=500,
-            map_height=500,
-            tiles=xyz.OpenStreetMap.Mapnik,
-            scale_options={"position": "bottomleft", "imperial": False},
-        )
-        self.assertEqual(
-            map_module.js_code,
-            "elements.push(new MapModule(null, null, 500, 500, {'url': 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', 'options': {'max_zoom': 19, 'attribution': '&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors', 'name': 'OpenStreetMap.Mapnik'}, 'kind': 'raster_web_tile'}, {'position': 'bottomleft', 'imperial': false}));",
-        )
-
-        map_module = mg.visualization.MapModule(
-            view=(11.1, 22.2),
-            zoom=20,
-            map_width=500,
-            map_height=500,
-            tiles=None,
-            scale_options={"position": "bottomleft", "imperial": True},
-        )
-        self.assertEqual(
-            map_module.js_code,
-            "elements.push(new MapModule((11.1, 22.2), 20, 500, 500, null, {'position': 'bottomleft', 'imperial': true}));",
-        )
-
     def test_render_raster_layers(self):
-        map_module = mg.visualization.MapModule(
-            portrayal_method=lambda x: (255, 255, 255, 0.5)
+        map_module = mg.visualization.leaflet_viz.MapModule(
+            portrayal_method=lambda x: (255, 255, 255, 0.5),
+            view=None,
+            zoom=3,
+            tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_layer(self.raster_layer)
         self.model.space.add_layer(
