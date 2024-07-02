@@ -94,7 +94,7 @@ class TestGeoSpace(unittest.TestCase):
 
     def test_remove_agent(self):
         self.geo_space.add_agents(self.agents)
-        agent_to_remove = random.choice(self.agents)  # noqa: S311
+        agent_to_remove = random.choice(self.agents)
         self.geo_space.remove_agent(agent_to_remove)
         remaining_agent_idx = {agent.unique_id for agent in self.geo_space.agents}
 
@@ -127,7 +127,7 @@ class TestGeoSpace(unittest.TestCase):
 
     def test_get_neighbors_within_distance(self):
         self.geo_space.add_agents(self.agents)
-        agent_to_check = random.choice(self.agents)  # noqa: S311
+        agent_to_check = random.choice(self.agents)
 
         neighbors = list(
             self.geo_space.get_neighbors_within_distance(
