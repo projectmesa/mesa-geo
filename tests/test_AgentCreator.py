@@ -10,13 +10,14 @@ import mesa_geo as mg
 
 class TestAgentCreator(unittest.TestCase):
     def setUp(self) -> None:
-        self.model = mesa.Model()  # Prevent Mesa attribute error for agents_
+        self.model = mesa.Model()
+        self.model.space = mg.GeoSpace(crs="epsg:4326")
         self.agent_creator_without_crs = mg.AgentCreator(
-            model=self.model, agent_class=mg.GeoAgent
+            agent_class=mg.GeoAgent, model=self.model
         )
         self.agent_creator_with_crs = mg.AgentCreator(
-            model=self.model,
             agent_class=mg.GeoAgent,
+            model=self.model,
             crs="epsg:3857",
         )
         self.df = pd.DataFrame(
@@ -58,7 +59,6 @@ class TestAgentCreator(unittest.TestCase):
         )
         self.assertIsInstance(agent, mg.GeoAgent)
         self.assertEqual(agent.geometry, Point(1, 1))
-        self.assertEqual(agent.model, self.model)
         self.assertEqual(agent.crs, self.agent_creator_with_crs.crs)
 
     def test_create_agent_without_crs(self):

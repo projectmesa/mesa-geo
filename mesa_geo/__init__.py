@@ -6,7 +6,6 @@ Core Objects: GeoSpace, GeoAgent
 
 import datetime
 
-from mesa_geo import visualization
 from mesa_geo.geoagent import AgentCreator, GeoAgent
 from mesa_geo.geospace import GeoSpace
 from mesa_geo.raster_layers import Cell, ImageLayer, RasterLayer

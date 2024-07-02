@@ -164,7 +164,7 @@ class Cell(Agent):
     pos: Coordinate | None
     indices: Coordinate | None
 
-    def __init__(self, pos=None, indices=None):
+    def __init__(self, model, pos=None, indices=None):
         """
         Initialize a cell.
 
@@ -174,7 +174,7 @@ class Cell(Agent):
             Origin is at upper left corner of the grid
         """
 
-        super().__init__(uuid.uuid4().int, None)
+        super().__init__(uuid.uuid4().int, model)
         self.pos = pos
         self.indices = indices
 
@@ -218,15 +218,18 @@ class RasterLayer(RasterBase):
     _neighborhood_cache: dict[Any, list[Coordinate]]
     _attributes: set[str]
 
-    def __init__(self, width, height, crs, total_bounds, cell_cls: type[Cell] = Cell):
+    def __init__(
+        self, width, height, crs, total_bounds, model, cell_cls: type[Cell] = Cell
+    ):
         super().__init__(width, height, crs, total_bounds)
+        self.model = model
         self.cell_cls = cell_cls
         self.cells = []
         for x in range(self.width):
             col: list[cell_cls] = []
             for y in range(self.height):
                 row_idx, col_idx = self.height - y - 1, x
-                col.append(self.cell_cls(pos=(x, y), indices=(row_idx, col_idx)))
+                col.append(self.cell_cls(model, pos=(x, y), indices=(row_idx, col_idx)))
             self.cells.append(col)
 
         self._attributes = set()
