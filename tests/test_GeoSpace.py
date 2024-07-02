@@ -14,14 +14,16 @@ import mesa_geo as mg
 
 class TestGeoSpace(unittest.TestCase):
     def setUp(self) -> None:
-        self.model = mesa.Model()  # Prevent Mesa attribute error for agents_
+        self.model = mesa.Model()
+        self.model.space = mg.GeoSpace(crs="epsg:4326")
         self.agent_creator = mg.AgentCreator(
-            model=self.model, agent_class=mg.GeoAgent, crs="epsg:3857"
+            agent_class=mg.GeoAgent, model=self.model, crs="epsg:3857"
         )
         self.geometries = [Point(1, 1)] * 7
         self.agents = [
             self.agent_creator.create_agent(
-                geometry=geometry, unique_id=uuid.uuid4().int
+                geometry=geometry,
+                unique_id=uuid.uuid4().int,
             )
             for geometry in self.geometries
         ]

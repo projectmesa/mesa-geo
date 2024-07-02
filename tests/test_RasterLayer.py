@@ -19,6 +19,7 @@ class TestRasterLayer(unittest.TestCase):
                 -121.94972222209202,
                 43.01472222189958,
             ],
+            model=self.model,
         )
 
     def tearDown(self) -> None:
