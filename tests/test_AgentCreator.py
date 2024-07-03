@@ -10,9 +10,10 @@ import mesa_geo as mg
 
 class TestAgentCreator(unittest.TestCase):
     def setUp(self) -> None:
-        self.model = mesa.Model()  # Prevent Mesa attribute error for agents_
+        self.model = mesa.Model()
+        self.model.space = mg.GeoSpace(crs="epsg:4326")
         self.agent_creator_without_crs = mg.AgentCreator(
-            model=self.model, agent_class=mg.GeoAgent
+            agent_class=mg.GeoAgent, model=self.model
         )
         self.agent_creator_with_crs = mg.AgentCreator(
             model=self.model,
