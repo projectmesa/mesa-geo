@@ -4,6 +4,7 @@ import uuid
 import mesa
 import numpy as np
 import xyzservices.providers as xyz
+from ipyleaflet import Circle, CircleMarker, Marker
 from shapely.geometry import LineString, Point, Polygon
 
 import mesa_geo as mg
@@ -41,28 +42,42 @@ class TestMapModule(unittest.TestCase):
         pass
 
     def test_render_point_agents(self):
+        # test length point agents and Circle marker as default
         map_module = mgv.leaflet_viz.MapModule(
-            portrayal_method=lambda x: {"color": "Red", "radius": 7},
+            portrayal_method=lambda x: {"color": "Green"},
             view=None,
             zoom=3,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.point_agents)
-        self.assertDictEqual(
-            map_module.render(self.model).get("agents"),
-            {
-                "type": "FeatureCollection",
-                "features": [
-                    {
-                        "type": "Feature",
-                        "geometry": {"type": "Point", "coordinates": (1.0, 1.0)},
-                        "properties": {"pointToLayer": {"color": "Red", "radius": 7}},
-                    }
-                ]
-                * len(self.point_agents),
+        self.assertEqual(len(map_module.render(self.model).get("agents")[1]), 7)
+        self.assertIsInstance(map_module.render(self.model).get("agents")[1][3], Circle)
+        # test CircleMarker option
+        map_module = mgv.leaflet_viz.MapModule(
+            portrayal_method=lambda x: {
+                "marker_type": "CircleMarker",
+                "color": "Green",
             },
+            view=None,
+            zoom=3,
+            tiles=xyz.OpenStreetMap.Mapnik,
+        )
+        self.model.space.add_agents(self.point_agents)
+        self.assertIsInstance(
+            map_module.render(self.model).get("agents")[1][3], CircleMarker
         )
 
+        # test Marker option
+        map_module = mgv.leaflet_viz.MapModule(
+            portrayal_method=lambda x: {"marker_type": "Icon", "color": "Green"},
+            view=None,
+            zoom=3,
+            tiles=xyz.OpenStreetMap.Mapnik,
+        )
+        self.model.space.add_agents(self.point_agents)
+        self.assertEqual(len(map_module.render(self.model).get("agents")[1]), 7)
+        self.assertIsInstance(map_module.render(self.model).get("agents")[1][3], Marker)
+        # test popupProperties for Point
         map_module = mgv.leaflet_viz.MapModule(
             portrayal_method=lambda x: {
                 "color": "Red",
@@ -75,7 +90,7 @@ class TestMapModule(unittest.TestCase):
         )
         self.model.space.add_agents(self.point_agents)
         self.assertDictEqual(
-            map_module.render(self.model).get("agents"),
+            map_module.render(self.model).get("agents")[0],
             {
                 "type": "FeatureCollection",
                 "features": [
@@ -83,7 +98,6 @@ class TestMapModule(unittest.TestCase):
                         "type": "Feature",
                         "geometry": {"type": "Point", "coordinates": (1.0, 1.0)},
                         "properties": {
-                            "pointToLayer": {"color": "Red", "radius": 7},
                             "popupProperties": "popupMsg",
                         },
                     }
@@ -91,6 +105,17 @@ class TestMapModule(unittest.TestCase):
                 * len(self.point_agents),
             },
         )
+
+        # test ValueError if not known markertype
+        map_module = mgv.leaflet_viz.MapModule(
+            portrayal_method=lambda x: {"marker_type": "Hexagon", "color": "Green"},
+            view=None,
+            zoom=3,
+            tiles=xyz.OpenStreetMap.Mapnik,
+        )
+        self.model.space.add_agents(self.point_agents)
+        with self.assertRaises(ValueError):
+            map_module.render(self.model)
 
     def test_render_line_agents(self):
         map_module = mgv.leaflet_viz.MapModule(
@@ -101,7 +126,7 @@ class TestMapModule(unittest.TestCase):
         )
         self.model.space.add_agents(self.line_agents)
         self.assertDictEqual(
-            map_module.render(self.model).get("agents"),
+            map_module.render(self.model).get("agents")[0],
             {
                 "type": "FeatureCollection",
                 "features": [
@@ -130,7 +155,7 @@ class TestMapModule(unittest.TestCase):
         )
         self.model.space.add_agents(self.line_agents)
         self.assertDictEqual(
-            map_module.render(self.model).get("agents"),
+            map_module.render(self.model).get("agents")[0],
             {
                 "type": "FeatureCollection",
                 "features": [
@@ -161,7 +186,7 @@ class TestMapModule(unittest.TestCase):
         )
         self.model.space.add_agents(self.polygon_agents)
         self.assertDictEqual(
-            map_module.render(self.model).get("agents"),
+            map_module.render(self.model).get("agents")[0],
             {
                 "type": "FeatureCollection",
                 "features": [
@@ -194,7 +219,7 @@ class TestMapModule(unittest.TestCase):
         )
         self.model.space.add_agents(self.polygon_agents)
         self.assertDictEqual(
-            map_module.render(self.model).get("agents"),
+            map_module.render(self.model).get("agents")[0],
             {
                 "type": "FeatureCollection",
                 "features": [
