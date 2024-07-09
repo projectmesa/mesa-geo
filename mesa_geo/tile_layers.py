@@ -27,7 +27,7 @@ class RasterWebTile:
     kind: str = "raster_web_tile"
 
     @classmethod
-    def from_xyzservices(cls, provider=xyzservices.TileProvider) -> RasterWebTile:
+    def from_xyzservices(cls, provider: xyzservices.TileProvider) -> RasterWebTile:
         """
         Create a RasterWebTile from an xyzservices TileProvider.
 

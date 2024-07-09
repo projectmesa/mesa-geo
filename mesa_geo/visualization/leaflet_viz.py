@@ -32,7 +32,8 @@ def map(model, map_drawer, zoom, center_default):
         scroll_wheel_zoom=True,
         layers=[
             ipyleaflet.TileLayer.element(url=base_map["url"]),
-            ipyleaflet.GeoJSON.element(data=layers["agents"]),
+            ipyleaflet.GeoJSON.element(data=layers["agents"][0]),
+            *layers["agents"][1],
         ],
     )
 
@@ -53,7 +54,8 @@ def map_jupyter(model, map_drawer, zoom, center_default):
             scroll_wheel_zoom=True,
             layers=[
                 ipyleaflet.TileLayer.element(url=base_map["url"]),
-                ipyleaflet.GeoJSON.element(data=layers["agents"]),
+                ipyleaflet.GeoJSON.element(data=layers["agents"][0]),
+                *layers["agents"][1],
             ],
         )
 
@@ -67,7 +69,6 @@ class LeafletViz:
     """
 
     style: dict[str, LeafletOption] | None = None
-    pointToLayer: dict[str, LeafletOption] | None = None  # noqa: N815
     popupProperties: dict[str, LeafletOption] | None = None  # noqa: N815
 
 
@@ -183,26 +184,72 @@ class MapModule:
             ]
         return layers
 
+    def _get_marker(self, location, properties):
+        """
+        takes point objects and transforms them to ipyleaflet marker objects
+
+        allowed marker types are point marker types from ipyleaflet
+        https://ipyleaflet.readthedocs.io/en/latest/layers/index.html
+
+        default is circle with radius 5
+
+        Parameters
+        ----------
+        location: iterable
+            iterable of location in models geometry
+
+        properties : dict
+            properties passed in through agent portrayal
+
+
+        Returns
+        -------
+        ipyleaflet marker element
+
+        """
+
+        if "marker_type" not in properties:  # make circle default marker type
+            properties["marker_type"] = "Circle"
+            properties["radius"] = 5
+
+        marker = properties["marker_type"]
+        if marker == "Circle":
+            return ipyleaflet.Circle(location=location, **properties)
+        elif marker == "CircleMarker":
+            return ipyleaflet.CircleMarker(location=location, **properties)
+        elif marker == "Marker" or marker == "Icon" or marker == "AwesomeIcon":
+            return ipyleaflet.Marker(location=location, **properties)
+        else:
+            raise ValueError(
+                f"Unsupported marker type:{marker}",
+            )
+
     def _render_agents(self, model):
         feature_collection = {"type": "FeatureCollection", "features": []}
+        point_markers = []
+        agent_portrayal = {}
         for agent in model.space.agents:
             transformed_geometry = agent.get_transformed_geometry(
                 model.space.transformer
             )
-            agent_portrayal = {}
+
             if self.portrayal_method:
                 properties = self.portrayal_method(agent)
                 agent_portrayal = LeafletViz(
                     popupProperties=properties.pop("description", None)
                 )
                 if isinstance(agent.geometry, Point):
-                    agent_portrayal.pointToLayer = properties
+                    location = mapping(transformed_geometry)
+                    # for some reason points are reversed
+                    location = (location["coordinates"][1], location["coordinates"][0])
+                    point_markers.append(self._get_marker(location, properties))
                 else:
                     agent_portrayal.style = properties
                 agent_portrayal = dataclasses.asdict(
                     agent_portrayal,
                     dict_factory=lambda x: {k: v for (k, v) in x if v is not None},
                 )
+
             feature_collection["features"].append(
                 {
                     "type": "Feature",
@@ -210,4 +257,4 @@ class MapModule:
                     "properties": agent_portrayal,
                 }
             )
-        return feature_collection
+        return [feature_collection, point_markers]
