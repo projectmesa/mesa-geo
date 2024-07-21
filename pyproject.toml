@@ -78,7 +78,7 @@ repository = "https://github.com/projectmesa/mesa-geo"
 mesa = "mesa.main:cli"
 
 [tool.hatch.build.targets.wheel]
-packages = ["mesa-geo"]
+packages = ["mesa_geo"]
 
 [tool.hatch.version]
 path = "mesa_geo/__init__.py"
