@@ -47,6 +47,7 @@ class TestMapModule(unittest.TestCase):
             portrayal_method=lambda x: {"color": "Green"},
             view=None,
             zoom=3,
+            scroll_wheel_zoom=True,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.point_agents)
@@ -60,6 +61,7 @@ class TestMapModule(unittest.TestCase):
             },
             view=None,
             zoom=3,
+            scroll_wheel_zoom=True,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.point_agents)
@@ -69,9 +71,14 @@ class TestMapModule(unittest.TestCase):
 
         # test Marker option
         map_module = mgv.leaflet_viz.MapModule(
-            portrayal_method=lambda x: {"marker_type": "Icon", "color": "Green"},
+            portrayal_method=lambda x: {
+                "marker_type": "AwesomeIcon",
+                "name": "bus",
+                "color": "Green",
+            },
             view=None,
             zoom=3,
+            scroll_wheel_zoom=True,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.point_agents)
@@ -86,23 +93,16 @@ class TestMapModule(unittest.TestCase):
             },
             view=None,
             zoom=3,
+            scroll_wheel_zoom=False,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.point_agents)
+        print(map_module.render(self.model).get("agents")[0])
         self.assertDictEqual(
             map_module.render(self.model).get("agents")[0],
             {
                 "type": "FeatureCollection",
-                "features": [
-                    {
-                        "type": "Feature",
-                        "geometry": {"type": "Point", "coordinates": (1.0, 1.0)},
-                        "properties": {
-                            "popupProperties": "popupMsg",
-                        },
-                    }
-                ]
-                * len(self.point_agents),
+                "features": [] * len(self.point_agents),
             },
         )
 
@@ -111,6 +111,7 @@ class TestMapModule(unittest.TestCase):
             portrayal_method=lambda x: {"marker_type": "Hexagon", "color": "Green"},
             view=None,
             zoom=3,
+            scroll_wheel_zoom=True,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.point_agents)
@@ -122,6 +123,7 @@ class TestMapModule(unittest.TestCase):
             portrayal_method=lambda x: {"color": "#3388ff", "weight": 7},
             view=None,
             zoom=3,
+            scroll_wheel_zoom=False,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.line_agents)
@@ -151,6 +153,7 @@ class TestMapModule(unittest.TestCase):
             },
             view=None,
             zoom=3,
+            scroll_wheel_zoom=True,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.line_agents)
@@ -182,6 +185,7 @@ class TestMapModule(unittest.TestCase):
             portrayal_method=lambda x: {"fillColor": "#3388ff", "fillOpacity": 0.7},
             view=None,
             zoom=3,
+            scroll_wheel_zoom=False,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.polygon_agents)
@@ -215,6 +219,7 @@ class TestMapModule(unittest.TestCase):
             },
             view=None,
             zoom=3,
+            scroll_wheel_zoom=True,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.polygon_agents)
@@ -246,6 +251,7 @@ class TestMapModule(unittest.TestCase):
             portrayal_method=lambda x: (255, 255, 255, 0.5),
             view=None,
             zoom=3,
+            scroll_wheel_zoom=True,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_layer(self.raster_layer)

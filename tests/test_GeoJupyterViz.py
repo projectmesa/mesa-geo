@@ -21,9 +21,10 @@ class TestGeoViz(unittest.TestCase):
         model = MagicMock()
         measures = {"Measure1": lambda x: x}
         agent_portrayal = MagicMock()
-        map_drawer = MagicMock()
-        center_default = [0, 0]
-        zoom = 10
+        map_drawer = (MagicMock(),)
+        zoom = (10,)
+        scroll_wheel_zoom = (True,)
+        center_default = ([0, 0],)
         current_step = MagicMock()
         current_step.value = 0
         color = "white"
@@ -39,6 +40,7 @@ class TestGeoViz(unittest.TestCase):
                 map_drawer,
                 center_default,
                 zoom,
+                scroll_wheel_zoom,
                 current_step,
                 color,
                 layout_type,
@@ -46,7 +48,9 @@ class TestGeoViz(unittest.TestCase):
 
         mock_rv_card.assert_called_once()
         mock_CardTitle.assert_any_call(children=["Map"])
-        mock_map.assert_called_once_with(model, map_drawer, zoom, center_default)
+        mock_map.assert_called_once_with(
+            model, map_drawer, zoom, center_default, scroll_wheel_zoom
+        )
         # mock_PlotMatplotlib.assert_called_once()
 
     @patch("mesa_geo.visualization.geojupyter_viz.solara.GridDraggable")
