@@ -18,7 +18,7 @@ from mesa_geo.tile_layers import LeafletOption, RasterWebTile
 
 
 @solara.component
-def map(model, map_drawer, zoom, center_default):
+def map(model, map_drawer, zoom, center_default, scroll_wheel_zoom):
     # render map in browser
     zoom_map = solara.reactive(zoom)
     center = solara.reactive(center_default)
@@ -29,35 +29,13 @@ def map(model, map_drawer, zoom, center_default):
     ipyleaflet.Map.element(
         zoom=zoom_map.value,
         center=center.value,
-        scroll_wheel_zoom=True,
+        scroll_wheel_zoom=scroll_wheel_zoom,
         layers=[
             ipyleaflet.TileLayer.element(url=base_map["url"]),
             ipyleaflet.GeoJSON.element(data=layers["agents"][0]),
             *layers["agents"][1],
         ],
     )
-
-
-@solara.component
-def map_jupyter(model, map_drawer, zoom, center_default):
-    zoom_map = solara.reactive(zoom)
-    center = solara.reactive(center_default)
-
-    base_map = map_drawer.tiles
-    layers = map_drawer.render(model)
-
-    # prevents overlap of map with measures
-    with solara.Column(style={"isolation": "isolate"}):
-        ipyleaflet.Map.element(
-            zoom=zoom_map.value,
-            center=center.value,
-            scroll_wheel_zoom=True,
-            layers=[
-                ipyleaflet.TileLayer.element(url=base_map["url"]),
-                ipyleaflet.GeoJSON.element(data=layers["agents"][0]),
-                *layers["agents"][1],
-            ],
-        )
 
 
 @dataclass
@@ -89,6 +67,7 @@ class MapModule:
         portrayal_method,
         view,
         zoom,
+        scroll_wheel_zoom,
         tiles,
     ):
         """
@@ -102,8 +81,7 @@ class MapModule:
         :param zoom: The initial zoom level of the map. Must be set together with view.
             If both view and zoom are None, the map will be centered on the total bounds
             of the space. Default is None.
-        :param map_width: The width of the map in pixels. Default is 500.
-        :param map_height: The height of the map in pixels. Default is 500.
+        :param scroll_wheel_zoom: Boolean whether not user can scroll on map with mouse wheel
         :param tiles: An optional tile layer to use. Can be a :class:`RasterWebTile` or
             a :class:`xyzservices.TileProvider`. Default is `xyzservices.providers.OpenStreetMap.Mapnik`.
 
@@ -217,8 +195,22 @@ class MapModule:
             return ipyleaflet.Circle(location=location, **properties)
         elif marker == "CircleMarker":
             return ipyleaflet.CircleMarker(location=location, **properties)
-        elif marker == "Marker" or marker == "Icon" or marker == "AwesomeIcon":
+        elif marker == "Marker":
             return ipyleaflet.Marker(location=location, **properties)
+        elif marker == "Icon":
+            icon_url = properties["icon_url"]
+            icon_size = properties.get("icon_size", [20, 20])
+            icon_properties = properties.get("icon_properties", {})
+            icon = ipyleaflet.Icon(
+                icon_url=icon_url, icon_size=icon_size, **icon_properties
+            )
+            return ipyleaflet.Marker(location=location, icon=icon, **properties)
+        elif marker == "AwesomeIcon":
+            name = properties["name"]
+            icon_properties = properties.get("icon_properties", {})
+            icon = ipyleaflet.AwesomeIcon(name=name, **icon_properties)
+            return ipyleaflet.Marker(location=location, icon=icon, **properties)
+
         else:
             raise ValueError(
                 f"Unsupported marker type:{marker}",
@@ -245,16 +237,16 @@ class MapModule:
                     point_markers.append(self._get_marker(location, properties))
                 else:
                     agent_portrayal.style = properties
-                agent_portrayal = dataclasses.asdict(
-                    agent_portrayal,
-                    dict_factory=lambda x: {k: v for (k, v) in x if v is not None},
-                )
+                    agent_portrayal = dataclasses.asdict(
+                        agent_portrayal,
+                        dict_factory=lambda x: {k: v for (k, v) in x if v is not None},
+                    )
 
-            feature_collection["features"].append(
-                {
-                    "type": "Feature",
-                    "geometry": mapping(transformed_geometry),
-                    "properties": agent_portrayal,
-                }
-            )
+                    feature_collection["features"].append(
+                        {
+                            "type": "Feature",
+                            "geometry": mapping(transformed_geometry),
+                            "properties": agent_portrayal,
+                        }
+                    )
         return [feature_collection, point_markers]

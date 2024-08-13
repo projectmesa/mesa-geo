@@ -1,5 +1,3 @@
-import sys
-
 import matplotlib.pyplot as plt
 import mesa.experimental.components.matplotlib as components_matplotlib
 import solara
@@ -30,16 +28,54 @@ def Card(
     map_drawer,
     center_default,
     zoom,
+    scroll_wheel_zoom,
     current_step,
     color,
     layout_type,
 ):
+    """
+
+
+    Parameters
+    ----------
+    model : Mesa Model Object
+        A pointer to the Mesa Model object this allows the visual to get get
+        model information, such as scheduler and space.
+    measures : List
+        Plots associated with model typically from datacollector that represent
+        critical information collected from the model.
+    agent_portrayal : Dictionary
+        Contains details of how visualization should plot key elements of the
+        such as agent color etc
+    map_drawer : Method
+        Function that generates map from GIS data of model
+    center_default : List
+        Latitude and Longitude of where center of map should be located
+    zoom : Int
+        Zoom level at which to initialize the map
+    scroll_wheel_zoom: Boolean
+        True of False on whether user can zoom on map with mouse scroll wheel
+        default is True
+    current_step : Int
+        Number on which step is the model
+    color : String
+        Background color for visual
+    layout_type : String
+        Type of layout Map or Measure
+
+    Returns
+    -------
+    main : Solara object
+        Visualization of model
+
+    """
+
     with rv.Card(
         style_=f"background-color: {color}; width: 100%; height: 100%"
     ) as main:
         if "Map" in layout_type:
             rv.CardTitle(children=["Map"])
-            leaflet_viz.map(model, map_drawer, zoom, center_default)
+            leaflet_viz.map(model, map_drawer, zoom, center_default, scroll_wheel_zoom)
 
         if "Measure" in layout_type:
             rv.CardTitle(children=["Measure"])
@@ -65,23 +101,50 @@ def GeoJupyterViz(
     # parameters for leaflet_viz
     view=None,
     zoom=None,
+    scroll_wheel_zoom=True,
     tiles=xyz.OpenStreetMap.Mapnik,
     center_point=None,  # Due to projection challenges in calculation allow user to specify center point
 ):
-    """Initialize a component to visualize a model.
-    Args:
-        model_class: class of the model to instantiate
-        model_params: parameters for initializing the model
-        measures: list of callables or data attributes to plot
-        name: name for display
-        agent_portrayal: options for rendering agents (dictionary)
-        space_drawer: method to render the agent space for
-            the model; default implementation is the `SpaceMatplotlib` component;
-            simulations with no space to visualize should
-            specify `space_drawer=False`
-        play_interval: play interval (default: 150)
-        center_point: list of center coords
     """
+
+
+    Parameters
+    ----------
+    model_class : Mesa Model Object
+        A pointer to the Mesa Model object this allows the visual to get get
+        model information, such as scheduler and space.
+    model_params : Dictionary
+        Parameters of model with key being the parameter as a string and values being the options
+    measures : List, optional
+        Plots associated with model typically from datacollector that represent
+        critical information collected from the model. The default is None.
+    name : String, optional
+        Name of simulation to appear on visual. The default is None.
+    agent_portrayal : Dictionary, optional
+        Dictionary of how the agent showed appear. The default is None.
+    play_interval : INT, optional
+        Rendering interval of model. The default is 150.
+    # parameters for leaflet_viz
+    view : List, optional
+        Bounds of map to be displayed; must be set with zoom. The default is None.
+    zoom : Int, optional
+        Zoom level of map on leaflet
+    scroll_wheel_zoom : Boolean, optional
+        True of False for whether or not to enable scroll wheel. The default is True.
+        Recommend False when using jupyter due to multiple scroll wheel options
+    tiles : Data source for GIS data, optional
+        Data Source for GIS map data. The default is xyz.OpenStreetMap.Mapnik.
+    # Due to projection challenges in calculation allow user to specify
+    center_point : List, optional
+        Option to pass in center coordinates of map The default is None.. The default is None.
+
+
+    Returns
+    -------
+        Provides information to Card to render model
+
+    """
+
     if name is None:
         name = model_class.__name__
 
@@ -118,6 +181,7 @@ def GeoJupyterViz(
         view=view,
         zoom=zoom,
         tiles=tiles,
+        scroll_wheel_zoom=scroll_wheel_zoom,
     )
     layers = map_drawer.render(model)
 
@@ -126,86 +190,47 @@ def GeoJupyterViz(
         center_default = center_point
     else:
         bounds = layers["layers"]["total_bounds"]
-        center_default = list((bounds[2:] + bounds[:2]) / 2)
-
-    def render_in_jupyter():
-        # TODO: Build API to allow users to set rows and columns
-        # call in property of model layers geospace line; use 1 column to prevent map overlap
-
-        with solara.Row(
-            justify="space-between", style={"flex-grow": "1"}
-        ) and solara.GridFixed(columns=2):
-            jv.UserInputs(user_params, on_change=handle_change_model_params)
-            jv.ModelController(model, play_interval, current_step, reset_counter)
-            solara.Markdown(md_text=f"###Step - {current_step}")
-
-        # Builds Solara component of map
-        leaflet_viz.map_jupyter(model, map_drawer, zoom, center_default)
-
-        # Place measurement in separate row
-        with solara.Row(
-            justify="space-between",
-            style={"flex-grow": "1"},
-        ):
-            # 5. Plots
-            for measure in measures:
-                if callable(measure):
-                    # Is a custom object
-                    measure(model)
-                else:
-                    components_matplotlib.PlotMatplotlib(
-                        model, measure, dependencies=[current_step.value]
-                    )
-
-    def render_in_browser():
-        # determine center point
-        if center_point:
-            center_default = center_point
-        else:
-            bounds = layers["layers"]["total_bounds"]
-            center_default = list((bounds[2:] + bounds[:2]) / 2)
-
-        # if space drawer is disabled, do not include it
-        layout_types = [{"Map": "default"}]
-
-        if measures:
-            layout_types += [{"Measure": elem} for elem in range(len(measures))]
-
-        grid_layout_initial = jv.make_initial_grid_layout(layout_types=layout_types)
-        grid_layout, set_grid_layout = solara.use_state(grid_layout_initial)
-
-        with solara.Sidebar():
-            with solara.Card("Controls", margin=1, elevation=2):
-                jv.UserInputs(user_params, on_change=handle_change_model_params)
-                jv.ModelController(model, play_interval, current_step, reset_counter)
-            with solara.Card("Progress", margin=1, elevation=2):
-                solara.Markdown(md_text=f"####Step - {current_step}")
-
-        items = [
-            Card(
-                model,
-                measures,
-                agent_portrayal,
-                map_drawer,
-                center_default,
-                zoom,
-                current_step,
-                color="white",
-                layout_type=layout_types[i],
-            )
-            for i in range(len(layout_types))
+        center_default = [
+            (bounds[0][0] + bounds[1][0]) / 2,
+            (bounds[0][1] + bounds[1][1]) / 2,
         ]
 
-        solara.GridDraggable(
-            items=items,
-            grid_layout=grid_layout,
-            resizable=True,
-            draggable=True,
-            on_grid_layout=set_grid_layout,
-        )
+    # Build base data structure for layout
+    layout_types = [{"Map": "default"}]
 
-    if ("ipykernel" in sys.argv[0]) or ("colab_kernel_launcher.py" in sys.argv[0]):
-        # When in Jupyter or Google Colab
-        render_in_jupyter()
-    else:
-        render_in_browser()
+    if measures:
+        layout_types += [{"Measure": elem} for elem in range(len(measures))]
+
+    grid_layout_initial = jv.make_initial_grid_layout(layout_types=layout_types)
+    grid_layout, set_grid_layout = solara.use_state(grid_layout_initial)
+
+    with solara.Sidebar():
+        with solara.Card("Controls", margin=1, elevation=2):
+            jv.UserInputs(user_params, on_change=handle_change_model_params)
+            jv.ModelController(model, play_interval, current_step, reset_counter)
+        with solara.Card("Progress", margin=1, elevation=2):
+            solara.Markdown(md_text=f"####Step - {current_step}")
+
+    items = [
+        Card(
+            model,
+            measures,
+            agent_portrayal,
+            map_drawer,
+            center_default,
+            zoom,
+            scroll_wheel_zoom,
+            current_step,
+            color="white",
+            layout_type=layout_types[i],
+        )
+        for i in range(len(layout_types))
+    ]
+
+    solara.GridDraggable(
+        items=items,
+        grid_layout=grid_layout,
+        resizable=True,
+        draggable=True,
+        on_grid_layout=set_grid_layout,
+    )
