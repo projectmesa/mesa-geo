@@ -34,14 +34,16 @@ jobs:
       matrix:
         os: [windows, ubuntu, macos]
         python-version: ["3.12"]
+        name: [""]
         include:
           - os: ubuntu
             python-version: "3.11"
           - os: ubuntu
             python-version: "3.10"
-          # Disabled for now. See https://github.com/projectmesa/mesa/issues/1253
-          #- os: ubuntu
-          #  python-version: 'pypy-3.8'
+          - os: ubuntu
+            python-version: "3.12"
+            pip-pre: "--pre"  # Installs pre-release versions of pip dependencies
+            name: "Pre-release dependencies"  # Mainly to test Mesa pre-releases
 
     steps:
     - uses: actions/checkout@v4
@@ -54,7 +56,7 @@ jobs:
       run: pip install uv
     - name: Install Mesa-Geo
       # See https://github.com/astral-sh/uv/issues/1945
-      run: uv pip install --system .[dev]
+      run: uv pip install --system .[dev] ${{ matrix.pip-pre }}
     - name: Test with pytest
       run: pytest --durations=10 --cov=mesa_geo tests/ --cov-report=xml
     - if: matrix.os == 'ubuntu'
