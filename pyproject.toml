@@ -39,7 +39,7 @@ classifiers = [
 ]
 readme = "README.md"
 dependencies = [
-  "mesa",
+  "mesa<3",
   "geopandas",
   "libpysal",
   "rtree",
