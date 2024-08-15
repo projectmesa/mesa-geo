@@ -1,6 +1,41 @@
 Release History
 ---------------
 
+## 0.8.0 (2024-08-21)
+
+### Highlights
+
+- The Tornado visualization server is removed and replaced with SolaraViz, which also works within Jupyter notebooks (https://github.com/projectmesa/mesa-geo/pull/212). This is in line with Mesa's recent changes to use Solara for visualization.
+- The [Introductory Tutorial](https://mesa-geo.readthedocs.io/en/stable/tutorials/intro_tutorial.html) has been fully rewritten for Mesa-Geo 0.8.0
+- The 0.8.x series are the releases compatible with Mesa 2.3.x. The next major release will be compatible with Mesa 3.0+.
+
+### 🎉 New features added
+
+* Update mesa-geo to sync with mesa >=2.3.0 by @tpike3 in https://github.com/projectmesa/mesa-geo/pull/212
+
+### 🛠 Enhancements made
+
+* Update tutorial and viz by @tpike3 in https://github.com/projectmesa/mesa-geo/pull/217
+
+### 📜 Documentation improvements
+
+* fix links and installation instructions in README file by @wang-boyu in https://github.com/projectmesa/mesa-geo/pull/213
+* .readthedocs.yaml: Use latest Ubuntu and Python versions by @EwoutH in https://github.com/projectmesa/mesa-geo/pull/221
+* docs: update conf.py to be in sync with mesa by @wang-boyu in https://github.com/projectmesa/mesa-geo/pull/223
+* docs: remove api docs entry for removed visualization module by @wang-boyu in https://github.com/projectmesa/mesa-geo/pull/224
+* Fix kernel issue by @tpike3 in https://github.com/projectmesa/mesa-geo/pull/229
+* Remove cell output by @tpike3 in https://github.com/projectmesa/mesa-geo/pull/231
+
+### 🔧 Maintenance
+
+* Update configuration, metadata and tests by @tpike3 in https://github.com/projectmesa/mesa-geo/pull/208
+* fix: Use correct package name for Pip by @rht in https://github.com/projectmesa/mesa-geo/pull/214
+* pyproject.toml: Always use latest ruff by @EwoutH in https://github.com/projectmesa/mesa-geo/pull/219
+* pyproject.toml: Use mesa version smaller than 3 for now by @EwoutH in https://github.com/projectmesa/mesa-geo/pull/220
+* CI: Add job to test with pre-release dependencies, including Mesa by @EwoutH in https://github.com/projectmesa/mesa-geo/pull/218
+
+**Full Changelog**: https://github.com/projectmesa/mesa-geo/compare/v0.7.1...v0.8.0
+
 ## 0.7.1 (2024-03-27)
 
 ### 🐛 Bugs fixed
