@@ -14,13 +14,13 @@
 
 import sys
 import os
-from pathlib import Path
+from datetime import date
 
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
-# documentation root, use Path.resolve() to make it absolute, like shown here.
-sys.path.insert(0, str(Path(".").resolve()))
+# documentation root, use os.path.abspath to make it absolute, like shown here.
+sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, "../examples")
 sys.path.insert(0, "../mesa_geo")
 
@@ -59,7 +59,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "Mesa-Geo"
-copyright = "2017-2023, Project Mesa-Geo Team"
+copyright = f"2017-{date.today().year}, Project Mesa-Geo Team"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -106,7 +106,7 @@ autoclass_content = "both"
 # show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = "sphinx"
+pygments_style = "gruvbox-dark"
 
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
@@ -290,4 +290,4 @@ texinfo_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {"http://docs.python.org/": None}
+intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
