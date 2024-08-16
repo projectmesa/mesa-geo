@@ -119,7 +119,7 @@ pygments_style = "gruvbox-dark"
 nb_execution_timeout = 60
 # uses cached information
 nb_execution_mode = "cache"
-# ensures there is not a conflict if user has mutliple kernels
+# ensures there is not a conflict if user has multiple kernels
 nbsphinx_kernel_name = 'python-upstream-dev'
 
 # -- Options for HTML output ----------------------------------------------
