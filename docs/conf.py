@@ -113,9 +113,14 @@ pygments_style = "gruvbox-dark"
 
 # If true, keep warnings as "system message" paragraphs in the built documents.
 # keep_warnings = False
+# --- Options for nbsphinx -----------------------------------------------
 
+# prevents cell run time taking too long
 nb_execution_timeout = 60
+# uses cached information
 nb_execution_mode = "cache"
+# ensures there is not a conflict if user has multiple kernels
+nbsphinx_kernel_name = 'python-upstream-dev'
 
 # -- Options for HTML output ----------------------------------------------
 
