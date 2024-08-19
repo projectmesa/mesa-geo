@@ -115,12 +115,7 @@ pygments_style = "gruvbox-dark"
 # keep_warnings = False
 # --- Options for nbsphinx -----------------------------------------------
 
-# prevents cell run time taking too long
-nb_execution_timeout = 60
-# uses cached information
-nb_execution_mode = "cache"
-# ensures there is not a conflict if user has multiple kernels
-nbsphinx_kernel_name = 'python-upstream-dev'
+nbsphinc_execute = 'never'
 
 # -- Options for HTML output ----------------------------------------------
 
