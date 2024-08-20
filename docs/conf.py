@@ -42,6 +42,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
+    "myst_nb"
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -112,9 +113,11 @@ pygments_style = "gruvbox-dark"
 
 # If true, keep warnings as "system message" paragraphs in the built documents.
 # keep_warnings = False
-# --- Options for nbsphinx -----------------------------------------------
 
-nbsphinc_execute = 'never'
+# --- Options for myst_nb -----------------------------------------------
+
+#prevents cell output
+nb_remove_code_outputs = True
 
 # -- Options for HTML output ----------------------------------------------
 
