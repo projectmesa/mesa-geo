@@ -66,6 +66,7 @@ docs = [
   "ipython",
   "pydata_sphinx_theme",
   "seaborn",
+  "myst_nb",
   "myst-parser",         # Markdown in Sphinx
 ]
 
