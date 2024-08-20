@@ -42,7 +42,6 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
-    "myst_nb",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -82,7 +81,7 @@ release = "0.7.1"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ["_build"]
+exclude_patterns = ["_build", "build"]
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.

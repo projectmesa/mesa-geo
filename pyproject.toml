@@ -67,7 +67,6 @@ docs = [
   "ipykernel", # necessary to ensure python3 kernel
   "pydata_sphinx_theme",
   "seaborn",
-  "myst-nb",
   "myst-parser",         # Markdown in Sphinx
 ]
 
