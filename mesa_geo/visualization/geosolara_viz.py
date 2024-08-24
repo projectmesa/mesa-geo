@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
-import mesa.experimental.components.matplotlib as components_matplotlib
+import mesa.visualization.components.matplotlib as components_matplotlib
 import solara
 import xyzservices.providers as xyz
-from mesa.experimental import jupyter_viz as jv
+from mesa.visualization import solara_viz as sv
 from solara.alias import rv
 
 import mesa_geo.visualization.leaflet_viz as leaflet_viz
@@ -91,7 +91,7 @@ def Card(
 
 
 @solara.component
-def GeoJupyterViz(
+def GeoSolaraViz(
     model_class,
     model_params,
     measures=None,
@@ -151,7 +151,7 @@ def GeoJupyterViz(
     current_step = solara.use_reactive(0)
 
     # 1. Set up model parameters
-    user_params, fixed_params = jv.split_model_params(model_params)
+    user_params, fixed_params = sv.split_model_params(model_params)
     model_parameters, set_model_parameters = solara.use_state(
         {**fixed_params, **{k: v.get("value") for k, v in user_params.items()}}
     )
@@ -201,13 +201,13 @@ def GeoJupyterViz(
     if measures:
         layout_types += [{"Measure": elem} for elem in range(len(measures))]
 
-    grid_layout_initial = jv.make_initial_grid_layout(layout_types=layout_types)
+    grid_layout_initial = sv.make_initial_grid_layout(layout_types=layout_types)
     grid_layout, set_grid_layout = solara.use_state(grid_layout_initial)
 
     with solara.Sidebar():
         with solara.Card("Controls", margin=1, elevation=2):
-            jv.UserInputs(user_params, on_change=handle_change_model_params)
-            jv.ModelController(model, play_interval, current_step, reset_counter)
+            sv.UserInputs(user_params, on_change=handle_change_model_params)
+            sv.ModelController(model, play_interval, current_step, reset_counter)
         with solara.Card("Progress", margin=1, elevation=2):
             solara.Markdown(md_text=f"####Step - {current_step}")
 
@@ -234,3 +234,6 @@ def GeoJupyterViz(
         draggable=True,
         on_grid_layout=set_grid_layout,
     )
+
+
+GeoJupyterViz = GeoSolaraViz

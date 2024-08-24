@@ -3,14 +3,14 @@ from unittest.mock import MagicMock, patch
 
 import solara
 
-from mesa_geo.visualization.geojupyter_viz import Card, GeoJupyterViz
+from mesa_geo.visualization.geosolara_viz import Card, GeoSolaraViz
 
 
 class TestGeoViz(unittest.TestCase):
-    @patch("mesa_geo.visualization.geojupyter_viz.rv.CardTitle")
-    @patch("mesa_geo.visualization.geojupyter_viz.rv.Card")
-    @patch("mesa_geo.visualization.geojupyter_viz.components_matplotlib.PlotMatplotlib")
-    @patch("mesa_geo.visualization.geojupyter_viz.leaflet_viz.map")
+    @patch("mesa_geo.visualization.geosolara_viz.rv.CardTitle")
+    @patch("mesa_geo.visualization.geosolara_viz.rv.Card")
+    @patch("mesa_geo.visualization.geosolara_viz.components_matplotlib.PlotMatplotlib")
+    @patch("mesa_geo.visualization.geosolara_viz.leaflet_viz.map")
     def test_card_function(
         self,
         mock_map,
@@ -31,7 +31,7 @@ class TestGeoViz(unittest.TestCase):
         layout_type = {"Map": "default", "Measure": "Measure1"}
 
         with patch(
-            "mesa_geo.visualization.geojupyter_viz.rv.Card", return_value=MagicMock()
+            "mesa_geo.visualization.geosolara_viz.rv.Card", return_value=MagicMock()
         ) as mock_rv_card:
             _ = Card(
                 model,
@@ -53,19 +53,19 @@ class TestGeoViz(unittest.TestCase):
         )
         # mock_PlotMatplotlib.assert_called_once()
 
-    @patch("mesa_geo.visualization.geojupyter_viz.solara.GridDraggable")
-    @patch("mesa_geo.visualization.geojupyter_viz.solara.Sidebar")
-    @patch("mesa_geo.visualization.geojupyter_viz.solara.Card")
-    @patch("mesa_geo.visualization.geojupyter_viz.solara.Markdown")
-    @patch("mesa_geo.visualization.geojupyter_viz.jv.ModelController")
-    @patch("mesa_geo.visualization.geojupyter_viz.jv.UserInputs")
-    @patch("mesa_geo.visualization.geojupyter_viz.jv.split_model_params")
-    @patch("mesa_geo.visualization.geojupyter_viz.solara.use_memo")
-    @patch("mesa_geo.visualization.geojupyter_viz.solara.use_reactive")
-    @patch("mesa_geo.visualization.geojupyter_viz.solara.use_state")
-    @patch("mesa_geo.visualization.geojupyter_viz.solara.AppBarTitle")
-    @patch("mesa_geo.visualization.geojupyter_viz.solara.AppBar")
-    @patch("mesa_geo.visualization.geojupyter_viz.leaflet_viz.MapModule")
+    @patch("mesa_geo.visualization.geosolara_viz.solara.GridDraggable")
+    @patch("mesa_geo.visualization.geosolara_viz.solara.Sidebar")
+    @patch("mesa_geo.visualization.geosolara_viz.solara.Card")
+    @patch("mesa_geo.visualization.geosolara_viz.solara.Markdown")
+    @patch("mesa_geo.visualization.geosolara_viz.sv.ModelController")
+    @patch("mesa_geo.visualization.geosolara_viz.sv.UserInputs")
+    @patch("mesa_geo.visualization.geosolara_viz.sv.split_model_params")
+    @patch("mesa_geo.visualization.geosolara_viz.solara.use_memo")
+    @patch("mesa_geo.visualization.geosolara_viz.solara.use_reactive")
+    @patch("mesa_geo.visualization.geosolara_viz.solara.use_state")
+    @patch("mesa_geo.visualization.geosolara_viz.solara.AppBarTitle")
+    @patch("mesa_geo.visualization.geosolara_viz.solara.AppBar")
+    @patch("mesa_geo.visualization.geosolara_viz.leaflet_viz.MapModule")
     def test_geojupyterviz_function(
         self,
         mock_MapModule,  # noqa: N803
@@ -98,7 +98,7 @@ class TestGeoViz(unittest.TestCase):
         mock_use_memo.return_value = MagicMock()
 
         solara.render(
-            GeoJupyterViz(
+            GeoSolaraViz(
                 model_class=model_class,
                 model_params=model_params,
                 measures=measures,
