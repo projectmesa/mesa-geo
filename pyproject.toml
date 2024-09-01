@@ -43,7 +43,7 @@ dependencies = [
   "geopandas",
   "libpysal",
   "rtree",
-  "rasterio",
+  "rasterio>=1.4b1",
   "shapely",
   "pyproj",
   "folium",
