@@ -9,7 +9,7 @@ import copy
 import itertools
 import math
 import uuid
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from typing import Any, cast, overload
 
 import numpy as np
@@ -533,7 +533,11 @@ class RasterLayer(RasterBase):
 
     @classmethod
     def from_file(
-        cls, raster_file: str, cell_cls: type[Cell] = Cell, attr_name: str | None = None
+        cls,
+        raster_file: str,
+        cell_cls: type[Cell] = Cell,
+        attr_name: str | None = None,
+        rio_opener: Callable | None = None,
     ) -> RasterLayer:
         """
         Creates a RasterLayer from a raster file.
@@ -542,9 +546,10 @@ class RasterLayer(RasterBase):
         :param Type[Cell] cell_cls: The class of the cells in the layer.
         :param str | None attr_name: The name of the attribute to use for the cell values.
             If None, a random name will be generated. Default is None.
+        :param Callable | None rio_opener: A callable passed to Rasterio open() function.
         """
 
-        with rio.open(raster_file, "r") as dataset:
+        with rio.open(raster_file, "r", opener=rio_opener) as dataset:
             values = dataset.read()
             _, height, width = values.shape
             total_bounds = [
