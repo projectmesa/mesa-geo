@@ -15,6 +15,7 @@ from typing import Any, cast, overload
 import numpy as np
 import rasterio as rio
 from affine import Affine
+from mesa import Model
 from mesa.agent import Agent
 from mesa.space import Coordinate, accept_tuple_argument
 from rasterio.warp import (
@@ -535,6 +536,7 @@ class RasterLayer(RasterBase):
     def from_file(
         cls,
         raster_file: str,
+        model: Model,
         cell_cls: type[Cell] = Cell,
         attr_name: str | None = None,
         rio_opener: Callable | None = None,
@@ -558,7 +560,7 @@ class RasterLayer(RasterBase):
                 dataset.bounds.right,
                 dataset.bounds.top,
             ]
-            obj = cls(width, height, dataset.crs, total_bounds, cell_cls)
+            obj = cls(width, height, dataset.crs, total_bounds, model, cell_cls)
             obj._transform = dataset.transform
             obj.apply_raster(values, attr_name=attr_name)
             return obj
