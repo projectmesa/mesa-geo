@@ -1,9 +1,31 @@
 Release History
 ---------------
 
-## 0.8.0 (2024-08-21)
+# 0.8.1 (2024-09-03)
+## Highlights
+Mesa-Geo 0.8.1 is a small patch release containing a single feature, a documentation update and a bug fixed.
 
-### Highlights
+The real novelty is that from now on, all GIS examples on [Mesa-examples](https://github.com/projectmesa/mesa-examples) are tested in CI against Mesa-Geo. We fixed 16 bugs in the 7 GIS example models ([mesa-examples#172](https://github.com/projectmesa/mesa-examples/issues/172)), which are now available on two branches:
+- On the `main` branch [GIS examples](https://github.com/projectmesa/mesa-examples/tree/main/gis) can be found will keep being updated for the latest Mesa and Mesa-Geo versions.
+- On the `mesa-2.x` branch [GIS examples](https://github.com/projectmesa/mesa-examples/tree/mesa-2.x/gis) examples can be found that keep working with Mesa 2.x and Mesa-Geo 0.8.x.
+
+The Mesa-Geo 0.8.x. series is compatible with Mesa 2.3.x. The next Mesa-Geo release series, 0.9.x, will be compatible with with Mesa 3.0.
+
+## What's Changed
+### 🎉 New features added
+* Expose rasterio's opener argument in Rasterlayer.from_file by @EwoutH in https://github.com/projectmesa/mesa-geo/pull/237
+### 🐛 Bugs fixed
+* add model parameter in RasterLayer class method by @wang-boyu in https://github.com/projectmesa/mesa-geo/pull/240
+### 📜 Documentation improvements
+* Update intro_tutorial.ipynb by @tpike3 in https://github.com/projectmesa/mesa-geo/pull/234
+### 🔧 Maintenance
+* Add test script for GIS examples and run that in CI by @EwoutH in https://github.com/projectmesa/mesa-geo/pull/241
+
+**Full Changelog**: https://github.com/projectmesa/mesa-geo/compare/v0.8.0...v0.8.1
+
+# 0.8.0 (2024-08-21)
+
+## Highlights
 
 - The Tornado visualization server is removed and replaced with SolaraViz, which also works within Jupyter notebooks (https://github.com/projectmesa/mesa-geo/pull/212). This is in line with Mesa's recent changes to use Solara for visualization.
 - The [Introductory Tutorial](https://mesa-geo.readthedocs.io/en/stable/tutorials/intro_tutorial.html) has been fully rewritten for Mesa-Geo 0.8.0
