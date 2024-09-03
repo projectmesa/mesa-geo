@@ -69,6 +69,10 @@ docs = [
   "myst_nb",
   "myst-parser",         # Markdown in Sphinx
 ]
+examples = [
+    "pytest",
+    "momepy",
+]
 
 [project.urls]
 homepage = "https://github.com/projectmesa/mesa-geo"
