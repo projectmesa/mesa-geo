@@ -2,6 +2,10 @@ name: Test GIS examples
 
 on:
   push:
+    branches:
+    - main
+    - release**
+    - "**maintenance"
     paths-ignore:
       - '**.md'
   pull_request:
