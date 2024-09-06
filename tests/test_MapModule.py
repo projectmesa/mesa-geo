@@ -39,25 +39,19 @@ class TestMapModule(unittest.TestCase):
 
     def test_render_point_agents(self):
         # test length point agents and Circle marker as default
-        map_module = mgv.leaflet_viz.MapModule(
+        map_module = mgv.MapModule(
             portrayal_method=lambda x: {"color": "Green"},
-            view=None,
-            zoom=3,
-            scroll_wheel_zoom=True,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.point_agents)
         self.assertEqual(len(map_module.render(self.model).get("agents")[1]), 7)
         self.assertIsInstance(map_module.render(self.model).get("agents")[1][3], Circle)
         # test CircleMarker option
-        map_module = mgv.leaflet_viz.MapModule(
+        map_module = mgv.MapModule(
             portrayal_method=lambda x: {
                 "marker_type": "CircleMarker",
                 "color": "Green",
             },
-            view=None,
-            zoom=3,
-            scroll_wheel_zoom=True,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.point_agents)
@@ -66,30 +60,24 @@ class TestMapModule(unittest.TestCase):
         )
 
         # test Marker option
-        map_module = mgv.leaflet_viz.MapModule(
+        map_module = mgv.MapModule(
             portrayal_method=lambda x: {
                 "marker_type": "AwesomeIcon",
                 "name": "bus",
                 "color": "Green",
             },
-            view=None,
-            zoom=3,
-            scroll_wheel_zoom=True,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.point_agents)
         self.assertEqual(len(map_module.render(self.model).get("agents")[1]), 7)
         self.assertIsInstance(map_module.render(self.model).get("agents")[1][3], Marker)
         # test popupProperties for Point
-        map_module = mgv.leaflet_viz.MapModule(
+        map_module = mgv.MapModule(
             portrayal_method=lambda x: {
                 "color": "Red",
                 "radius": 7,
                 "description": "popupMsg",
             },
-            view=None,
-            zoom=3,
-            scroll_wheel_zoom=False,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.point_agents)
@@ -103,11 +91,8 @@ class TestMapModule(unittest.TestCase):
         )
 
         # test ValueError if not known markertype
-        map_module = mgv.leaflet_viz.MapModule(
+        map_module = mgv.MapModule(
             portrayal_method=lambda x: {"marker_type": "Hexagon", "color": "Green"},
-            view=None,
-            zoom=3,
-            scroll_wheel_zoom=True,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.point_agents)
@@ -115,11 +100,8 @@ class TestMapModule(unittest.TestCase):
             map_module.render(self.model)
 
     def test_render_line_agents(self):
-        map_module = mgv.leaflet_viz.MapModule(
+        map_module = mgv.MapModule(
             portrayal_method=lambda x: {"color": "#3388ff", "weight": 7},
-            view=None,
-            zoom=3,
-            scroll_wheel_zoom=False,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.line_agents)
@@ -141,15 +123,12 @@ class TestMapModule(unittest.TestCase):
             },
         )
 
-        map_module = mgv.leaflet_viz.MapModule(
+        map_module = mgv.MapModule(
             portrayal_method=lambda x: {
                 "color": "#3388ff",
                 "weight": 7,
                 "description": "popupMsg",
             },
-            view=None,
-            zoom=3,
-            scroll_wheel_zoom=True,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.line_agents)
@@ -177,11 +156,8 @@ class TestMapModule(unittest.TestCase):
     def test_render_polygon_agents(self):
         self.maxDiff = None
 
-        map_module = mgv.leaflet_viz.MapModule(
+        map_module = mgv.MapModule(
             portrayal_method=lambda x: {"fillColor": "#3388ff", "fillOpacity": 0.7},
-            view=None,
-            zoom=3,
-            scroll_wheel_zoom=False,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.polygon_agents)
@@ -207,15 +183,12 @@ class TestMapModule(unittest.TestCase):
             },
         )
 
-        map_module = mgv.leaflet_viz.MapModule(
+        map_module = mgv.MapModule(
             portrayal_method=lambda x: {
                 "fillColor": "#3388ff",
                 "fillOpacity": 0.7,
                 "description": "popupMsg",
             },
-            view=None,
-            zoom=3,
-            scroll_wheel_zoom=True,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_agents(self.polygon_agents)
@@ -243,11 +216,8 @@ class TestMapModule(unittest.TestCase):
         )
 
     def test_render_raster_layers(self):
-        map_module = mg.visualization.leaflet_viz.MapModule(
+        map_module = mgv.MapModule(
             portrayal_method=lambda x: (255, 255, 255, 0.5),
-            view=None,
-            zoom=3,
-            scroll_wheel_zoom=True,
             tiles=xyz.OpenStreetMap.Mapnik,
         )
         self.model.space.add_layer(self.raster_layer)
