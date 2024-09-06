@@ -1,5 +1,6 @@
 # Import specific classes or functions from the modules
-from mesa_geo.visualization.geojupyter_viz import GeoJupyterViz
-from mesa_geo.visualization.leaflet_viz import LeafletViz
+from .components.geospace_leaflet import MapModule, make_geospace_leaflet
+from .geojupyter_viz import GeoJupyterViz
+from .leaflet_viz import LeafletViz
 
-__all__ = ["GeoJupyterViz", "LeafletViz"]
+__all__ = ["make_geospace_leaflet", "MapModule", "GeoJupyterViz", "LeafletViz"]
