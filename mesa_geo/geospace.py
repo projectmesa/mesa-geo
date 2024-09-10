@@ -457,7 +457,7 @@ class _AgentLayer:
                     if attr not in {"model", "pos", "_crs"}
                 }
                 agents_list.append(agent_dict)
-        agents_gdf = gpd.GeoDataFrame.from_records(agents_list, index="unique_id")
+        agents_gdf = gpd.GeoDataFrame.from_records(agents_list)
         # workaround for geometry column not being set in `from_records`
         # see https://github.com/geopandas/geopandas/issues/3152
         # may be removed when the issue is resolved
