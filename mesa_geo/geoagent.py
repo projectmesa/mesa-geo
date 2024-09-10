@@ -25,17 +25,16 @@ class GeoAgent(Agent, GeoBase):
     Base class for a geo model agent.
     """
 
-    def __init__(self, unique_id, model, geometry, crs):
+    def __init__(self, model, geometry, crs):
         """
         Create a new agent.
 
-        :param unique_id: Unique ID for the agent.
         :param model: The model the agent is in.
         :param geometry: A Shapely object representing the geometry of the agent.
         :param crs: The coordinate reference system of the geometry.
         """
 
-        Agent.__init__(self, unique_id, model)
+        Agent.__init__(self, model)
         GeoBase.__init__(self, crs=crs)
         self.geometry = geometry
 
@@ -105,14 +104,7 @@ class AgentCreator:
             and the crs from the file/GeoDataFrame/GeoJSON will be used.
             Otherwise, geometries are converted into this crs automatically.
         :param agent_kwargs: Keyword arguments to pass to the agent_class.
-            Must NOT include unique_id.
         """
-
-        if agent_kwargs and "unique_id" in agent_kwargs:
-            agent_kwargs.remove("unique_id")
-            warnings.warn(
-                "Unique_id should not be in the agent_kwargs", UserWarning, stacklevel=2
-            )
 
         self.agent_class = agent_class
         self.model = model
@@ -135,12 +127,11 @@ class AgentCreator:
 
         self._crs = pyproj.CRS.from_user_input(crs) if crs else None
 
-    def create_agent(self, geometry, unique_id):
+    def create_agent(self, geometry):
         """
-        Create a single agent from a geometry and a unique_id. Shape must be a valid Shapely object.
+        Create a single agent from a geometry. Shape must be a valid Shapely object.
 
         :param geometry: The geometry of the agent.
-        :param unique_id: The unique_id of the agent.
         :return: The created agent.
         :rtype: self.agent_class
         """
@@ -157,7 +148,6 @@ class AgentCreator:
             raise ValueError("Model must be a valid Mesa model object")
 
         new_agent = self.agent_class(
-            unique_id=unique_id,
             model=self.model,
             geometry=geometry,
             crs=self.crs,
@@ -166,19 +156,14 @@ class AgentCreator:
 
         return new_agent
 
-    def from_GeoDataFrame(self, gdf, unique_id="index", set_attributes=True):
+    def from_GeoDataFrame(self, gdf, set_attributes=True):
         """
         Create a list of agents from a GeoDataFrame.
 
         :param gdf: The GeoDataFrame to create agents from.
-        :param unique_id: The column name of the data to use as the agents unique_id.
-            If "index", the index of the GeoDataFrame is used. Default to "index".
         :param set_attributes: Set agent attributes from GeoDataFrame columns.
             Default True.
         """
-
-        if unique_id != "index":
-            gdf = gdf.set_index(unique_id)
 
         if self.crs:
             if gdf.crs:
@@ -197,7 +182,7 @@ class AgentCreator:
         agents = []
         for index, row in gdf.iterrows():
             geometry = row[gdf.geometry.name]
-            new_agent = self.create_agent(geometry=geometry, unique_id=index)
+            new_agent = self.create_agent(geometry=geometry)
 
             if set_attributes:
                 for col in row.index:
@@ -207,34 +192,29 @@ class AgentCreator:
 
         return agents
 
-    def from_file(self, filename, unique_id="index", set_attributes=True):
+    def from_file(self, filename, set_attributes=True):
         """
         Create agents from vector data files (e.g. Shapefiles).
 
         :param filename: The vector data file to create agents from.
-        :param unique_id: The column name of the data to use as the agents unique_id.
-            If "index", the index of the GeoDataFrame is used. Default to "index".
         :param set_attributes: Set agent attributes from GeoDataFrame columns. Default True.
         """
 
         gdf = gpd.read_file(filename)
         agents = self.from_GeoDataFrame(
-            gdf, unique_id=unique_id, set_attributes=set_attributes
+            gdf, set_attributes=set_attributes
         )
         return agents
 
     def from_GeoJSON(
         self,
         GeoJSON,  # noqa: N803
-        unique_id="index",
         set_attributes=True,
     ):
         """
         Create agents from a GeoJSON object or string. CRS is set to epsg:4326.
 
         :param GeoJSON: The GeoJSON object or string to create agents from.
-        :param unique_id: The column name of the data to use as the agents unique_id.
-            If "index", the index of the GeoDataFrame is used. Default to "index".
         :param set_attributes: Set agent attributes from GeoDataFrame columns. Default True.
         """
 
@@ -244,6 +224,6 @@ class AgentCreator:
         # epsg:4326 is the CRS for all GeoJSON: https://datatracker.ietf.org/doc/html/rfc7946#section-4
         gdf.crs = "epsg:4326"
         agents = self.from_GeoDataFrame(
-            gdf, unique_id=unique_id, set_attributes=set_attributes
+            gdf, set_attributes=set_attributes
         )
         return agents
