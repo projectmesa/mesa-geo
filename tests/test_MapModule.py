@@ -1,5 +1,4 @@
 import unittest
-import uuid
 
 import mesa
 import numpy as np
@@ -20,18 +19,15 @@ class TestMapModule(unittest.TestCase):
         )
         self.points = [Point(1, 1)] * 7
         self.point_agents = [
-            self.agent_creator.create_agent(point)
-            for point in self.points
+            self.agent_creator.create_agent(point) for point in self.points
         ]
         self.lines = [LineString([(1, 1), (2, 2)])] * 9
         self.line_agents = [
-            self.agent_creator.create_agent(line)
-            for line in self.lines
+            self.agent_creator.create_agent(line) for line in self.lines
         ]
         self.polygons = [Polygon([(1, 1), (2, 2), (4, 4)])] * 3
         self.polygon_agents = [
-            self.agent_creator.create_agent(polygon)
-            for polygon in self.polygons
+            self.agent_creator.create_agent(polygon) for polygon in self.polygons
         ]
         self.raster_layer = mg.RasterLayer(
             1, 1, crs="epsg:4326", total_bounds=[0, 0, 1, 1], model=self.model

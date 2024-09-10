@@ -54,9 +54,7 @@ class TestAgentCreator(unittest.TestCase):
         pass
 
     def test_create_agent_with_crs(self):
-        agent = self.agent_creator_with_crs.create_agent(
-            geometry=Point(1, 1)
-        )
+        agent = self.agent_creator_with_crs.create_agent(geometry=Point(1, 1))
         self.assertIsInstance(agent, mg.GeoAgent)
         self.assertEqual(agent.geometry, Point(1, 1))
         self.assertEqual(agent.model, self.model)
@@ -64,9 +62,7 @@ class TestAgentCreator(unittest.TestCase):
 
     def test_create_agent_without_crs(self):
         with self.assertRaises(TypeError):
-            self.agent_creator_without_crs.create_agent(
-                geometry=Point(1, 1)
-            )
+            self.agent_creator_without_crs.create_agent(geometry=Point(1, 1))
 
     def test_from_GeoDataFrame_with_default_geometry_name(self):
         gdf = gpd.GeoDataFrame(
