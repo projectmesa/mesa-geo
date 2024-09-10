@@ -55,7 +55,7 @@ class TestAgentCreator(unittest.TestCase):
 
     def test_create_agent_with_crs(self):
         agent = self.agent_creator_with_crs.create_agent(
-            geometry=Point(1, 1), unique_id=0
+            geometry=Point(1, 1)
         )
         self.assertIsInstance(agent, mg.GeoAgent)
         self.assertEqual(agent.geometry, Point(1, 1))
@@ -65,7 +65,7 @@ class TestAgentCreator(unittest.TestCase):
     def test_create_agent_without_crs(self):
         with self.assertRaises(TypeError):
             self.agent_creator_without_crs.create_agent(
-                geometry=Point(1, 1), unique_id=0
+                geometry=Point(1, 1)
             )
 
     def test_from_GeoDataFrame_with_default_geometry_name(self):
@@ -106,12 +106,12 @@ class TestAgentCreator(unittest.TestCase):
 
         self.assertEqual(len(agents), 2)
 
-        self.assertEqual(agents[0].unique_id, 0)
+        self.assertEqual(agents[0].unique_id, 1)
         self.assertEqual(agents[0].col1, "name1")
         self.assertEqual(agents[0].geometry, Point(1.0, 2.0))
         self.assertEqual(agents[0].crs, "epsg:4326")
 
-        self.assertEqual(agents[1].unique_id, 1)
+        self.assertEqual(agents[1].unique_id, 2)
         self.assertEqual(agents[1].col1, "name2")
         self.assertEqual(agents[1].geometry, Point(2.0, 1.0))
         self.assertEqual(agents[1].crs, "epsg:4326")
@@ -121,7 +121,7 @@ class TestAgentCreator(unittest.TestCase):
 
         self.assertEqual(len(agents), 2)
 
-        self.assertEqual(agents[0].unique_id, 0)
+        self.assertEqual(agents[0].unique_id, 1)
         self.assertEqual(agents[0].col1, "name1")
         self.assertTrue(
             agents[0].geometry.equals_exact(
@@ -130,7 +130,7 @@ class TestAgentCreator(unittest.TestCase):
         )
         self.assertEqual(agents[0].crs, self.agent_creator_with_crs.crs)
 
-        self.assertEqual(agents[1].unique_id, 1)
+        self.assertEqual(agents[1].unique_id, 2)
         self.assertEqual(agents[1].col1, "name2")
         self.assertTrue(
             agents[1].geometry.equals_exact(
