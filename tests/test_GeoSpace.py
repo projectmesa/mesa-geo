@@ -1,12 +1,10 @@
 import random
 import unittest
-import uuid
 import warnings
 
 import geopandas as gpd
 import mesa
 import numpy as np
-import pandas as pd
 from shapely.geometry import Point, Polygon
 
 import mesa_geo as mg
@@ -140,10 +138,7 @@ class TestGeoSpace(unittest.TestCase):
     def test_get_agents_as_GeoDataFrame(self):
         self.geo_space.add_agents(self.agents)
 
-        agents_list = [
-            {"geometry": agent.geometry}
-            for agent in self.agents
-        ]
+        agents_list = [{"geometry": agent.geometry} for agent in self.agents]
         agents_gdf = gpd.GeoDataFrame.from_records(agents_list)
         # workaround for geometry column not being set in `from_records`
         # see https://github.com/geopandas/geopandas/issues/3152

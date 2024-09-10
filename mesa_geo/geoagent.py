@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import copy
 import json
-import warnings
 
 import geopandas as gpd
 import numpy as np
@@ -201,9 +200,7 @@ class AgentCreator:
         """
 
         gdf = gpd.read_file(filename)
-        agents = self.from_GeoDataFrame(
-            gdf, set_attributes=set_attributes
-        )
+        agents = self.from_GeoDataFrame(gdf, set_attributes=set_attributes)
         return agents
 
     def from_GeoJSON(
@@ -223,7 +220,5 @@ class AgentCreator:
         gdf = gpd.GeoDataFrame.from_features(gj)
         # epsg:4326 is the CRS for all GeoJSON: https://datatracker.ietf.org/doc/html/rfc7946#section-4
         gdf.crs = "epsg:4326"
-        agents = self.from_GeoDataFrame(
-            gdf, set_attributes=set_attributes
-        )
+        agents = self.from_GeoDataFrame(gdf, set_attributes=set_attributes)
         return agents
