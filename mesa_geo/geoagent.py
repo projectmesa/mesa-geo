@@ -179,7 +179,7 @@ class AgentCreator:
                 )
 
         agents = []
-        for index, row in gdf.iterrows():
+        for _index, row in gdf.iterrows():
             geometry = row[gdf.geometry.name]
             new_agent = self.create_agent(geometry=geometry)
 
