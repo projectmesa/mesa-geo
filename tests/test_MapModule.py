@@ -20,17 +20,17 @@ class TestMapModule(unittest.TestCase):
         )
         self.points = [Point(1, 1)] * 7
         self.point_agents = [
-            self.agent_creator.create_agent(point, unique_id=uuid.uuid4().int)
+            self.agent_creator.create_agent(point)
             for point in self.points
         ]
         self.lines = [LineString([(1, 1), (2, 2)])] * 9
         self.line_agents = [
-            self.agent_creator.create_agent(line, unique_id=uuid.uuid4().int)
+            self.agent_creator.create_agent(line)
             for line in self.lines
         ]
         self.polygons = [Polygon([(1, 1), (2, 2), (4, 4)])] * 3
         self.polygon_agents = [
-            self.agent_creator.create_agent(polygon, unique_id=uuid.uuid4().int)
+            self.agent_creator.create_agent(polygon)
             for polygon in self.polygons
         ]
         self.raster_layer = mg.RasterLayer(

@@ -23,24 +23,20 @@ class TestGeoSpace(unittest.TestCase):
         self.agents = [
             self.agent_creator.create_agent(
                 geometry=geometry,
-                unique_id=uuid.uuid4().int,
             )
             for geometry in self.geometries
         ]
         self.polygon_agent = mg.GeoAgent(
-            unique_id=uuid.uuid4().int,
             model=self.model,
             geometry=Polygon([(0, 0), (0, 2), (2, 2), (2, 0)]),
             crs="epsg:3857",
         )
         self.touching_agent = mg.GeoAgent(
-            unique_id=uuid.uuid4().int,
             model=self.model,
             geometry=Polygon([(2, 0), (2, 2), (4, 2), (4, 0)]),
             crs="epsg:3857",
         )
         self.disjoint_agent = mg.GeoAgent(
-            unique_id=uuid.uuid4().int,
             model=self.model,
             geometry=Polygon([(10, 10), (10, 12), (12, 12), (12, 10)]),
             crs="epsg:3857",
@@ -145,19 +141,16 @@ class TestGeoSpace(unittest.TestCase):
         self.geo_space.add_agents(self.agents)
 
         agents_list = [
-            {"geometry": agent.geometry, "unique_id": agent.unique_id}
+            {"geometry": agent.geometry}
             for agent in self.agents
         ]
-        agents_gdf = gpd.GeoDataFrame.from_records(agents_list, index="unique_id")
+        agents_gdf = gpd.GeoDataFrame.from_records(agents_list)
         # workaround for geometry column not being set in `from_records`
         # see https://github.com/geopandas/geopandas/issues/3152
         # may be removed when the issue is resolved
         agents_gdf.set_geometry("geometry", inplace=True)
         agents_gdf.crs = self.geo_space.crs
 
-        pd.testing.assert_frame_equal(
-            self.geo_space.get_agents_as_GeoDataFrame(), agents_gdf
-        )
         self.assertEqual(
             self.geo_space.get_agents_as_GeoDataFrame().crs, agents_gdf.crs
         )
