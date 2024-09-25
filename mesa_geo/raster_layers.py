@@ -8,7 +8,6 @@ from __future__ import annotations
 import copy
 import itertools
 import math
-import uuid
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from typing import Any, cast, overload
 
@@ -175,7 +174,7 @@ class Cell(Agent):
             Origin is at upper left corner of the grid
         """
 
-        super().__init__(uuid.uuid4().int, model)
+        super().__init__(model)
         self.pos = pos
         self.indices = indices
 
