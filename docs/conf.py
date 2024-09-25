@@ -118,6 +118,8 @@ pygments_style = "gruvbox-dark"
 
 #prevents cell output
 nb_remove_code_outputs = True
+nb_execution_allow_errors = False
+nb_execution_raise_on_error = True
 
 # -- Options for HTML output ----------------------------------------------
 
