@@ -28,7 +28,7 @@ The Mesa-Geo 0.8.x. series is compatible with Mesa 2.3.x. The next Mesa-Geo rele
 ## Highlights
 
 - The Tornado visualization server is removed and replaced with SolaraViz, which also works within Jupyter notebooks (https://github.com/projectmesa/mesa-geo/pull/212). This is in line with Mesa's recent changes to use Solara for visualization.
-- The [Introductory Tutorial](https://mesa-geo.readthedocs.io/en/stable/tutorials/intro_tutorial.html) has been fully rewritten for Mesa-Geo 0.8.0
+- The [Introductory Tutorial](https://mesa-geo.readthedocs.io/stable/tutorials/intro_tutorial.html) has been fully rewritten for Mesa-Geo 0.8.0
 - The 0.8.x series are the releases compatible with Mesa 2.3.x. The next major release will be compatible with Mesa 3.0+.
 
 ### 🎉 New features added
