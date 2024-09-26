@@ -319,7 +319,9 @@ class _AgentLayer:
 
         if len(agents) > 0:
             # Bulk insert agents
-            index_data = ((id(agent), agent.geometry.bounds, None) for agent in agents)
+            index_data = (
+                (agent.unique_id, agent.geometry.bounds, None) for agent in agents
+            )
             self._idx = index.Index(index_data)
 
     def add_agents(self, agents):
@@ -336,12 +338,12 @@ class _AgentLayer:
 
         if isinstance(agents, GeoAgent):
             agent = agents
-            self._id_to_agent[id(agent)] = agent
+            self._id_to_agent[agent.unique_id] = agent
             if self._idx:
-                self._idx.insert(id(agent), agent.geometry.bounds, None)
+                self._idx.insert(agent.unique_id, agent.geometry.bounds, None)
         else:
             for agent in agents:
-                self._id_to_agent[id(agent)] = agent
+                self._id_to_agent[agent.unique_id] = agent
             if self._idx:
                 self._recreate_rtree(agents)
         self._total_bounds = None
@@ -351,9 +353,9 @@ class _AgentLayer:
         Remove an agent from the layer.
         """
 
-        del self._id_to_agent[id(agent)]
+        del self._id_to_agent[agent.unique_id]
         if self._idx:
-            self._idx.delete(id(agent), agent.geometry.bounds)
+            self._idx.delete(agent.unique_id, agent.geometry.bounds)
         self._total_bounds = None
 
     def get_relation(self, agent, relation):
