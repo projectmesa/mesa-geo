@@ -59,7 +59,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "Mesa-Geo"
-copyright = f"2017-{date.today().year}, Project Mesa-Geo Team"
+copyright = f"2017-{date.today().year}, Project Mesa Team"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -225,7 +225,7 @@ latex_documents = [
         "index",
         "Mesa-Geo.tex",
         "Mesa-Geo Documentation",
-        "Project Mesa-Geo Team",
+        "Project Mesa Team",
         "manual",
     )
 ]
@@ -256,7 +256,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ("index", "mesa-geo", "Mesa-Geo Documentation", ["Project Mesa-Geo Team"], 1)
+    ("index", "mesa-geo", "Mesa-Geo Documentation", ["Project Mesa Team"], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -273,8 +273,7 @@ texinfo_documents = [
         "index",
         "Mesa-Geo",
         "Mesa-Geo Documentation",
-        "Project Mesa-Geo Team",
-        "Mesa-Geo",
+        "Project Mesa Team",
         "One line description of project.",
         "Miscellaneous",
     )
