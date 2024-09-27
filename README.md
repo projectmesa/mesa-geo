@@ -11,20 +11,22 @@ Mesa-Geo implements a `GeoSpace` that can host GIS-based `GeoAgents`, which are 
 
 ## Using Mesa-Geo
 
-To install Mesa-Geo, run
-
+To install Mesa-Geo, run:
 ```bash
-pip install mesa-geo
+pip install -U mesa-geo
+```
+
+Mesa-Geo pre-releases can be installed with:
+```bash
+pip install -U --pre mesa-geo
 ```
 
 You can also use `pip` to install the GitHub version:
-
 ```bash
-pip install -e git+https://github.com/projectmesa/mesa-geo.git#egg=mesa-geo
+pip install -U -e git+https://github.com/projectmesa/mesa-geo.git#egg=mesa-geo
 ```
 
 Or any other (development) branch on this repo or your own fork:
-
 ``` bash
 pip install -U -e git+https://github.com/YOUR_FORK/mesa-geo@YOUR_BRANCH#egg=mesa-geo
 ```
