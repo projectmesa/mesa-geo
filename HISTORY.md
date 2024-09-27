@@ -1,5 +1,54 @@
 Release History
 ---------------
+# 0.9.0a0 (2024-09-27)
+## Highlights
+The Mesa-geo `v0.9.0a0` pre-release is the first Mesa-geo version compatible with Mesa 3.0.
+
+One of the most notable changes is the automatic assignment of unique IDs to agents. This eliminates the need for manual ID specification, simplifying agent creation. For example, where you previously might have initialized an agent with:
+
+```python
+agent = MyGeoAgent(unique_id=1, model=model, geometry=point, crs="EPSG:4326")
+```
+
+You now simply omit the `unique_id`:
+
+```python
+agent = MyGeoAgent(model=model, geometry=point, crs="EPSG:4326")
+```
+
+Mesa-geo can now directly use Mesa 3.0's SolaraViz visualisation, with an additional `make_geospace_leaflet` method to support geospaces. The new visualization can be used like:
+
+```python
+from mesa.visualization import SolaraViz
+import mesa_geo.visualization as mgv
+
+model = GeoSIR()
+SolaraViz(
+    model,
+    name="GeoSIR",
+    components=[
+        mgv.make_geospace_leaflet(SIR_draw, zoom=12, scroll_wheel_zoom=False),
+        mesa.visualization.make_plot_measure(["infected", "susceptible", "recovered", "dead"]),
+        mesa.visualization.make_plot_measure(["safe", "hotspot"]),
+    ]
+)
+```
+
+The `v0.9.0a0` pre-release is a snapshot release to allow starting testing against Mesa 3.0, and might introduce new breaking changes in upcoming (pre-)releases.
+
+## What's Changed
+### ⚠️ Breaking changes
+* Require Mesa 3.0 by @EwoutH in https://github.com/projectmesa/mesa-geo/pull/244
+* Automatically assign unique_id's by @EwoutH in https://github.com/projectmesa/mesa-geo/pull/248
+### 🛠 Enhancements made
+* add method to make geospace as a solara component by @wang-boyu in https://github.com/projectmesa/mesa-geo/pull/246
+### 🐛 Bugs fixed
+* raster_layer: Don't pass unique_id to Agent in Cell by @EwoutH in https://github.com/projectmesa/mesa-geo/pull/249
+### 📜 Documentation improvements
+* Readthedocs: Don't let notebook failures pass silently by @EwoutH in https://github.com/projectmesa/mesa-geo/pull/250
+* intro tutorial: Remove unique_id from Agent init by @EwoutH in https://github.com/projectmesa/mesa-geo/pull/251
+
+**Full Changelog**: https://github.com/projectmesa/mesa-geo/compare/v0.8.1...v0.9.0a0
 
 # 0.8.1 (2024-09-03)
 ## Highlights
