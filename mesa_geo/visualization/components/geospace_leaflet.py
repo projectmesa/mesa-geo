@@ -46,7 +46,12 @@ def GeoSpaceLeaflet(model, agent_portrayal, view, tiles, **kwargs):
         [ipyleaflet.TileLayer.element(url=map_drawer.tiles["url"])] if tiles else []
     )
     for layer in model_view["layers"]["rasters"]:
-        layers.append(ipyleaflet.ImageOverlay(element=image_to_url(layer)))
+        layers.append(
+            ipyleaflet.ImageOverlay(
+                url=layer["url"],
+                bounds=layer["bounds"],
+            )
+        )
     for layer in model_view["layers"]["vectors"]:
         layers.append(ipyleaflet.GeoJSON(element=layer))
     ipyleaflet.Map.element(
@@ -163,7 +168,22 @@ class MapModule:
                 else:
                     layer_to_render = layer.to_crs(self._crs)
                 layers["rasters"].append(
-                    image_to_url(layer_to_render.values.transpose([1, 2, 0]))
+                    {
+                        "url": image_to_url(
+                            layer_to_render.values.transpose([1, 2, 0])
+                        ),
+                        # longlat [min_x, min_y, max_x, max_y] to latlong [[min_y, min_x], [max_y, max_x]]
+                        "bounds": [
+                            [
+                                layer_to_render.total_bounds[1],
+                                layer_to_render.total_bounds[0],
+                            ],
+                            [
+                                layer_to_render.total_bounds[3],
+                                layer_to_render.total_bounds[2],
+                            ],
+                        ],
+                    }
                 )
             elif isinstance(layer, gpd.GeoDataFrame):
                 layers["vectors"].append(

@@ -228,8 +228,14 @@ class TestMapModule(unittest.TestCase):
             map_module.render(self.model).get("layers"),
             {
                 "rasters": [
-                    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mP4DwQACfsD/Wj6HMwAAAAASUVORK5CYII=",
-                    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYGD4DwABBAEAgLvRWwAAAABJRU5ErkJggg==",
+                    {
+                        "url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mP4DwQACfsD/Wj6HMwAAAAASUVORK5CYII=",
+                        "bounds": [[0.0, 0.0], [1.0, 1.0]],
+                    },
+                    {
+                        "url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNgYGD4DwABBAEAgLvRWwAAAABJRU5ErkJggg==",
+                        "bounds": [[0.0, 0.0], [1.0, 1.0]],
+                    },
                 ],
                 "total_bounds": [[0.0, 0.0], [1.0, 1.0]],
                 "vectors": [],
