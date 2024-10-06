@@ -1,3 +1,5 @@
+import warnings
+
 import matplotlib.pyplot as plt
 import mesa.experimental.components.matplotlib as components_matplotlib
 import solara
@@ -144,6 +146,12 @@ def GeoJupyterViz(
         Provides information to Card to render model
 
     """
+
+    warnings.warn(
+        "`GeoJupyterViz` is deprecated and will be removed in a future release. Use Mesa's SolaraViz and Mesa-Geo's `make_geospace_leaflet` instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
 
     if name is None:
         name = model_class.__name__
