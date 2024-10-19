@@ -2,7 +2,7 @@
 
 | | |
 | --- | --- |
-| CI/CD | [![GitHub CI](https://github.com/projectmesa/mesa-geo/workflows/build/badge.svg)](https://github.com/projectmesa/mesa-geo/actions) [![Read the Docs](https://readthedocs.org/projects/mesa-geo/badge/?version=main)](https://mesa-geo.readthedocs.io/en/main) [![Codecov](https://codecov.io/gh/projectmesa/mesa-geo/branch/main/graph/badge.svg)](https://codecov.io/gh/projectmesa/mesa-geo) |
+| CI/CD | [![GitHub CI](https://github.com/projectmesa/mesa-geo/workflows/build/badge.svg)](https://github.com/projectmesa/mesa-geo/actions) [![Read the Docs](https://readthedocs.org/projects/mesa-geo/badge/?version=stable)](https://mesa-geo.readthedocs.io/stable) [![Codecov](https://codecov.io/gh/projectmesa/mesa-geo/branch/main/graph/badge.svg)](https://codecov.io/gh/projectmesa/mesa-geo) |
 | Package | [![PyPI](https://img.shields.io/pypi/v/mesa-geo.svg)](https://pypi.org/project/mesa-geo) [![PyPI - License](https://img.shields.io/pypi/l/mesa-geo)](https://pypi.org/project/mesa-geo/) [![PyPI - Downloads](https://img.shields.io/pypi/dw/mesa-geo)](https://pypistats.org/packages/mesa-geo) |
 | Meta | [![linting - Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff) [![code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![Hatch project](https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg)](https://github.com/pypa/hatch) [![DOI](https://zenodo.org/badge/DOI/10.1145/3557989.3566157.svg)](https://doi.org/10.1145/3557989.3566157) |
 | Chat | [![chat](https://img.shields.io/matrix/project-mesa:matrix.org?label=chat&logo=Matrix)](https://matrix.to/#/#project-mesa:matrix.org) |
@@ -35,8 +35,8 @@ Take a look at the [examples](https://github.com/projectmesa/mesa-examples/tree/
 
 For more help on using Mesa-Geo, check out the following resources:
 
-- [Introductory Tutorial](http://mesa-geo.readthedocs.org/en/main/tutorials/intro_tutorial.html)
-- [Docs](http://mesa-geo.readthedocs.org/en/main/)
+- [Introductory Tutorial](http://mesa-geo.readthedocs.io/stable/tutorials/intro_tutorial.html)
+- [Docs](http://mesa-geo.readthedocs.io/stable/)
 - [Mesa-Geo Discussions](https://github.com/projectmesa/mesa-geo/discussions)
 - [PyPI](https://pypi.org/project/mesa-geo/)
 

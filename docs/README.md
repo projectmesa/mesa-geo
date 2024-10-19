@@ -1,7 +1,7 @@
 Docs for Mesa-Geo
 =============
 
-The readable version of the docs is hosted at [mesa-geo.readthedocs.org](http://mesa-geo.readthedocs.org/).
+The readable version of the docs is hosted at [mesa-geo.readthedocs.org](http://mesa-geo.readthedocs.io/).
 
 This folder contains the docs that build the docs for   Mesa-Geo on readthdocs.
 

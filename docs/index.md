@@ -1,7 +1,7 @@
 # Mesa-Geo: GIS Extension for Mesa Agent-Based Modeling
 
 [![GitHub CI](https://github.com/projectmesa/mesa-geo/workflows/build/badge.svg)](https://github.com/projectmesa/mesa-geo/actions)
-[![Read the Docs](https://readthedocs.org/projects/mesa-geo/badge/?version=main)](https://mesa-geo.readthedocs.io/en/main)
+[![Read the Docs](https://readthedocs.org/projects/mesa-geo/badge/?version=stable)](https://mesa-geo.readthedocs.io/stable)
 [![Codecov](https://codecov.io/gh/projectmesa/mesa-geo/branch/main/graph/badge.svg)](https://codecov.io/gh/projectmesa/mesa-geo)
 [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![PyPI](https://img.shields.io/pypi/v/mesa-geo.svg)](https://pypi.org/project/mesa-geo)
@@ -37,8 +37,8 @@ Take a look at the [examples](https://github.com/projectmesa/mesa-examples/tree/
 
 For more help on using Mesa-Geo, check out the following resources:
 
-- [Introductory Tutorial](http://mesa-geo.readthedocs.org/en/main/tutorials/intro_tutorial.html)
-- [Docs](http://mesa-geo.readthedocs.org/en/main/)
+- [Introductory Tutorial](http://mesa-geo.readthedocs.io/stable/tutorials/intro_tutorial.html)
+- [Docs](http://mesa-geo.readthedocs.io/stable/)
 - [Mesa-Geo Discussions](https://github.com/projectmesa/mesa-geo/discussions)
 - [PyPI](https://pypi.org/project/mesa-geo/)
 
