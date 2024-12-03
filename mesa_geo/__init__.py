@@ -12,15 +12,15 @@ from mesa_geo.raster_layers import Cell, ImageLayer, RasterLayer
 from mesa_geo.tile_layers import RasterWebTile, WMSWebTile
 
 __all__ = [
-    "GeoSpace",
-    "GeoAgent",
     "AgentCreator",
-    "ImageLayer",
     "Cell",
+    "GeoAgent",
+    "GeoSpace",
+    "ImageLayer",
     "RasterLayer",
-    "visualization",
     "RasterWebTile",
     "WMSWebTile",
+    "visualization",
 ]
 
 __title__ = "Mesa-Geo"
