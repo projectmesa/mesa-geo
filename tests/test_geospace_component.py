@@ -4,12 +4,12 @@ import xyzservices
 from mesa.visualization.solara_viz import SolaraViz
 
 import mesa_geo.visualization as mgv
-from mesa_geo.visualization import make_geospace_leaflet
+from mesa_geo.visualization import make_geospace_component
 
 
-def test_geospace_leaflet(mocker):
-    mock_geospace_leaflet = mocker.spy(
-        mgv.components.geospace_leaflet, "GeoSpaceLeaflet"
+def test_geospace_component(mocker):
+    mock_geospace_component = mocker.spy(
+        mgv.components.geospace_component, "GeoSpaceLeaflet"
     )
 
     model = mesa.Model()
@@ -22,8 +22,10 @@ def test_geospace_leaflet(mocker):
     }
     # initialize with space drawer unspecified (use default)
     # component must be rendered for code to run
-    solara.render(SolaraViz(model, components=[make_geospace_leaflet(agent_portrayal)]))
+    solara.render(
+        SolaraViz(model, components=[make_geospace_component(agent_portrayal)])
+    )
     # should call default method with class instance and agent portrayal
-    mock_geospace_leaflet.assert_called_with(
+    mock_geospace_component.assert_called_with(
         model, agent_portrayal, None, xyzservices.providers.OpenStreetMap.Mapnik
     )

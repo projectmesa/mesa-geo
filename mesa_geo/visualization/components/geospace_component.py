@@ -1,4 +1,5 @@
 import dataclasses
+import warnings
 from dataclasses import dataclass
 
 import geopandas as gpd
@@ -14,6 +15,20 @@ from mesa_geo.tile_layers import LeafletOption, RasterWebTile
 
 
 def make_geospace_leaflet(
+    agent_portrayal,
+    view=None,
+    tiles=xyzservices.providers.OpenStreetMap.Mapnik,
+    **kwargs,
+):
+    warnings.warn(
+        "make_geospace_leaflet is deprecated, use make_geospace_component instead",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return make_geospace_component(agent_portrayal, view, tiles, **kwargs)
+
+
+def make_geospace_component(
     agent_portrayal,
     view=None,
     tiles=xyzservices.providers.OpenStreetMap.Mapnik,
