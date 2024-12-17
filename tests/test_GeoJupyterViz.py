@@ -101,21 +101,23 @@ class TestGeoViz(unittest.TestCase):
         mock_use_state.return_value = ({}, MagicMock())
         mock_use_memo.return_value = MagicMock()
         mock_make_initial_grid_layout.return_value = {}
-        
+
         mock_rv_Card.return_value.__enter__ = MagicMock()
         mock_rv_Card.return_value.__exit__ = MagicMock()
 
-        solara.render(GeoJupyterViz(
-            model_class=model_class,
-            model_params=model_params,
-            measures=measures,
-            name=name,
-            agent_portrayal=agent_portrayal,
-            play_interval=play_interval,
-            view=view,
-            zoom=zoom,
-            center_point=center_point,
-        ))
+        solara.render(
+            GeoJupyterViz(
+                model_class=model_class,
+                model_params=model_params,
+                measures=measures,
+                name=name,
+                agent_portrayal=agent_portrayal,
+                play_interval=play_interval,
+                view=view,
+                zoom=zoom,
+                center_point=center_point,
+            )
+        )
 
         mock_AppBar.assert_called_once()
         mock_AppBarTitle.assert_called_once_with(name)
