@@ -1,10 +1,10 @@
 import warnings
 
 import matplotlib.pyplot as plt
-import mesa.experimental.components.matplotlib as components_matplotlib
+import mesa.visualization.components.matplotlib_components as components_matplotlib
 import solara
 import xyzservices.providers as xyz
-from mesa.experimental import solara_viz as jv
+from mesa.visualization import solara_viz as jv
 from solara.alias import rv
 
 import mesa_geo.visualization.leaflet_viz as leaflet_viz
