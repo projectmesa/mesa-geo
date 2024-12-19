@@ -60,20 +60,24 @@ class TestGeoViz(unittest.TestCase):
     @patch("mesa_geo.visualization.geojupyter_viz.jv.ModelController")
     @patch("mesa_geo.visualization.geojupyter_viz.jv.UserInputs")
     @patch("mesa_geo.visualization.geojupyter_viz.jv.split_model_params")
+    @patch("mesa_geo.visualization.geojupyter_viz.jv.make_initial_grid_layout")
     @patch("mesa_geo.visualization.geojupyter_viz.solara.use_memo")
     @patch("mesa_geo.visualization.geojupyter_viz.solara.use_reactive")
     @patch("mesa_geo.visualization.geojupyter_viz.solara.use_state")
     @patch("mesa_geo.visualization.geojupyter_viz.solara.AppBarTitle")
     @patch("mesa_geo.visualization.geojupyter_viz.solara.AppBar")
     @patch("mesa_geo.visualization.geojupyter_viz.leaflet_viz.MapModule")
+    @patch("mesa_geo.visualization.geojupyter_viz.rv.Card")
     def test_geojupyterviz_function(
         self,
+        mock_rv_Card,  # noqa: N803
         mock_MapModule,  # noqa: N803
         mock_AppBar,  # noqa: N803
         mock_AppBarTitle,  # noqa: N803
         mock_use_state,
         mock_use_reactive,
         mock_use_memo,
+        mock_make_initial_grid_layout,
         mock_split_model_params,
         mock_UserInputs,  # noqa: N803
         mock_ModelController,  # noqa: N803
@@ -96,6 +100,10 @@ class TestGeoViz(unittest.TestCase):
         mock_split_model_params.return_value = ({}, {})
         mock_use_state.return_value = ({}, MagicMock())
         mock_use_memo.return_value = MagicMock()
+        mock_make_initial_grid_layout.return_value = {}
+
+        mock_rv_Card.return_value.__enter__ = MagicMock()
+        mock_rv_Card.return_value.__exit__ = MagicMock()
 
         solara.render(
             GeoJupyterViz(
