@@ -1,10 +1,30 @@
 Release History
 ---------------
-# 0.9.0a0 (2024-10-17)
+
+# 0.9.0 (2024-12-21)
+
+## What's Changed
+
+### 🐛 Bugs fixed
+
+* fix links to readthedocs site by @wang-boyu in https://github.com/projectmesa/mesa-geo/pull/257
+* fix broken mesa dependencies in GeoJupyterViz by @AdamZh0u in https://github.com/projectmesa/mesa-geo/pull/269
+
+### 🔧 Maintenance
+
+* rename make_geospace_leaflet to make_geospace_component by @wang-boyu in https://github.com/projectmesa/mesa-geo/pull/270
+* update make_plot_measure method name from mesa viz by @wang-boyu in https://github.com/projectmesa/mesa-geo/pull/264
+* Require Mesa 3.0 stable by @EwoutH in https://github.com/projectmesa/mesa-geo/pull/260
+
+**Full Changelog**: https://github.com/projectmesa/mesa-geo/compare/v0.9.0a1...v0.9.0
+
+# 0.9.0a1 (2024-10-17)
+
 ## Highlights
 This small pre-release fixes a bug in the RasterLayer rendering and deprecated the old GeoJupyterViz, in favor of the new SolaraViz.
 
 ## What's Changed
+
 ### 🐛 Bugs fixed
 * fix raster layer rendering in solaraviz by @wang-boyu in https://github.com/projectmesa/mesa-geo/pull/254
 ### 📜 Documentation improvements
