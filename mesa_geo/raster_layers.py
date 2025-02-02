@@ -224,12 +224,12 @@ class RasterLayer(RasterBase):
         super().__init__(width, height, crs, total_bounds)
         self.model = model
         self.cell_cls = cell_cls
-        self.cells = []
         self._initialize_cells(model, cell_cls)
         self._attributes = set()
         self._neighborhood_cache = {}
 
     def _initialize_cells(self, model: Model, cell_cls: type[Cell]):
+        self.cells = []
         for x in range(self.width):
             col: list[cell_cls] = []
             for y in range(self.height):
