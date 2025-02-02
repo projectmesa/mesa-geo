@@ -225,15 +225,17 @@ class RasterLayer(RasterBase):
         self.model = model
         self.cell_cls = cell_cls
         self.cells = []
+        self._initialize_cells(model, cell_cls)
+        self._attributes = set()
+        self._neighborhood_cache = {}
+
+    def _initialize_cells(self, model: Model, cell_cls: type[Cell]):
         for x in range(self.width):
             col: list[cell_cls] = []
             for y in range(self.height):
                 row_idx, col_idx = self.height - y - 1, x
                 col.append(self.cell_cls(model, pos=(x, y), indices=(row_idx, col_idx)))
             self.cells.append(col)
-
-        self._attributes = set()
-        self._neighborhood_cache = {}
 
     @property
     def attributes(self) -> set[str]:
