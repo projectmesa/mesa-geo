@@ -1,6 +1,20 @@
 Release History
 ---------------
 
+# 0.9.1 (2025-02-04)
+
+## What's Changed
+
+### 🛠 Enhancements made
+* refactor: :recycle: separate cells' initialization into a private method by @SongshGeo in https://github.com/projectmesa/mesa-geo/pull/274
+### 🐛 Bugs fixed
+* fix typo in intro tutorial by @wang-boyu in https://github.com/projectmesa/mesa-geo/pull/275
+
+## New Contributors
+* @SongshGeo made their first contribution in https://github.com/projectmesa/mesa-geo/pull/274
+
+**Full Changelog**: https://github.com/projectmesa/mesa-geo/compare/v0.9.0...v0.9.1
+
 # 0.9.0 (2024-12-21)
 
 ## What's Changed
