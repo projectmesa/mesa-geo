@@ -57,4 +57,4 @@ Don't forget to check out the [Contributors guide](https://github.com/projectmes
 
 ## Citing Mesa-Geo
 
-To cite Mesa-Geo in your publication, you can use the [CITATION.bib](https://github.com/projectmesa/mesa-geo/blob/main/CITATION.bib).
+To cite Mesa-Geo in your publication, you can click the "Cite this repository" button in the right sidebar of the [repository landing page](https://github.com/projectmesa/mesa-geo), and choose either the APA or BibTeX citation format.

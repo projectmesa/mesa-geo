@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the associated paper (see preferred-citation)."
+authors:
+- family-names: Wang
+  given-names: Boyu
+  orcid: "https://orcid.org/0000-0001-9879-2138"
+- family-names: Hess
+  given-names: Vincent
+  orcid: "https://orcid.org/0000-0002-9242-8500"
+- family-names: Crooks
+  given-names: Andrew
+  orcid: "https://orcid.org/0000-0002-5034-6654"
+title: "Mesa-Geo: A GIS Extension for the Mesa Agent-Based Modeling Framework in Python"
+preferred-citation:
+  type: conference-paper
+  authors:
+  - family-names: Wang
+    given-names: Boyu
+    orcid: "https://orcid.org/0000-0001-9879-2138"
+  - family-names: Hess
+    given-names: Vincent
+    orcid: "https://orcid.org/0000-0002-9242-8500"
+  - family-names: Crooks
+    given-names: Andrew
+    orcid: "https://orcid.org/0000-0002-5034-6654"
+  doi: 10.1145/3557989.3566157
+  url: "https://doi.org/10.1145/3557989.3566157"
+  publisher:
+    name: Association for Computing Machinery
+  title: "Mesa-Geo: A GIS Extension for the Mesa Agent-Based Modeling Framework in Python"
+  collection-title: "Proceedings of the 5th ACM SIGSPATIAL International Workshop on GeoSpatial Simulation"
+  start: 1
+  end: 10
+  numpages: 10
+  conference:
+    name: "GeoSim '22"
+    city: Seattle
+    region: Washington
+    country: USA
+  year: 2022
+  isbn: 9781450395373
