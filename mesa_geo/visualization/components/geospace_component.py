@@ -59,6 +59,8 @@ def make_geospace_component(
 
     :param agent_portrayal: A method that takes a GeoAgent (or a Cell) and returns
         a dictionary of options (or a (r, g, b, a) tuple) for Leaflet.js.
+        When ``raster_portrayal`` is provided, this function only needs to handle
+        GeoAgents; raster styling is handled separately.
     :param view: Initial map center as ``(latitude, longitude)``. If not provided,
         the map is centered from ``model.space.total_bounds``.
     :param tiles: An optional tile layer to use. Can be a :class:`RasterWebTile` or
@@ -95,6 +97,55 @@ def make_geospace_component(
             import xyzservices.providers as xyz
 
             xyz.MapBox(id="<insert map_ID here>", accessToken="my-private-ACCESS_TOKEN")
+
+    :param raster_portrayal: Controls how :class:`~mesa_geo.RasterLayer` bands
+        are styled. Can be:
+
+        - A single :class:`~mesa.visualization.components.PropertyLayerStyle`:
+          applied to every band of every ``RasterLayer``.
+        - A callable ``(layer_name, band_name) -> PropertyLayerStyle | None``:
+          return a style per band, or ``None`` to skip that band.
+
+        When omitted (the default), the legacy ``agent_portrayal`` path is used
+        for raster rendering (``to_image`` with the Cell RGBA callback).
+
+        ``PropertyLayerStyle`` fields:
+
+        - ``colormap``: A matplotlib colormap name, ``Colormap`` object, or list
+          of colors for ``LinearSegmentedColormap.from_list``.
+        - ``color``: A single matplotlib-parseable color for uniform fill with
+          alpha ramp.
+        - ``vmin`` / ``vmax``: Explicit normalization bounds. If omitted, the
+          band's finite min/max are used.
+        - ``alpha``: Overlay opacity (default ``0.8``).
+
+        ``PropertyLayerStyle.colorbar`` is currently ignored by the Leaflet
+        renderer. Colorbar support is planned in a follow-up.
+
+        .. code-block:: python
+
+            from mesa.visualization.components import PropertyLayerStyle
+            from mesa_geo.visualization import make_geospace_component
+
+            # Single style applied to all bands
+            raster_style = PropertyLayerStyle(colormap="viridis")
+            component = make_geospace_component(
+                agent_portrayal,
+                raster_portrayal=raster_style,
+            )
+
+            # Per-band callable
+            def raster_portrayal(layer_name, band_name):
+                if band_name == "elevation":
+                    return PropertyLayerStyle(colormap="terrain", vmin=0, vmax=3000)
+                if band_name == "slope":
+                    return PropertyLayerStyle(colormap="Reds")
+                return None  # skip other bands
+
+            component = make_geospace_component(
+                agent_portrayal,
+                raster_portrayal=raster_portrayal,
+            )
 
     :param **kwargs: Extra keyword arguments forwarded to :class:`ipyleaflet.Map`
         (e.g., ``zoom=``, ``scroll_wheel_zoom=``). The available options can be found
@@ -527,6 +578,12 @@ class MapModule:
                 import xyzservices.providers as xyz
 
                 xyz.MapBox(id="<insert map_ID here>", accessToken="my-private-ACCESS_TOKEN")
+
+        :param raster_portrayal: A :class:`~mesa.visualization.components.PropertyLayerStyle`
+            or a callable ``(layer_name, band_name) -> PropertyLayerStyle | None``
+            controlling how :class:`~mesa_geo.RasterLayer` bands are colormapped.
+            When omitted, the legacy ``portrayal_method`` Cell RGBA path is used.
+            See :func:`make_geospace_component` for full details and examples.
         """
         self.portrayal_method = portrayal_method
         self.raster_portrayal = raster_portrayal
