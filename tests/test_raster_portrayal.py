@@ -9,6 +9,7 @@ import base64
 import warnings
 from io import BytesIO
 
+import geopandas as gpd
 import matplotlib
 import matplotlib.colors
 import mesa
@@ -17,6 +18,7 @@ import pytest
 import xyzservices.providers as xyz
 from mesa.visualization.components import PropertyLayerStyle
 from PIL import Image
+from shapely.geometry import Point, Polygon
 
 import mesa_geo as mg
 import mesa_geo.visualization.components.geospace_component as gc
@@ -433,3 +435,117 @@ class TestAgentPortrayalNoneGuard:
             match=r"neither 'raster_portrayal' nor 'agent_portrayal' was provided",
         ):
             mm.render(model)
+
+
+class TestRenderByteIdentitySnapshot:
+    """Byte-identity snapshot test for rendering refactor.
+
+    Ensures that internal separation into _RasterRenderer and _VectorRenderer
+    produces bit-for-bit identical outputs for both legacy and new portrayal paths.
+    """
+
+    @pytest.fixture
+    def fixture_model(self):
+        model = mesa.Model()
+        model.space = mg.GeoSpace(crs="epsg:4326", warn_crs_conversion=False)
+
+        # 1. Raster layer
+        rl = mg.RasterLayer(
+            2, 2, crs="epsg:4326", total_bounds=[0, 0, 2, 2], model=model
+        )
+        rl.apply_raster(np.array([[[10, 20], [30, 40]]]))
+        model.space.add_layer(rl, name="grid")
+
+        # 2. Vector GeoDataFrame layer
+        gdf = gpd.GeoDataFrame(
+            geometry=[Polygon([(0, 0), (1, 0), (1, 1), (0, 0)])],
+            crs="epsg:4326",
+        )
+        model.space.add_layer(gdf)
+
+        # 3. Agents
+        creator = mg.AgentCreator(agent_class=mg.GeoAgent, model=model, crs="epsg:4326")
+        pa = creator.create_agent(Point(0.5, 0.5))
+        pya = creator.create_agent(Polygon([(0, 0), (2, 0), (2, 2), (0, 0)]))
+        model.space.add_agents([pa, pya])
+
+        return model
+
+    def test_legacy_path_snapshot(self, fixture_model):
+        def legacy_p(agent_or_cell):
+            if isinstance(agent_or_cell, mg.Cell):
+                v = agent_or_cell.attribute_0
+                return (v, v, v, 255)
+            if isinstance(agent_or_cell.geometry, Point):
+                return {
+                    "marker_type": "Circle",
+                    "radius": 10,
+                    "color": "red",
+                    "description": "point",
+                }
+            return {"color": "blue", "weight": 2, "description": "poly"}
+
+        mm = MapModule(portrayal_method=legacy_p, tiles=xyz.OpenStreetMap.Mapnik)
+        out = mm.render(fixture_model)
+
+        decoded = _decode_data_url_to_rgba(out["layers"]["rasters"][0]["url"])
+        # Legacy to_image+write_png normalises float data by per-channel max:
+        # 10/40*255 ≈ 63, 20/40*255 ≈ 127, etc. The new portrayal path avoids this.
+        expected_rgba = np.array(
+            [
+                [[63, 63, 63, 255], [127, 127, 127, 255]],
+                [[191, 191, 191, 255], [255, 255, 255, 255]],
+            ],
+            dtype=np.uint8,
+        )
+        np.testing.assert_array_equal(decoded, expected_rgba)
+        assert out["layers"]["rasters"][0]["bounds"] == [[0.0, 0.0], [2.0, 2.0]]
+        assert out["layers"]["total_bounds"] == [[0.0, 0.0], [2.0, 2.0]]
+        assert len(out["layers"]["vectors"]) == 1
+        assert len(out["agents"][0]["features"]) == 1
+        assert out["agents"][0]["features"][0]["properties"]["style"] == {
+            "color": "blue",
+            "weight": 2,
+        }
+        assert len(out["agents"][1]) == 1
+        assert out["agents"][1][0].location == [0.5, 0.5]
+        assert out["agents"][1][0].radius == 10
+        assert out["agents"][1][0].color == "red"
+
+    def test_new_portrayal_path_snapshot(self, fixture_model):
+        def agent_p(a):
+            if isinstance(a.geometry, Point):
+                return {
+                    "marker_type": "Circle",
+                    "radius": 10,
+                    "color": "red",
+                    "description": "point",
+                }
+            return {"color": "blue", "weight": 2, "description": "poly"}
+
+        mm = MapModule(
+            portrayal_method=agent_p,
+            tiles=xyz.OpenStreetMap.Mapnik,
+            raster_portrayal=PropertyLayerStyle(colormap="viridis"),
+        )
+        out = mm.render(fixture_model)
+
+        decoded = _decode_data_url_to_rgba(out["layers"]["rasters"][0]["url"])
+        data = np.array([[10, 20], [30, 40]], dtype=float)
+        norm = matplotlib.colors.Normalize(vmin=10, vmax=40)
+        cmap = matplotlib.colormaps["viridis"]
+        expected_rgba = (cmap(norm(data)) * 255).astype(np.uint8)
+        expected_rgba[..., 3] = int(0.8 * 255)  # default alpha is 0.8
+        np.testing.assert_array_equal(decoded, expected_rgba)
+        assert out["layers"]["rasters"][0]["bounds"] == [[0.0, 0.0], [2.0, 2.0]]
+        assert out["layers"]["total_bounds"] == [[0.0, 0.0], [2.0, 2.0]]
+        assert len(out["layers"]["vectors"]) == 1
+        assert len(out["agents"][0]["features"]) == 1
+        assert out["agents"][0]["features"][0]["properties"]["style"] == {
+            "color": "blue",
+            "weight": 2,
+        }
+        assert len(out["agents"][1]) == 1
+        assert out["agents"][1][0].location == [0.5, 0.5]
+        assert out["agents"][1][0].radius == 10
+        assert out["agents"][1][0].color == "red"

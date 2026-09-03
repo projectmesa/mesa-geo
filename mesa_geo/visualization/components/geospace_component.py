@@ -207,109 +207,27 @@ class LeafletViz:
     popupProperties: dict[str, LeafletOption] | None = None  # noqa: N815
 
 
-class MapModule:
-    """A MapModule for Leaflet maps that uses a user-defined portrayal method
-    to generate a portrayal of a raster Cell or a GeoAgent.
+class _RasterRenderer:
+    """Internal renderer for raster layers (both vectorized PropertyLayerStyle and legacy to_image).
 
-    For a raster Cell, the portrayal method should return a (r, g, b, a) tuple.
-
-    For a GeoAgent, the portrayal method should return a dictionary.
-        - For a Line or a Polygon, the available options can be found at: https://leafletjs.com/reference.html#path-option
-        - For a Point, the available options can be found at: https://leafletjs.com/reference.html#circlemarker-option
-        - In addition, the portrayal dictionary can contain a "description" key, which will be used as the popup text.
+    Separated from MapModule so that a future GeoSpaceRenderer extraction is
+    mechanical — move the class out, wire it up, done.
     """
 
-    def __init__(
-        self,
-        portrayal_method,
-        tiles,
-        *,
-        raster_portrayal=None,
-    ):
-        """
-        Create a new MapModule.
-
-        :param portrayal_method: A method that takes a GeoAgent (or a Cell) and returns
-            a dictionary of options (or a (r, g, b, a) tuple) for Leaflet.js.
-        :param tiles: An optional tile layer to use. Can be a :class:`RasterWebTile` or
-            a :class:`xyzservices.TileProvider`. Default is `xyzservices.providers.OpenStreetMap.Mapnik`.
-
-            If the tile provider requires registration, you can pass the API key inside
-            the `options` parameter of the :class:`RasterWebTile` constructor.
-
-            For example, to use the `Mapbox` raster tile provider, you can use:
-
-            .. code-block:: python
-
-                import mesa_geo as mg
-
-                mg.RasterWebTile(
-                    url="https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token={access_token}",
-                    options={
-                        "access_token": "my-private-ACCESS_TOKEN",
-                        "attribution": '&copy; <a href="https://www.mapbox.com/about/maps/" target="_blank">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors <a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a>',
-                    },
-                )
-
-            Note that `access_token` can have different names depending on the provider,
-            e.g., `api_key` or `key`. You can check the documentation of the provider
-            for more details.
-
-            `xyzservices` provides a list of providers requiring registration as well:
-            https://xyzservices.readthedocs.io/en/stable/registration.html
-
-            For example, you may use the following code to use the `Mapbox` provider:
-
-            .. code-block:: python
-
-                import xyzservices.providers as xyz
-
-                xyz.MapBox(id="<insert map_ID here>", accessToken="my-private-ACCESS_TOKEN")
-        """
-        self.portrayal_method = portrayal_method
+    def __init__(self, raster_portrayal=None, legacy_portrayal=None, crs="epsg:4326"):
         self.raster_portrayal = raster_portrayal
-        self._crs = "epsg:4326"
+        self.legacy_portrayal = legacy_portrayal
+        self._crs = crs
 
-        if isinstance(tiles, xyzservices.TileProvider):
-            tiles = RasterWebTile.from_xyzservices(tiles).to_dict()
-        self.tiles = tiles
-
-    def render(self, model):
-        return {
-            "layers": self._render_layers(model),
-            "agents": self._render_agents(model),
-        }
-
-    def _render_layers(self, model):
-        layers = {"rasters": [], "vectors": [], "total_bounds": []}
-        for layer in model.space.layers:
-            if isinstance(layer, RasterBase):
-                layers["rasters"].extend(self._render_raster(model, layer))
-            elif isinstance(layer, gpd.GeoDataFrame):
-                layers["vectors"].append(
-                    layer.to_crs(self._crs)[["geometry"]].__geo_interface__
-                )
-        # longlat [min_x, min_y, max_x, max_y] to latlong [min_y, min_x, max_y, max_x]
-        if model.space.total_bounds is not None:
-            transformed_xx, transformed_yy = model.space.transformer.transform(
-                xx=[model.space.total_bounds[0], model.space.total_bounds[2]],
-                yy=[model.space.total_bounds[1], model.space.total_bounds[3]],
-            )
-            layers["total_bounds"] = [
-                [transformed_yy[0], transformed_xx[0]],  # min_y, min_x
-                [transformed_yy[1], transformed_xx[1]],  # max_y, max_x
-            ]
-        return layers
-
-    def _render_raster(self, model, layer):
+    def render_layer(self, layer, layer_name=None):
         """Return the image overlays for a single raster layer."""
         if self.raster_portrayal is None:
             if isinstance(layer, RasterLayer):
-                if self.portrayal_method is None:
+                if self.legacy_portrayal is None:
                     raise ValueError(
                         "Cannot render RasterLayer: neither 'raster_portrayal' nor 'agent_portrayal' was provided."
                     )
-                layer = layer.to_image(colormap=self.portrayal_method)
+                layer = layer.to_image(colormap=self.legacy_portrayal)
             layer_to_render = layer.to_crs(self._crs)
             return [
                 {
@@ -327,8 +245,7 @@ class MapModule:
                 }
             ]
 
-        name_lookup = getattr(model.space, "_name_for_layer", lambda _: None)
-        return self._render_bands(layer, name_lookup(layer))
+        return self._render_bands(layer, layer_name)
 
     def _get_style(self, layer_name, band_name):
         if callable(self.raster_portrayal):
@@ -424,6 +341,22 @@ class MapModule:
             [layer.total_bounds[3], layer.total_bounds[2]],
         ]
 
+
+class _VectorRenderer:
+    """Internal renderer for vector layers (GeoDataFrame) and GeoAgents.
+
+    Separated from MapModule so that a future GeoSpaceRenderer extraction is
+    mechanical — move the class out, wire it up, done.
+    """
+
+    def __init__(self, agent_portrayal=None, crs="epsg:4326"):
+        self.agent_portrayal = agent_portrayal
+        self._crs = crs
+
+    def render_layer(self, layer):
+        """Render a GeoDataFrame layer to geo_interface."""
+        return layer.to_crs(self._crs)[["geometry"]].__geo_interface__
+
     def _get_marker(self, location, properties):
         """
         takes point objects and transforms them to ipyleaflet marker objects
@@ -478,17 +411,15 @@ class MapModule:
                 f"Unsupported marker type:{marker}",
             )
 
-    def _render_agents(self, model):
+    def render_agents(self, agents, transformer):
         feature_collection = {"type": "FeatureCollection", "features": []}
         point_markers = []
         agent_portrayal = {}
-        for agent in model.space.agents:
-            transformed_geometry = agent.get_transformed_geometry(
-                model.space.transformer
-            )
+        for agent in agents:
+            transformed_geometry = agent.get_transformed_geometry(transformer)
 
-            if self.portrayal_method:
-                properties = self.portrayal_method(agent)
+            if self.agent_portrayal:
+                properties = self.agent_portrayal(agent)
                 agent_portrayal = LeafletViz(
                     popupProperties=properties.pop("description", None)
                 )
@@ -512,3 +443,114 @@ class MapModule:
                         }
                     )
         return [feature_collection, point_markers]
+
+
+class MapModule:
+    """A MapModule for Leaflet maps that uses a user-defined portrayal method
+    to generate a portrayal of a raster Cell or a GeoAgent.
+
+    For a raster Cell, the portrayal method should return a (r, g, b, a) tuple.
+
+    For a GeoAgent, the portrayal method should return a dictionary.
+        - For a Line or a Polygon, the available options can be found at: https://leafletjs.com/reference.html#path-option
+        - For a Point, the available options can be found at: https://leafletjs.com/reference.html#circlemarker-option
+        - In addition, the portrayal dictionary can contain a "description" key, which will be used as the popup text.
+    """
+
+    def __init__(
+        self,
+        portrayal_method,
+        tiles,
+        *,
+        raster_portrayal=None,
+    ):
+        """Create a new MapModule.
+
+        :param portrayal_method: A method that takes a GeoAgent (or a Cell) and returns
+            a dictionary of options (or a (r, g, b, a) tuple) for Leaflet.js.
+        :param tiles: An optional tile layer to use. Can be a :class:`RasterWebTile` or
+            a :class:`xyzservices.TileProvider`. Default is `xyzservices.providers.OpenStreetMap.Mapnik`.
+
+            If the tile provider requires registration, you can pass the API key inside
+            the `options` parameter of the :class:`RasterWebTile` constructor.
+
+            For example, to use the `Mapbox` raster tile provider, you can use:
+
+            .. code-block:: python
+
+                import mesa_geo as mg
+
+                mg.RasterWebTile(
+                    url="https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token={access_token}",
+                    options={
+                        "access_token": "my-private-ACCESS_TOKEN",
+                        "attribution": '&copy; <a href="https://www.mapbox.com/about/maps/" target="_blank">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors <a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a>',
+                    },
+                )
+
+            Note that `access_token` can have different names depending on the provider,
+            e.g., `api_key` or `key`. You can check the documentation of the provider
+            for more details.
+
+            `xyzservices` provides a list of providers requiring registration as well:
+            https://xyzservices.readthedocs.io/en/stable/registration.html
+
+            For example, you may use the following code to use the `Mapbox` provider:
+
+            .. code-block:: python
+
+                import xyzservices.providers as xyz
+
+                xyz.MapBox(id="<insert map_ID here>", accessToken="my-private-ACCESS_TOKEN")
+        """
+        self.portrayal_method = portrayal_method
+        self.raster_portrayal = raster_portrayal
+        self._crs = "epsg:4326"
+
+        self.raster_renderer = _RasterRenderer(
+            raster_portrayal=self.raster_portrayal,
+            legacy_portrayal=self.portrayal_method,
+            crs=self._crs,
+        )
+        self.vector_renderer = _VectorRenderer(
+            agent_portrayal=self.portrayal_method,
+            crs=self._crs,
+        )
+
+        if isinstance(tiles, xyzservices.TileProvider):
+            tiles = RasterWebTile.from_xyzservices(tiles).to_dict()
+        self.tiles = tiles
+
+    def render(self, model):
+        return {
+            "layers": self._render_layers(model),
+            "agents": self._render_agents(model),
+        }
+
+    def _render_layers(self, model):
+        layers = {"rasters": [], "vectors": [], "total_bounds": []}
+        name_lookup = getattr(model.space, "_name_for_layer", lambda _: None)
+        for layer in model.space.layers:
+            if isinstance(layer, RasterBase):
+                layer_name = name_lookup(layer)
+                layers["rasters"].extend(
+                    self.raster_renderer.render_layer(layer, layer_name)
+                )
+            elif isinstance(layer, gpd.GeoDataFrame):
+                layers["vectors"].append(self.vector_renderer.render_layer(layer))
+        # longlat [min_x, min_y, max_x, max_y] to latlong [min_y, min_x, max_y, max_x]
+        if model.space.total_bounds is not None:
+            transformed_xx, transformed_yy = model.space.transformer.transform(
+                xx=[model.space.total_bounds[0], model.space.total_bounds[2]],
+                yy=[model.space.total_bounds[1], model.space.total_bounds[3]],
+            )
+            layers["total_bounds"] = [
+                [transformed_yy[0], transformed_xx[0]],  # min_y, min_x
+                [transformed_yy[1], transformed_xx[1]],  # max_y, max_x
+            ]
+        return layers
+
+    def _render_agents(self, model):
+        return self.vector_renderer.render_agents(
+            model.space.agents, model.space.transformer
+        )
