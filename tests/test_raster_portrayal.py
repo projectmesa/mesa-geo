@@ -504,13 +504,13 @@ class TestRenderByteIdentitySnapshot:
         assert len(out["layers"]["vectors"]) == 1
         assert len(out["agents"][0]["features"]) == 1
         assert out["agents"][0]["features"][0]["properties"]["style"] == {
-            "color": "blue",
+            "color": "#0000ff",
             "weight": 2,
         }
         assert len(out["agents"][1]) == 1
         assert out["agents"][1][0].location == [0.5, 0.5]
         assert out["agents"][1][0].radius == 10
-        assert out["agents"][1][0].color == "red"
+        assert out["agents"][1][0].color == "#ff0000"
 
     def test_new_portrayal_path_snapshot(self, fixture_model):
         def agent_p(a):
@@ -542,10 +542,107 @@ class TestRenderByteIdentitySnapshot:
         assert len(out["layers"]["vectors"]) == 1
         assert len(out["agents"][0]["features"]) == 1
         assert out["agents"][0]["features"][0]["properties"]["style"] == {
-            "color": "blue",
+            "color": "#0000ff",
             "weight": 2,
         }
         assert len(out["agents"][1]) == 1
         assert out["agents"][1][0].location == [0.5, 0.5]
         assert out["agents"][1][0].radius == 10
-        assert out["agents"][1][0].color == "red"
+        assert out["agents"][1][0].color == "#ff0000"
+
+
+class TestVectorColorNormalization:
+    """Test matplotlib color normalization to CSS hex strings in _VectorRenderer."""
+
+    def test_css_color_utility_directly(self):
+        css = gc._VectorRenderer._css_color
+        assert css("tab:blue") == "#1f77b4"
+        assert css("C0") == "#1f77b4"
+        assert css("C1") == "#ff7f0e"
+        assert css("xkcd:sky blue") == "#75bbfd"
+        assert css("red") == "#ff0000"
+        assert css("#123456") == "#123456"
+        assert css((1.0, 0.0, 0.0)) == "#ff0000"
+        assert css((0.0, 1.0, 0.0, 0.5)) == "#00ff00"
+        assert css(None) is None
+        assert css("transparent") == "transparent"
+
+    def test_point_marker_color_and_fillcolor_normalized(self):
+        model = mesa.Model()
+        model.space = mg.GeoSpace(crs="epsg:4326")
+        creator = mg.AgentCreator(agent_class=mg.GeoAgent, model=model, crs="epsg:4326")
+        agent = creator.create_agent(Point(1.0, 2.0))
+        model.space.add_agents([agent])
+
+        def agent_p(_):
+            return {
+                "marker_type": "Circle",
+                "color": "tab:blue",
+                "fillColor": "C0",
+            }
+
+        mm = MapModule(portrayal_method=agent_p, tiles=xyz.OpenStreetMap.Mapnik)
+        out = mm.render(model)
+        marker = out["agents"][1][0]
+        assert marker.color == "#1f77b4"
+        assert marker.fill_color == "#1f77b4"
+
+    def test_circlemarker_color_normalized(self):
+        model = mesa.Model()
+        model.space = mg.GeoSpace(crs="epsg:4326")
+        creator = mg.AgentCreator(agent_class=mg.GeoAgent, model=model, crs="epsg:4326")
+        agent = creator.create_agent(Point(1.0, 2.0))
+        model.space.add_agents([agent])
+
+        def agent_p(_):
+            return {
+                "marker_type": "CircleMarker",
+                "color": "C2",
+                "fillColor": "red",
+            }
+
+        mm = MapModule(portrayal_method=agent_p, tiles=xyz.OpenStreetMap.Mapnik)
+        out = mm.render(model)
+        marker = out["agents"][1][0]
+        assert marker.color == "#2ca02c"
+        assert marker.fill_color == "#ff0000"
+
+    def test_polygon_color_and_fillcolor_normalized(self):
+        model = mesa.Model()
+        model.space = mg.GeoSpace(crs="epsg:4326")
+        creator = mg.AgentCreator(agent_class=mg.GeoAgent, model=model, crs="epsg:4326")
+        poly_agent = creator.create_agent(Polygon([(0, 0), (1, 0), (1, 1), (0, 0)]))
+        model.space.add_agents([poly_agent])
+
+        def agent_p(_):
+            return {
+                "color": "xkcd:sky blue",
+                "fillColor": "tab:orange",
+                "weight": 3,
+            }
+
+        mm = MapModule(portrayal_method=agent_p, tiles=xyz.OpenStreetMap.Mapnik)
+        out = mm.render(model)
+        style = out["agents"][0]["features"][0]["properties"]["style"]
+        assert style["color"] == "#75bbfd"
+        assert style["fillColor"] == "#ff7f0e"
+        assert style["weight"] == 3
+
+    def test_none_and_css_keyword_preserved(self):
+        model = mesa.Model()
+        model.space = mg.GeoSpace(crs="epsg:4326")
+        creator = mg.AgentCreator(agent_class=mg.GeoAgent, model=model, crs="epsg:4326")
+        poly_agent = creator.create_agent(Polygon([(0, 0), (1, 0), (1, 1), (0, 0)]))
+        model.space.add_agents([poly_agent])
+
+        def agent_p(_):
+            return {
+                "color": None,
+                "fillColor": "transparent",
+            }
+
+        mm = MapModule(portrayal_method=agent_p, tiles=xyz.OpenStreetMap.Mapnik)
+        out = mm.render(model)
+        style = out["agents"][0]["features"][0]["properties"]["style"]
+        assert style["color"] is None
+        assert style["fillColor"] == "transparent"

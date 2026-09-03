@@ -353,6 +353,20 @@ class _VectorRenderer:
         self.agent_portrayal = agent_portrayal
         self._crs = crs
 
+    @staticmethod
+    def _css_color(value):
+        """Convert a matplotlib color specification to a hex string for Leaflet.
+
+        If value is None or cannot be parsed by matplotlib (e.g. CSS-only keywords
+        like 'transparent'), return the original value.
+        """
+        if value is None:
+            return None
+        try:
+            return colors.to_hex(colors.to_rgba(value))
+        except (ValueError, TypeError):
+            return value
+
     def render_layer(self, layer):
         """Render a GeoDataFrame layer to geo_interface."""
         return layer.to_crs(self._crs)[["geometry"]].__geo_interface__
@@ -380,12 +394,17 @@ class _VectorRenderer:
         ipyleaflet marker element
 
         """
+        for key in ("color", "fillColor", "fill_color"):
+            if key in properties:
+                properties[key] = self._css_color(properties[key])
 
-        if "marker_type" not in properties:  # make circle default marker type
-            properties["marker_type"] = "Circle"
+        if "fillColor" in properties and "fill_color" not in properties:
+            properties["fill_color"] = properties.pop("fillColor")
+
+        marker = properties.pop("marker_type", "Circle")
+        if marker == "Circle" and "radius" not in properties:
             properties["radius"] = 5
 
-        marker = properties["marker_type"]
         if marker == "Circle":
             return ipyleaflet.Circle(location=location, **properties)
         elif marker == "CircleMarker":
@@ -423,12 +442,18 @@ class _VectorRenderer:
                 agent_portrayal = LeafletViz(
                     popupProperties=properties.pop("description", None)
                 )
+                for key in ("color", "fillColor", "fill_color"):
+                    if key in properties:
+                        properties[key] = self._css_color(properties[key])
+
                 if isinstance(agent.geometry, Point):
                     location = mapping(transformed_geometry)
                     # for some reason points are reversed
                     location = (location["coordinates"][1], location["coordinates"][0])
                     point_markers.append(self._get_marker(location, properties))
                 else:
+                    if "fill_color" in properties and "fillColor" not in properties:
+                        properties["fillColor"] = properties.pop("fill_color")
                     agent_portrayal.style = properties
                     agent_portrayal = dataclasses.asdict(
                         agent_portrayal,
