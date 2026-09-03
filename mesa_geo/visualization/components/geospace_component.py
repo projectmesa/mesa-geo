@@ -16,8 +16,6 @@ from shapely.geometry import Point, mapping
 from mesa_geo.raster_layers import ImageLayer, RasterBase, RasterLayer
 from mesa_geo.tile_layers import LeafletOption, RasterWebTile
 
-_COLORBAR_STATE = {"warned": False}
-
 
 def make_geospace_leaflet(
     agent_portrayal,
@@ -325,17 +323,11 @@ class _RasterRenderer:
             if style is None:
                 continue
 
-            if getattr(style, "colorbar", False) and not _COLORBAR_STATE["warned"]:
-                warnings.warn(
-                    "PropertyLayerStyle.colorbar is not supported by the Leaflet "
-                    "renderer and is ignored.",
-                    UserWarning,
-                    stacklevel=2,
-                )
-                _COLORBAR_STATE["warned"] = True
-
-            # Read _data directly; get_band() would copy the whole array.
-            rgba = self._band_rgba(layer._data[band_name], style)
+            # get_band() is the live read: it reconstructs the array from
+            # cells so runtime mutations in model.step() are reflected.
+            # (_data is only a construction-time snapshot until PR #332 lands).
+            data = layer.get_band(band_name)
+            rgba = self._band_rgba(data, style)
             if rgba is None:
                 continue
 
@@ -371,6 +363,8 @@ class _RasterRenderer:
             cmap = style.colormap
             if isinstance(cmap, str):
                 cmap = colormaps[cmap]
+            elif isinstance(cmap, list):
+                cmap = colors.LinearSegmentedColormap.from_list("custom_cmap", cmap)
             rgba = cmap(norm(data))
             rgba[..., 3] *= style.alpha
         else:
@@ -410,11 +404,16 @@ class _VectorRenderer:
 
         If value is None or cannot be parsed by matplotlib (e.g. CSS-only keywords
         like 'transparent'), return the original value.
+        Preserves alpha (8-digit hex) when transparency is encoded.
         """
         if value is None:
             return None
         try:
-            return colors.to_hex(colors.to_rgba(value))
+            rgba = colors.to_rgba(value)
+            has_alpha = rgba[3] < 1.0 or (
+                isinstance(value, str) and len(value) == 9 and value.startswith("#")
+            )
+            return colors.to_hex(rgba, keep_alpha=has_alpha)
         except (ValueError, TypeError):
             return value
 
@@ -445,6 +444,7 @@ class _VectorRenderer:
         ipyleaflet marker element
 
         """
+        properties = dict(properties)
         for key in ("color", "fillColor", "fill_color"):
             if key in properties:
                 properties[key] = self._css_color(properties[key])
@@ -489,7 +489,7 @@ class _VectorRenderer:
             transformed_geometry = agent.get_transformed_geometry(transformer)
 
             if self.agent_portrayal:
-                properties = self.agent_portrayal(agent)
+                properties = dict(self.agent_portrayal(agent))
                 agent_portrayal = LeafletViz(
                     popupProperties=properties.pop("description", None)
                 )

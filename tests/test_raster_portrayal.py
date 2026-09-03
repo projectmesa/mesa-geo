@@ -6,10 +6,10 @@ and legacy-path byte-identity.
 """
 
 import base64
-import warnings
 from io import BytesIO
 
 import geopandas as gpd
+import ipyleaflet
 import matplotlib
 import matplotlib.colors
 import mesa
@@ -26,13 +26,6 @@ from mesa_geo.raster_layers import RasterLayer
 from mesa_geo.visualization.components.geospace_component import MapModule
 
 # ---- Helpers ----
-
-
-@pytest.fixture(autouse=True)
-def _reset_colorbar_state():
-    """Reset module-level colorbar warning state before each test."""
-    gc._COLORBAR_STATE["warned"] = False
-    yield
 
 
 def _make_model_with_raster(data, *, crs="epsg:4326", band_name="band0"):
@@ -353,37 +346,6 @@ class TestConstantBandRendered:
         assert np.all(decoded[..., 3] == 255)
 
 
-class TestColorbarWarnsOnce:
-    """colorbar=True warns once per render, not once per band."""
-
-    def test_warns_once(self):
-        data1 = np.array([[10, 20], [30, 40]], dtype=float)
-        data2 = np.array([[50, 60], [70, 80]], dtype=float)
-        model, layer = _make_model_with_raster(data1, band_name="a")
-        layer.set_band("b", data2)
-
-        style = PropertyLayerStyle(colormap="viridis", vmin=0, vmax=100, colorbar=True)
-
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            _render_rasters(model, style)
-            colorbar_warnings = [x for x in w if "colorbar" in str(x.message).lower()]
-            assert len(colorbar_warnings) == 1
-
-    def test_warns_once_across_multiple_mapmodule_instances(self):
-        data = np.array([[10, 20], [30, 40]], dtype=float)
-        model, _ = _make_model_with_raster(data, band_name="a")
-        style = PropertyLayerStyle(colormap="viridis", colorbar=True)
-
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            # Simulating two render cycles (GeoSpaceLeaflet creates a new MapModule each time)
-            _render_rasters(model, style)
-            _render_rasters(model, style)
-            colorbar_warnings = [x for x in w if "colorbar" in str(x.message).lower()]
-            assert len(colorbar_warnings) == 1
-
-
 class TestPortrayalValidation:
     """Non-callable / invalid raster_portrayal raises TypeError."""
 
@@ -551,6 +513,120 @@ class TestRenderByteIdentitySnapshot:
         assert out["agents"][1][0].color == "#ff0000"
 
 
+class TestLiveCellAttributeMutation:
+    """Mutating cell attributes between render calls must be reflected in output."""
+
+    def test_cell_attribute_mutation_reflected(self):
+        data = np.array([[10.0, 20.0], [30.0, 40.0]])
+        model, layer = _make_model_with_raster(data, band_name="elevation")
+        style = PropertyLayerStyle(colormap="viridis", vmin=0, vmax=100)
+        mm = MapModule(
+            portrayal_method=lambda _: {},
+            tiles=xyz.OpenStreetMap.Mapnik,
+            raster_portrayal=style,
+        )
+
+        out1 = mm.render(model)
+        decoded1 = _decode_data_url_to_rgba(out1["layers"]["rasters"][0]["url"])
+
+        # Mutate cell attribute directly
+        layer.cells[0][1].elevation = 99.0
+
+        out2 = mm.render(model)
+        decoded2 = _decode_data_url_to_rgba(out2["layers"]["rasters"][0]["url"])
+
+        assert not np.array_equal(decoded1, decoded2)
+        cmap = matplotlib.colormaps["viridis"]
+        norm = matplotlib.colors.Normalize(vmin=0, vmax=100)
+        expected_pixel = (np.array(cmap(norm(99.0))) * 255).astype(np.uint8)
+        expected_pixel[3] = int(0.8 * 255)
+        np.testing.assert_array_equal(decoded2[0, 0], expected_pixel)
+
+
+class TestCustomAndListColormaps:
+    """Support list of colors, RGB sequences, and unregistered Colormap objects."""
+
+    def test_list_of_colors_raster(self):
+        data = np.array([[10.0, 20.0], [30.0, 40.0]])
+        model, _ = _make_model_with_raster(data, band_name="val")
+        style = PropertyLayerStyle(colormap=["#ff0000", "#0000ff"], vmin=0, vmax=100)
+        mm = MapModule(
+            portrayal_method=lambda _: {},
+            tiles=xyz.OpenStreetMap.Mapnik,
+            raster_portrayal=style,
+        )
+        out = mm.render(model)
+        assert len(out["layers"]["rasters"]) == 1
+
+    def test_list_of_rgb_sequences_raster(self):
+        data = np.array([[10.0, 20.0], [30.0, 40.0]])
+        model, _ = _make_model_with_raster(data, band_name="val")
+        style = PropertyLayerStyle(
+            colormap=[[1.0, 0.0, 0.0], [0.0, 0.0, 1.0]], vmin=0, vmax=100
+        )
+        mm = MapModule(
+            portrayal_method=lambda _: {},
+            tiles=xyz.OpenStreetMap.Mapnik,
+            raster_portrayal=style,
+        )
+        out = mm.render(model)
+        assert len(out["layers"]["rasters"]) == 1
+
+    def test_unregistered_colormap_object(self):
+        data = np.array([[10.0, 20.0], [30.0, 40.0]])
+        model, _ = _make_model_with_raster(data, band_name="val")
+        custom_cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
+            "unregistered_test_cmap", ["green", "yellow"]
+        )
+        style = PropertyLayerStyle(colormap=custom_cmap, vmin=0, vmax=100)
+        mm = MapModule(
+            portrayal_method=lambda _: {},
+            tiles=xyz.OpenStreetMap.Mapnik,
+            raster_portrayal=style,
+        )
+        out = mm.render(model)
+        assert len(out["layers"]["rasters"]) == 1
+
+
+class TestPortrayalDictNotMutated:
+    """Portrayal dict returned by agent_portrayal must not be mutated in-place."""
+
+    def test_portrayal_dict_not_mutated_across_agents(self):
+        model = mesa.Model()
+        model.space = mg.GeoSpace(crs="epsg:4326")
+        creator = mg.AgentCreator(agent_class=mg.GeoAgent, model=model, crs="epsg:4326")
+        agent1 = creator.create_agent(Point(1.0, 2.0))
+        agent2 = creator.create_agent(Point(3.0, 4.0))
+        model.space.add_agents([agent1, agent2])
+
+        shared_dict = {
+            "marker_type": "CircleMarker",
+            "radius": 15,
+            "color": "red",
+            "fillColor": "blue",
+            "description": "shared_popup",
+        }
+
+        def agent_p(_):
+            return shared_dict
+
+        mm = MapModule(portrayal_method=agent_p, tiles=xyz.OpenStreetMap.Mapnik)
+        out = mm.render(model)
+
+        assert shared_dict["marker_type"] == "CircleMarker"
+        assert shared_dict["description"] == "shared_popup"
+        assert shared_dict["radius"] == 15
+        assert shared_dict["fillColor"] == "blue"
+
+        markers = out["agents"][1]
+        assert len(markers) == 2
+        assert isinstance(markers[0], ipyleaflet.CircleMarker)
+        assert isinstance(markers[1], ipyleaflet.CircleMarker)
+        assert markers[0].radius == markers[1].radius == 15
+        assert markers[0].color == markers[1].color == "#ff0000"
+        assert markers[0].fill_color == markers[1].fill_color == "#0000ff"
+
+
 class TestVectorColorNormalization:
     """Test matplotlib color normalization to CSS hex strings in _VectorRenderer."""
 
@@ -563,7 +639,8 @@ class TestVectorColorNormalization:
         assert css("red") == "#ff0000"
         assert css("#123456") == "#123456"
         assert css((1.0, 0.0, 0.0)) == "#ff0000"
-        assert css((0.0, 1.0, 0.0, 0.5)) == "#00ff00"
+        assert css((0.0, 1.0, 0.0, 0.5)) == "#00ff0080"
+        assert css("#ff000080") == "#ff000080"
         assert css(None) is None
         assert css("transparent") == "transparent"
 

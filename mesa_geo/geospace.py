@@ -192,7 +192,12 @@ class GeoSpace(GeoBase):
     def _name_for_layer(
         self, layer: ImageLayer | RasterLayer | gpd.GeoDataFrame
     ) -> str | None:
-        """Return the registered name for *layer*, or ``None``."""
+        """Return the registered name for *layer*, or ``None``.
+
+        If *layer* was added without an explicit name via :meth:`add_layer`,
+        this falls back to ``layer.name`` (e.g. for render-time labelling), even though
+        unregistered layers cannot be retrieved via :meth:`get_layer`.
+        """
         for registered_name, registered_layer in self._layer_names.items():
             if registered_layer is layer:
                 return registered_name
