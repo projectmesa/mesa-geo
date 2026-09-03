@@ -4,14 +4,19 @@ from dataclasses import dataclass
 
 import geopandas as gpd
 import ipyleaflet
+import numpy as np
 import solara
 import xyzservices
 from folium.utilities import image_to_url
+from matplotlib import colormaps, colors
+from mesa.visualization.components import PropertyLayerStyle
 from mesa.visualization.utils import update_counter
 from shapely.geometry import Point, mapping
 
-from mesa_geo.raster_layers import RasterBase, RasterLayer
+from mesa_geo.raster_layers import ImageLayer, RasterBase, RasterLayer
 from mesa_geo.tile_layers import LeafletOption, RasterWebTile
+
+_COLORBAR_STATE = {"warned": False}
 
 
 def make_geospace_leaflet(
@@ -29,9 +34,11 @@ def make_geospace_leaflet(
 
 
 def make_geospace_component(
-    agent_portrayal,
+    agent_portrayal=None,
     view=None,
     tiles=xyzservices.providers.OpenStreetMap.Mapnik,
+    *,
+    raster_portrayal=None,
     **kwargs,
 ):
     """
@@ -130,15 +137,28 @@ def make_geospace_component(
     """
 
     def MakeSpaceMatplotlib(model):
-        return GeoSpaceLeaflet(model, agent_portrayal, view, tiles, **kwargs)
+        return GeoSpaceLeaflet(
+            model,
+            agent_portrayal,
+            view,
+            tiles,
+            raster_portrayal=raster_portrayal,
+            **kwargs,
+        )
 
     return MakeSpaceMatplotlib
 
 
 @solara.component
-def GeoSpaceLeaflet(model, agent_portrayal, view, tiles, **kwargs):
+def GeoSpaceLeaflet(
+    model, agent_portrayal, view, tiles, *, raster_portrayal=None, **kwargs
+):
     update_counter.get()
-    map_drawer = MapModule(portrayal_method=agent_portrayal, tiles=tiles)
+    map_drawer = MapModule(
+        portrayal_method=agent_portrayal,
+        tiles=tiles,
+        raster_portrayal=raster_portrayal,
+    )
     model_view = map_drawer.render(model)
 
     if view is None:
@@ -203,6 +223,8 @@ class MapModule:
         self,
         portrayal_method,
         tiles,
+        *,
+        raster_portrayal=None,
     ):
         """
         Create a new MapModule.
@@ -245,6 +267,7 @@ class MapModule:
                 xyz.MapBox(id="<insert map_ID here>", accessToken="my-private-ACCESS_TOKEN")
         """
         self.portrayal_method = portrayal_method
+        self.raster_portrayal = raster_portrayal
         self._crs = "epsg:4326"
 
         if isinstance(tiles, xyzservices.TileProvider):
@@ -261,30 +284,7 @@ class MapModule:
         layers = {"rasters": [], "vectors": [], "total_bounds": []}
         for layer in model.space.layers:
             if isinstance(layer, RasterBase):
-                if isinstance(layer, RasterLayer):
-                    layer_to_render = layer.to_image(
-                        colormap=self.portrayal_method
-                    ).to_crs(self._crs)
-                else:
-                    layer_to_render = layer.to_crs(self._crs)
-                layers["rasters"].append(
-                    {
-                        "url": image_to_url(
-                            layer_to_render.values.transpose([1, 2, 0])
-                        ),
-                        # longlat [min_x, min_y, max_x, max_y] to latlong [[min_y, min_x], [max_y, max_x]]
-                        "bounds": [
-                            [
-                                layer_to_render.total_bounds[1],
-                                layer_to_render.total_bounds[0],
-                            ],
-                            [
-                                layer_to_render.total_bounds[3],
-                                layer_to_render.total_bounds[2],
-                            ],
-                        ],
-                    }
-                )
+                layers["rasters"].extend(self._render_raster(model, layer))
             elif isinstance(layer, gpd.GeoDataFrame):
                 layers["vectors"].append(
                     layer.to_crs(self._crs)[["geometry"]].__geo_interface__
@@ -300,6 +300,129 @@ class MapModule:
                 [transformed_yy[1], transformed_xx[1]],  # max_y, max_x
             ]
         return layers
+
+    def _render_raster(self, model, layer):
+        """Return the image overlays for a single raster layer."""
+        if self.raster_portrayal is None:
+            if isinstance(layer, RasterLayer):
+                if self.portrayal_method is None:
+                    raise ValueError(
+                        "Cannot render RasterLayer: neither 'raster_portrayal' nor 'agent_portrayal' was provided."
+                    )
+                layer = layer.to_image(colormap=self.portrayal_method)
+            layer_to_render = layer.to_crs(self._crs)
+            return [
+                {
+                    "url": image_to_url(layer_to_render.values.transpose([1, 2, 0])),
+                    "bounds": self._bounds(layer_to_render),
+                }
+            ]
+
+        if not isinstance(layer, RasterLayer):
+            layer_to_render = layer.to_crs(self._crs)
+            return [
+                {
+                    "url": image_to_url(layer_to_render.values.transpose([1, 2, 0])),
+                    "bounds": self._bounds(layer_to_render),
+                }
+            ]
+
+        name_lookup = getattr(model.space, "_name_for_layer", lambda _: None)
+        return self._render_bands(layer, name_lookup(layer))
+
+    def _get_style(self, layer_name, band_name):
+        if callable(self.raster_portrayal):
+            style = self.raster_portrayal(layer_name, band_name)
+        elif isinstance(self.raster_portrayal, PropertyLayerStyle):
+            style = self.raster_portrayal
+        else:
+            raise TypeError(
+                f"'raster_portrayal' must be a callable (layer_name, band_name) -> PropertyLayerStyle | None "
+                f"or a PropertyLayerStyle instance, got {type(self.raster_portrayal).__name__}."
+            )
+
+        if style is not None and not isinstance(style, PropertyLayerStyle):
+            raise TypeError(
+                f"Portrayal for band {band_name!r} of layer {layer_name!r} must be a PropertyLayerStyle or None, "
+                f"got {type(style).__name__}."
+            )
+        return style
+
+    def _render_bands(self, layer, layer_name):
+        overlays = []
+        # _data is a dict, so band order is insertion order; _attributes is a
+        # set and would give an arbitrary z-order.
+        for band_name in layer._data:
+            style = self._get_style(layer_name, band_name)
+            if style is None:
+                continue
+
+            if getattr(style, "colorbar", False) and not _COLORBAR_STATE["warned"]:
+                warnings.warn(
+                    "PropertyLayerStyle.colorbar is not supported by the Leaflet "
+                    "renderer and is ignored.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+                _COLORBAR_STATE["warned"] = True
+
+            # Read _data directly; get_band() would copy the whole array.
+            rgba = self._band_rgba(layer._data[band_name], style)
+            if rgba is None:
+                continue
+
+            layer_to_render = ImageLayer(
+                values=rgba.transpose([2, 0, 1]),
+                crs=layer.crs,
+                total_bounds=layer.total_bounds,
+            ).to_crs(self._crs)
+            values = layer_to_render.values.transpose([1, 2, 0])
+            overlays.append(
+                {
+                    "url": image_to_url((np.clip(values, 0, 1) * 255).astype(np.uint8)),
+                    "bounds": self._bounds(layer_to_render),
+                }
+            )
+        return overlays
+
+    @staticmethod
+    def _band_rgba(data, style):
+        """Colour one band, or return None when there is nothing to draw."""
+        if np.all(np.isnan(data)):
+            return None
+
+        # Deliberate divergence from core: use `is not None` rather than a truthiness
+        # check (core's `if portrayal.vmin`), so that `vmin=0` is preserved and not auto-ranged.
+        vmin = style.vmin if style.vmin is not None else np.nanmin(data)
+        vmax = style.vmax if style.vmax is not None else np.nanmax(data)
+        if not np.isfinite(vmin) or not np.isfinite(vmax):
+            return None
+
+        norm = colors.Normalize(vmin=vmin, vmax=vmax)
+        if style.colormap:
+            cmap = style.colormap
+            if isinstance(cmap, str):
+                cmap = colormaps[cmap]
+            rgba = cmap(norm(data))
+            rgba[..., 3] *= style.alpha
+        else:
+            red, green, blue, alpha = colors.to_rgba(style.color)
+            rgba = np.zeros((*data.shape, 4))
+            rgba[..., :3] = (red, green, blue)
+            # When vmin == vmax, the alpha ramp is meaningless, so use full alpha
+            ramp = np.ones_like(data, dtype=float) if vmin == vmax else norm(data)
+            rgba[..., 3] = alpha * ramp * style.alpha
+
+        rgba[np.isnan(data), 3] = 0.0
+        return np.clip(rgba, 0, 1)
+
+    @staticmethod
+    def _bounds(layer):
+        # longlat [min_x, min_y, max_x, max_y] to latlong [[min_y, min_x], [max_y, max_x]]
+        return [
+            [layer.total_bounds[1], layer.total_bounds[0]],
+            [layer.total_bounds[3], layer.total_bounds[2]],
+        ]
 
     def _get_marker(self, location, properties):
         """

@@ -27,5 +27,9 @@ def test_geospace_component(mocker):
     )
     # should call default method with class instance and agent portrayal
     mock_geospace_component.assert_called_with(
-        model, agent_portrayal, None, xyzservices.providers.OpenStreetMap.Mapnik
+        model,
+        agent_portrayal,
+        None,
+        xyzservices.providers.OpenStreetMap.Mapnik,
+        raster_portrayal=None,
     )
