@@ -6,6 +6,7 @@ and legacy-path byte-identity.
 """
 
 import base64
+import warnings
 from io import BytesIO
 
 import geopandas as gpd
@@ -723,3 +724,189 @@ class TestVectorColorNormalization:
         style = out["agents"][0]["features"][0]["properties"]["style"]
         assert style["color"] is None
         assert style["fillColor"] == "transparent"
+
+
+class TestColormapResolution:
+    """Colormap values are resolved to a Colormap where the style is validated."""
+
+    def test_tuple_renders_identically_to_list(self):
+        data = np.array([[10.0, 20.0], [30.0, 40.0]])
+        model_list, _ = _make_model_with_raster(data, band_name="val")
+        model_tuple, _ = _make_model_with_raster(data, band_name="val")
+
+        as_list = _render_rasters(
+            model_list,
+            PropertyLayerStyle(colormap=["#ff0000", "#0000ff"], vmin=0, vmax=100),
+        )
+        as_tuple = _render_rasters(
+            model_tuple,
+            PropertyLayerStyle(colormap=("#ff0000", "#0000ff"), vmin=0, vmax=100),
+        )
+        assert as_list[0]["url"] == as_tuple[0]["url"]
+
+    @pytest.mark.parametrize("colormap", [[], (), ""])
+    def test_empty_colormap_raises_type_error(self, colormap):
+        data = np.array([[10.0, 20.0], [30.0, 40.0]])
+        model, _ = _make_model_with_raster(data, band_name="val")
+        style = PropertyLayerStyle(colormap=colormap, vmin=0, vmax=100)
+
+        with pytest.raises(TypeError, match="non-empty sequence of colors"):
+            _render_rasters(model, style)
+
+    @pytest.mark.parametrize("colormap", [5, {"a": 1}])
+    def test_unrecognised_colormap_raises_type_error(self, colormap):
+        data = np.array([[10.0, 20.0], [30.0, 40.0]])
+        model, _ = _make_model_with_raster(data, band_name="val")
+        style = PropertyLayerStyle(colormap=colormap, vmin=0, vmax=100)
+
+        with pytest.raises(TypeError, match="Invalid 'colormap' for band 'val'"):
+            _render_rasters(model, style)
+
+    def test_unregistered_colormap_instance_renders(self):
+        data = np.array([[10.0, 20.0], [30.0, 40.0]])
+        model, _ = _make_model_with_raster(data, band_name="val")
+        cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
+            "unregistered", ["red", "blue"]
+        )
+
+        rasters = _render_rasters(
+            model, PropertyLayerStyle(colormap=cmap, vmin=0, vmax=100)
+        )
+        decoded = _decode_data_url_to_rgba(rasters[0]["url"])
+        expected = (np.array(cmap(0.1)) * 255).astype(np.uint8)
+        assert decoded[0, 0, 0] == expected[0]
+        assert decoded[0, 0, 2] == expected[2]
+
+
+class TestVminVmaxOrdering:
+    """Inverted normalization bounds fail loudly instead of blanking the map."""
+
+    def test_vmin_greater_than_vmax_raises(self):
+        data = np.array([[10.0, 20.0], [30.0, 40.0]])
+        model, _ = _make_model_with_raster(data, band_name="val")
+        style = PropertyLayerStyle(colormap="viridis", vmin=10, vmax=0)
+
+        with pytest.raises(ValueError, match=r"'vmin' \(10\).*'vmax' \(0\)"):
+            _render_rasters(model, style)
+
+    def test_equal_bounds_still_render(self):
+        data = np.array([[10.0, 10.0], [10.0, 10.0]])
+        model, _ = _make_model_with_raster(data, band_name="val")
+
+        rasters = _render_rasters(
+            model, PropertyLayerStyle(colormap="viridis", vmin=10, vmax=10)
+        )
+        assert len(rasters) == 1
+
+
+class TestMissingAgentPortrayalWarns:
+    """A space with agents and no agent_portrayal warns once, not silently."""
+
+    @pytest.fixture(autouse=True)
+    def _reset_warned_state(self):
+        gc._AGENT_PORTRAYAL_STATE["warned"] = False
+        yield
+        gc._AGENT_PORTRAYAL_STATE["warned"] = False
+
+    @staticmethod
+    def _model_with_agent():
+        model = mesa.Model()
+        model.space = mg.GeoSpace(crs="epsg:4326")
+        creator = mg.AgentCreator(agent_class=mg.GeoAgent, model=model, crs="epsg:4326")
+        model.space.add_agents([creator.create_agent(Point(1.0, 2.0))])
+        return model
+
+    def test_warns_when_agents_present_and_no_portrayal(self):
+        model = self._model_with_agent()
+        mm = MapModule(portrayal_method=None, tiles=xyz.OpenStreetMap.Mapnik)
+
+        with pytest.warns(UserWarning, match="no 'agent_portrayal' was provided"):
+            mm.render(model)
+
+    def test_warns_once_across_renders(self):
+        model = self._model_with_agent()
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            for _ in range(3):
+                MapModule(portrayal_method=None, tiles=xyz.OpenStreetMap.Mapnik).render(
+                    model
+                )
+            relevant = [w for w in caught if "agent_portrayal" in str(w.message)]
+        assert len(relevant) == 1
+
+    def test_no_warning_when_space_has_no_agents(self):
+        data = np.array([[10.0, 20.0], [30.0, 40.0]])
+        model, _ = _make_model_with_raster(data, band_name="val")
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            _render_rasters(model, PropertyLayerStyle(colormap="viridis"))
+            relevant = [w for w in caught if "agent_portrayal" in str(w.message)]
+        assert relevant == []
+
+    def test_no_warning_when_portrayal_given(self):
+        model = self._model_with_agent()
+        mm = MapModule(
+            portrayal_method=lambda _: {"color": "red"},
+            tiles=xyz.OpenStreetMap.Mapnik,
+        )
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            mm.render(model)
+            relevant = [w for w in caught if "agent_portrayal" in str(w.message)]
+        assert relevant == []
+
+
+class TestMarkerAlphaRouting:
+    """Marker alpha travels as opacity; the GeoJSON path keeps 8-digit hex."""
+
+    @staticmethod
+    def _render_marker(portrayal):
+        model = mesa.Model()
+        model.space = mg.GeoSpace(crs="epsg:4326")
+        creator = mg.AgentCreator(agent_class=mg.GeoAgent, model=model, crs="epsg:4326")
+        model.space.add_agents([creator.create_agent(Point(1.0, 2.0))])
+        mm = MapModule(
+            portrayal_method=lambda _: portrayal, tiles=xyz.OpenStreetMap.Mapnik
+        )
+        return mm.render(model)["agents"][1][0]
+
+    def test_translucent_color_split_into_opacity(self):
+        marker = self._render_marker(
+            {
+                "marker_type": "Circle",
+                "color": "#ff000080",
+                "fillColor": (0.0, 0.0, 1.0, 0.25),
+            }
+        )
+        assert marker.color == "#ff0000"
+        assert marker.opacity == pytest.approx(128 / 255)
+        assert marker.fill_color == "#0000ff"
+        assert marker.fill_opacity == pytest.approx(0.25)
+
+    def test_opaque_color_leaves_opacity_at_default(self):
+        marker = self._render_marker({"marker_type": "Circle", "color": "red"})
+        assert marker.color == "#ff0000"
+        assert marker.opacity == 1.0
+
+    def test_explicit_opacity_not_overridden(self):
+        marker = self._render_marker(
+            {"marker_type": "Circle", "color": "#ff000080", "opacity": 0.9}
+        )
+        assert marker.opacity == pytest.approx(0.9)
+
+    def test_geojson_path_keeps_eight_digit_hex(self):
+        model = mesa.Model()
+        model.space = mg.GeoSpace(crs="epsg:4326")
+        creator = mg.AgentCreator(agent_class=mg.GeoAgent, model=model, crs="epsg:4326")
+        model.space.add_agents(
+            [creator.create_agent(Polygon([(0, 0), (1, 0), (1, 1), (0, 0)]))]
+        )
+        mm = MapModule(
+            portrayal_method=lambda _: {"fillColor": (0.0, 1.0, 0.0, 0.5)},
+            tiles=xyz.OpenStreetMap.Mapnik,
+        )
+        style = mm.render(model)["agents"][0]["features"][0]["properties"]["style"]
+        assert style["fillColor"] == "#00ff0080"

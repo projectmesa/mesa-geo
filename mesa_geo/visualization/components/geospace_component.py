@@ -16,6 +16,10 @@ from shapely.geometry import Point, mapping
 from mesa_geo.raster_layers import ImageLayer, RasterBase, RasterLayer
 from mesa_geo.tile_layers import LeafletOption, RasterWebTile
 
+# Module-level rather than per-instance: GeoSpaceLeaflet builds a fresh MapModule
+# on every render, so instance state would warn once per simulation step.
+_AGENT_PORTRAYAL_STATE = {"warned": False}
+
 
 def make_geospace_leaflet(
     agent_portrayal,
@@ -312,14 +316,37 @@ class _RasterRenderer:
                 f"Portrayal for band {band_name!r} of layer {layer_name!r} must be a PropertyLayerStyle or None, "
                 f"got {type(style).__name__}."
             )
-        return style
+        if style is None:
+            return None, None
+        if style.colormap is None:
+            return style, None
+        return style, self._resolve_colormap(style.colormap, layer_name, band_name)
+
+    @staticmethod
+    def _resolve_colormap(colormap, layer_name, band_name):
+        """Return *colormap* as a :class:`matplotlib.colors.Colormap`.
+
+        Accepts a registered colormap name, a ``Colormap`` instance, or a
+        non-empty sequence of colors. Raises :class:`TypeError` otherwise.
+        """
+        if isinstance(colormap, colors.Colormap):
+            return colormap
+        if isinstance(colormap, str) and colormap:
+            return colormaps[colormap]
+        if isinstance(colormap, (list, tuple)) and len(colormap):
+            return colors.LinearSegmentedColormap.from_list("custom_cmap", colormap)
+        raise TypeError(
+            f"Invalid 'colormap' for band {band_name!r} of layer {layer_name!r}: {colormap!r}. "
+            f"Expected a registered colormap name, a matplotlib Colormap instance, "
+            f"or a non-empty sequence of colors."
+        )
 
     def _render_bands(self, layer, layer_name):
         overlays = []
         # _data is a dict, so band order is insertion order; _attributes is a
         # set and would give an arbitrary z-order.
         for band_name in layer._data:
-            style = self._get_style(layer_name, band_name)
+            style, cmap = self._get_style(layer_name, band_name)
             if style is None:
                 continue
 
@@ -327,7 +354,7 @@ class _RasterRenderer:
             # cells so runtime mutations in model.step() are reflected.
             # (_data is only a construction-time snapshot until PR #332 lands).
             data = layer.get_band(band_name)
-            rgba = self._band_rgba(data, style)
+            rgba = self._band_rgba(data, style, cmap)
             if rgba is None:
                 continue
 
@@ -346,7 +373,7 @@ class _RasterRenderer:
         return overlays
 
     @staticmethod
-    def _band_rgba(data, style):
+    def _band_rgba(data, style, cmap=None):
         """Colour one band, or return None when there is nothing to draw."""
         if np.all(np.isnan(data)):
             return None
@@ -357,14 +384,13 @@ class _RasterRenderer:
         vmax = style.vmax if style.vmax is not None else np.nanmax(data)
         if not np.isfinite(vmin) or not np.isfinite(vmax):
             return None
+        if vmin > vmax:
+            raise ValueError(
+                f"'vmin' ({vmin}) must be less than or equal to 'vmax' ({vmax})."
+            )
 
         norm = colors.Normalize(vmin=vmin, vmax=vmax)
-        if style.colormap:
-            cmap = style.colormap
-            if isinstance(cmap, str):
-                cmap = colormaps[cmap]
-            elif isinstance(cmap, list):
-                cmap = colors.LinearSegmentedColormap.from_list("custom_cmap", cmap)
+        if cmap is not None:
             rgba = cmap(norm(data))
             rgba[..., 3] *= style.alpha
         else:
@@ -417,6 +443,22 @@ class _VectorRenderer:
         except (ValueError, TypeError):
             return value
 
+    @staticmethod
+    def _split_alpha(value):
+        """Split a color specification into an opaque hex color and its alpha.
+
+        Returns ``(color, alpha)``, where *alpha* is ``None`` when the color is
+        fully opaque or cannot be parsed by matplotlib.
+        """
+        if value is None:
+            return None, None
+        try:
+            rgba = colors.to_rgba(value)
+        except (ValueError, TypeError):
+            return value, None
+        alpha = float(rgba[3])
+        return colors.to_hex(rgba, keep_alpha=False), None if alpha >= 1.0 else alpha
+
     def render_layer(self, layer):
         """Render a GeoDataFrame layer to geo_interface."""
         return layer.to_crs(self._crs)[["geometry"]].__geo_interface__
@@ -445,12 +487,17 @@ class _VectorRenderer:
 
         """
         properties = dict(properties)
-        for key in ("color", "fillColor", "fill_color"):
-            if key in properties:
-                properties[key] = self._css_color(properties[key])
-
         if "fillColor" in properties and "fill_color" not in properties:
             properties["fill_color"] = properties.pop("fillColor")
+
+        # ipyleaflet colours go through a traitlets Color trait, which rejected
+        # 8-digit hex before ipywidgets 8.1; carry alpha as an opacity instead.
+        for key, opacity_key in (("color", "opacity"), ("fill_color", "fill_opacity")):
+            if key in properties:
+                color, alpha = self._split_alpha(properties[key])
+                properties[key] = color
+                if alpha is not None and opacity_key not in properties:
+                    properties[opacity_key] = alpha
 
         marker = properties.pop("marker_type", "Circle")
         if marker == "Circle" and "radius" not in properties:
@@ -482,6 +529,19 @@ class _VectorRenderer:
             )
 
     def render_agents(self, agents, transformer):
+        if (
+            self.agent_portrayal is None
+            and len(agents)
+            and not _AGENT_PORTRAYAL_STATE["warned"]
+        ):
+            warnings.warn(
+                f"The space has {len(agents)} agent(s) but no 'agent_portrayal' was "
+                f"provided, so no agents will be drawn. Pass 'agent_portrayal' to draw them.",
+                UserWarning,
+                stacklevel=2,
+            )
+            _AGENT_PORTRAYAL_STATE["warned"] = True
+
         feature_collection = {"type": "FeatureCollection", "features": []}
         point_markers = []
         agent_portrayal = {}
@@ -493,9 +553,6 @@ class _VectorRenderer:
                 agent_portrayal = LeafletViz(
                     popupProperties=properties.pop("description", None)
                 )
-                for key in ("color", "fillColor", "fill_color"):
-                    if key in properties:
-                        properties[key] = self._css_color(properties[key])
 
                 if isinstance(agent.geometry, Point):
                     location = mapping(transformed_geometry)
@@ -503,6 +560,10 @@ class _VectorRenderer:
                     location = (location["coordinates"][1], location["coordinates"][0])
                     point_markers.append(self._get_marker(location, properties))
                 else:
+                    for key in ("color", "fillColor", "fill_color"):
+                        if key in properties:
+                            properties[key] = self._css_color(properties[key])
+
                     if "fill_color" in properties and "fillColor" not in properties:
                         properties["fillColor"] = properties.pop("fill_color")
                     agent_portrayal.style = properties
