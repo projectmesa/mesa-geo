@@ -23,7 +23,7 @@ from shapely.geometry import Point, Polygon
 
 import mesa_geo as mg
 import mesa_geo.visualization.components.geospace_component as gc
-from mesa_geo.raster_layers import RasterLayer
+from mesa_geo.raster_layers import ImageLayer, RasterLayer
 from mesa_geo.visualization.components.geospace_component import MapModule
 
 # ---- Helpers ----
@@ -912,3 +912,156 @@ class TestMarkerAlphaRouting:
         )
         style = mm.render(model)["agents"][0]["features"][0]["properties"]["style"]
         assert style["fillColor"] == "#00ff0080"
+
+
+class TestReprojectedRasterPixelExact:
+    """The uint8 cast must happen after to_crs, which discards earlier casts."""
+
+    @staticmethod
+    def _mercator_model(data):
+        model = mesa.Model()
+        model.space = mg.GeoSpace(crs="epsg:3857", warn_crs_conversion=False)
+        h, w = data.shape
+        layer = RasterLayer(
+            w,
+            h,
+            crs="epsg:3857",
+            total_bounds=[0, 0, 1_000_000, 1_000_000],
+            model=model,
+        )
+        layer.set_band("val", data)
+        model.space.add_layer(layer, name="merc")
+        return model, layer
+
+    def test_reprojected_render_matches_cast_after_warp(self):
+        data = np.array([[0.0, 25.0, 50.0], [75.0, 100.0, 10.0], [90.0, 40.0, 60.0]])
+        model, layer = self._mercator_model(data)
+        style = PropertyLayerStyle(colormap="viridis", vmin=0, vmax=100, alpha=0.8)
+
+        rasters = _render_rasters(model, style)
+        assert len(rasters) == 1
+        decoded = _decode_data_url_to_rgba(rasters[0]["url"])
+
+        cmap = matplotlib.colormaps["viridis"]
+        norm = matplotlib.colors.Normalize(vmin=0, vmax=100)
+        rgba = cmap(norm(layer.get_band("val")))
+        rgba[..., 3] *= style.alpha
+        warped = ImageLayer(
+            values=np.clip(rgba, 0, 1).transpose([2, 0, 1]),
+            crs=layer.crs,
+            total_bounds=layer.total_bounds,
+        ).to_crs("epsg:4326")
+        expected = (np.clip(warped.values.transpose([1, 2, 0]), 0, 1) * 255).astype(
+            np.uint8
+        )
+
+        np.testing.assert_array_equal(decoded, expected)
+
+    def test_reprojection_actually_warped(self):
+        """Guard the guard: a no-op transform would make the test above vacuous."""
+        data = np.array([[0.0, 50.0], [100.0, 25.0]])
+        model, _ = self._mercator_model(data)
+
+        rasters = _render_rasters(
+            model, PropertyLayerStyle(colormap="viridis", vmin=0, vmax=100)
+        )
+        bounds = rasters[0]["bounds"]
+        assert bounds != [[0, 0], [1_000_000, 1_000_000]]
+        assert -90 < bounds[0][0] < 90
+        assert -180 < bounds[0][1] < 180
+
+
+class TestMarkerOverridePoint:
+    """MapModule._get_marker stays an override point after the renderer split."""
+
+    @staticmethod
+    def _model_with_point():
+        model = mesa.Model()
+        model.space = mg.GeoSpace(crs="epsg:4326")
+        creator = mg.AgentCreator(agent_class=mg.GeoAgent, model=model, crs="epsg:4326")
+        model.space.add_agents([creator.create_agent(Point(1.0, 2.0))])
+        return model
+
+    def test_subclass_override_is_called(self):
+        class SentinelError(Exception):
+            pass
+
+        class OverridingMap(MapModule):
+            def _get_marker(self, location, properties):
+                raise SentinelError
+
+        mm = OverridingMap(
+            portrayal_method=lambda _: {"color": "red"},
+            tiles=xyz.OpenStreetMap.Mapnik,
+        )
+        with pytest.raises(SentinelError):
+            mm.render(self._model_with_point())
+
+    def test_subclass_can_extend_default(self):
+        class TitledMap(MapModule):
+            def _get_marker(self, location, properties):
+                marker = super()._get_marker(location, properties)
+                marker.title = "custom"
+                return marker
+
+        mm = TitledMap(
+            portrayal_method=lambda _: {"color": "red"},
+            tiles=xyz.OpenStreetMap.Mapnik,
+        )
+        marker = mm.render(self._model_with_point())["agents"][1][0]
+        assert marker.title == "custom"
+        assert marker.color == "#ff0000"
+
+
+class TestCircleRadiusDefault:
+    """radius=5 is defaulted only when the caller named no marker type."""
+
+    @staticmethod
+    def _render_marker(portrayal):
+        model = mesa.Model()
+        model.space = mg.GeoSpace(crs="epsg:4326")
+        creator = mg.AgentCreator(agent_class=mg.GeoAgent, model=model, crs="epsg:4326")
+        model.space.add_agents([creator.create_agent(Point(1.0, 2.0))])
+        mm = MapModule(
+            portrayal_method=lambda _: portrayal, tiles=xyz.OpenStreetMap.Mapnik
+        )
+        return mm.render(model)["agents"][1][0]
+
+    def test_absent_marker_type_gets_radius_five(self):
+        assert self._render_marker({"color": "red"}).radius == 5
+
+    def test_explicit_circle_keeps_ipyleaflet_default(self):
+        marker = self._render_marker({"marker_type": "Circle", "color": "red"})
+        assert marker.radius == ipyleaflet.Circle().radius
+
+    def test_explicit_radius_is_honoured(self):
+        assert self._render_marker({"radius": 12, "color": "red"}).radius == 12
+        assert (
+            self._render_marker(
+                {"marker_type": "Circle", "radius": 12, "color": "red"}
+            ).radius
+            == 12
+        )
+
+
+class TestNoneAndTransparentPassthrough:
+    """'none' and 'transparent' are not interchangeable with #00000000 in Leaflet."""
+
+    @pytest.mark.parametrize("keyword", ["none", "transparent", "None", " none "])
+    def test_css_color_passes_keyword_through(self, keyword):
+        assert gc._VectorRenderer._css_color(keyword) == keyword
+
+    def test_geojson_path_keeps_none(self):
+        model = mesa.Model()
+        model.space = mg.GeoSpace(crs="epsg:4326")
+        creator = mg.AgentCreator(agent_class=mg.GeoAgent, model=model, crs="epsg:4326")
+        model.space.add_agents(
+            [creator.create_agent(Polygon([(0, 0), (1, 0), (1, 1), (0, 0)]))]
+        )
+        mm = MapModule(
+            portrayal_method=lambda _: {"color": "none", "fillColor": "transparent"},
+            tiles=xyz.OpenStreetMap.Mapnik,
+        )
+        style = mm.render(model)["agents"][0]["features"][0]["properties"]["style"]
+        assert style["color"] == "none"
+        assert style["fillColor"] == "transparent"
