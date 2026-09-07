@@ -29,6 +29,14 @@ from mesa_geo.visualization.components.geospace_component import MapModule
 # ---- Helpers ----
 
 
+@pytest.fixture(autouse=True)
+def _reset_agent_portrayal_warned():
+    """Keep the module-level warn-once flag from leaking across tests."""
+    gc._AGENT_PORTRAYAL_STATE["warned"] = False
+    yield
+    gc._AGENT_PORTRAYAL_STATE["warned"] = False
+
+
 def _make_model_with_raster(data, *, crs="epsg:4326", band_name="band0"):
     """Create a Model+GeoSpace+RasterLayer with a single band, CRS 4326 so
     to_crs('epsg:4326') is an identity transform."""
@@ -801,12 +809,6 @@ class TestVminVmaxOrdering:
 
 class TestMissingAgentPortrayalWarns:
     """A space with agents and no agent_portrayal warns once, not silently."""
-
-    @pytest.fixture(autouse=True)
-    def _reset_warned_state(self):
-        gc._AGENT_PORTRAYAL_STATE["warned"] = False
-        yield
-        gc._AGENT_PORTRAYAL_STATE["warned"] = False
 
     @staticmethod
     def _model_with_agent():
